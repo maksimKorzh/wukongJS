@@ -179,10 +179,10 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
           chessBoard += '<td align="center" id="' + square + 
                          '"bgcolor="' + ( ((col + row) % 2) ? DARK_SQUARE : LIGHT_SQUARE) + 
                          '" width="' + CELL_WIDTH + 'px" height="' + CELL_HEIGHT +  'px" ' +
-                         //' onclick="engine.makeMove(this.id)" ' + 
-                         //'ondragstart="engine.dragPiece(event, this.id)" ' +
-                         //'ondragover="engine.dragOver(event, this.id)"'+
-                         //'ondrop="engine.dropPiece(event, this.id)"' +
+                         ' onclick="engine.makeMove(this.id)" ' + 
+                         'ondragstart="engine.dragPiece(event, this.id)" ' +
+                         'ondragover="engine.dragOver(event, this.id)"'+
+                         'ondrop="engine.dropPiece(event, this.id)"' +
                          '></td>'
       }
       
@@ -344,7 +344,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
 
     // draw board initially
     drawBoard();
-    updateBoard();
+    //updateBoard();
     
   }())
 
