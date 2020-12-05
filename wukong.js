@@ -344,7 +344,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
 
     // draw board initially
     drawBoard();
-    //updateBoard();
+    updateBoard();
     
   }())
 
