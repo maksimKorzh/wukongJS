@@ -2,4 +2,4 @@
 A pure JavaScript CHESS ENGINE
 
 # Track progress
-https://maksimkorzh.github.io/wukongJS/
+https://maksimkorzh.github.io/wukongJS/wukong.html
