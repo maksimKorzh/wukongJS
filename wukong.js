@@ -56,7 +56,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
   const a3 = 80,   b3 = 81,   c3 = 82,  d3 = 83,  e3 = 84,  f3 = 85,  g3 = 86,  h3 = 87;
   const a2 = 96,   b2 = 97,   c2 = 98,  d2 = 99,  e2 = 100, f2 = 101, g2 = 102, h2 = 103;
   const a1 = 112,  b1 = 113,  c1 = 114, d1 = 115, e1 = 116, f1 = 117, g1 = 118, h1 = 119;
-  const no_square = 120;
+  const noSquare = 120;
   
   // convert board square indexes to coordinates
   const coordinates = [
@@ -86,7 +86,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
   var side = white;
 
   // enpassant square
-  var enpassant = no_square;
+  var enpassant = noSquare;
 
   // castling rights (dec 15 => bin 1111 => both kings can castle to both sides)
   var castle = 15;
@@ -108,6 +108,8 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
   }
 
 
+  /* TEMP PLACE*/
+
   // decode promoted pieces
   var promotedPieces = {
     [Q]: 'q',
@@ -119,6 +121,191 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     [b]: 'b',
     [n]: 'n'
   };
+  
+  // castling bits
+  const KC = 1, QC = 2, kc = 4, qc = 8;
+
+  // castling rights
+  var castlingRights = [
+     7, 15, 15, 15,  3, 15, 15, 11,  o, o, o, o, o, o, o, o,
+    15, 15, 15, 15, 15, 15, 15, 15,  o, o, o, o, o, o, o, o,
+    15, 15, 15, 15, 15, 15, 15, 15,  o, o, o, o, o, o, o, o,
+    15, 15, 15, 15, 15, 15, 15, 15,  o, o, o, o, o, o, o, o,
+    15, 15, 15, 15, 15, 15, 15, 15,  o, o, o, o, o, o, o, o,
+    15, 15, 15, 15, 15, 15, 15, 15,  o, o, o, o, o, o, o, o,
+    15, 15, 15, 15, 15, 15, 15, 15,  o, o, o, o, o, o, o, o,
+    13, 15, 15, 15, 12, 15, 15, 14,  o, o, o, o, o, o, o, o
+  ];
+  
+
+  /****************************\
+   ============================
+   
+      RANDOM NUMBER GENERATOR
+
+   ============================              
+  \****************************/
+  
+  // pseudo random number state
+  var randomState = 1804289383;
+
+  // generate 32-bit pseudo legal numbers
+  function random() {
+    // get current state
+    var number = randomState;
+    
+    // XOR shift algorithm
+    number ^= number << 13;
+    number ^= number >> 17;
+    number ^= number << 5;
+    
+    // update random number state
+    randomState = number;
+    
+    // return random number
+    return number;
+  }
+
+
+  /****************************\
+   ============================
+   
+           ZOBRIST KEYS
+
+   ============================              
+  \****************************/ 
+ 
+  // random piece keys (piece * square)
+  var pieceKeys = new Array(13 * 128);
+  
+  // random castle keys
+  var castleKeys = new Array(16);
+  
+  // random side key
+  var sideKey;
+  
+  // init random hash keys
+  function initRandomKeys() {
+    // loop over piece codes
+    for (var index = 0; index < 13 * 128; index++)
+      // init random piece keys
+      pieceKeys[index] = random();
+
+    // loop over castling keys
+    for (var index = 0; index < 16; index++)
+      // init castling keys
+      castleKeys[index] = random();
+        
+    // init random side key
+    sideKey = random();
+  }
+  
+  // generate hash key (unique position ID) from scratch
+  function generateHashKey() {
+    // define final hash key
+    var finalKey = 0;
+    
+    // loop over board squares
+    for(var square = 0; square < 128; square++) {
+	    // make sure square is on board
+	    if ((square & 0x88) == 0)	{
+	      // init piece
+	      var piece = board[square];
+      
+          // if piece available
+          if (piece != e)
+            // hash piece
+            finalKey ^= pieceKeys[(piece * 128) + square];
+	    }		
+    }
+
+    // if white to move
+    if (side == white)
+      // hash side 
+      finalKey ^= sideKey;
+
+    // if enpassant is available
+    if (enpassant != noSquare)
+      // hash enpassant square
+      final_key ^= piece_keys[enpassant];
+
+    // hash castling rights
+    finalKey ^= castleKeys[castle];
+
+    // return final hash key (unique position ID)
+    return finalKey;
+  }
+
+
+  /****************************\
+   ============================
+   
+           BOARD METHODS
+
+   ============================              
+  \****************************/
+  
+  // unicode piece representation
+  const unicodePieces = [
+    // use dot for empty squares 
+    '.',
+    
+    //  ♙         ♘         ♗         ♖         ♕         ♔  
+    '\u2659', '\u2658', '\u2657', '\u2656', '\u2655', '\u2654',
+    
+    //  ♟︎         ♞         ♝         ♜         ♛         ♚
+    '\u265F', '\u265E', '\u265D', '\u265C', '\u265B', '\u265A'
+  ];
+  
+  // print chess board to console
+  function printBoard() {
+    // chess board string
+    var boardString = '';
+    
+    // loop over board ranks
+    for (var rank = 0; rank < 8; rank++) {
+      // loop over board files
+      for (var file = 0; file < 16; file++) {
+        // convert file & rank to square
+        var square = rank * 16 + file;
+        
+        // print ranks
+        if (file == 0)
+          boardString += '   ' + (8 - rank).toString() + ' ';
+        
+        // make sure that the square is on board
+        if ((square & 0x88) == 0)
+        {
+          // init piece
+          var piece = board[square];
+          
+          // append pieces to board string
+          boardString += unicodePieces[piece] + ' ';
+        }
+      }
+      
+      // append new line to chess board
+      boardString += '\n'
+    }
+    
+    // append files to board string
+    boardString += '     a b c d e f g h';
+    
+    // append board state variables
+    boardString += '\n\n     Side:     ' + ((side == 0) ? 'white': 'black');
+    boardString += '\n     Castling:  ' + ((castle & KC) ? 'K' : '-') + 
+                                        ((castle & QC) ? 'Q' : '-') +
+                                        ((castle & kc) ? 'k' : '-') +
+                                        ((castle & qc) ? 'q' : '-');
+                                        
+    boardString += '\n     Ep:          ' + ((enpassant == noSquare) ? 'no': coordinates[enpassant]);
+    boardString += '\n\n     50 moves:    ' + fifty; 
+    boardString += '\n     Key: ' + hash_key;
+    
+    // print board string to console
+    console.log(boardString + '\n');
+  }
+
 
   /****************************\
    ============================
@@ -128,203 +315,208 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
    ============================              
   \****************************/
   
-  // board appearence
-  var LIGHT_SQUARE = '#f0d9b5';
-  var DARK_SQUARE = '#b58863';
-  var SELECT_COLOR = 'brown';
+  if (typeof(document) != 'undefined') { 
+    // board appearence
+    var LIGHT_SQUARE = '#f0d9b5';
+    var DARK_SQUARE = '#b58863';
+    var SELECT_COLOR = 'brown';
 
-  // board square size
-  var CELL_WIDTH = 50;
-  var CELL_HEIGHT = 50;
-  
-  // override board size
-  if (boardSize) {
-    CELL_WIDTH = boardSize / 8;
-    CELL_HEIGHT = boardSize / 8;
-  }
-  
-  // override board appearence settings
-  if (lightSquare) LIGHT_SQUARE = lightSquare;
-  if (darkSquare) DARK_SQUARE = darkSquare;
-  if (selectColor) SELECT_COLOR = selectColor;
+    // board square size
+    var CELL_WIDTH = 50;
+    var CELL_HEIGHT = 50;
     
-  // variable to check click-on-piece state
-  var clickLock = 0;
-
-  // user input variables
-  var userSource, userTarget;
-
-  function drawBoard() {
-    // create project title
-    var chessBoard = '<h4 style="text-align: center; position: relative; top: 10px;">' +
-                       'Wukong CHESS ENGINE v' + VERSION +
-                     '</h4>';
+    // override board size
+    if (boardSize) {
+      CELL_WIDTH = boardSize / 8;
+      CELL_HEIGHT = boardSize / 8;
+    }
     
-    // create HTML rable tag
-    chessBoard += '<table align="center" cellspacing="0" style="border: 1px solid black">';
-    
-    // loop over board rows
-    for (var row = 0; row < 8; row++) {
-      // create table row
-      chessBoard += '<tr>'
+    // override board appearence settings
+    if (lightSquare) LIGHT_SQUARE = lightSquare;
+    if (darkSquare) DARK_SQUARE = darkSquare;
+    if (selectColor) SELECT_COLOR = selectColor;
       
-      // loop over board columns
-      for (var col = 0; col < 16; col++) {
-        // init square
-        var square = row * 16 + col;
+    // variable to check click-on-piece state
+    var clickLock = 0;
+
+    // user input variables
+    var userSource, userTarget;
+
+    function drawBoard() {
+      // create project title
+      var chessBoard = '<h4 style="text-align: center; position: relative; top: 10px;">' +
+                         'Wukong CHESS ENGINE v' + VERSION +
+                       '</h4>';
+      
+      // create HTML rable tag
+      chessBoard += '<table align="center" cellspacing="0" style="border: 1px solid black">';
+      
+      // loop over board rows
+      for (var row = 0; row < 8; row++) {
+        // create table row
+        chessBoard += '<tr>'
         
-        // make sure square is on board
-        if ((square & 0x88) == 0)
-          // create table cell
-          chessBoard += '<td align="center" id="' + square + 
-                         '"bgcolor="' + ( ((col + row) % 2) ? DARK_SQUARE : LIGHT_SQUARE) + 
-                         '" width="' + CELL_WIDTH + 'px" height="' + CELL_HEIGHT +  'px" ' +
-                         ' onclick="engine.makeMove(this.id)" ' + 
-                         'ondragstart="engine.dragPiece(event, this.id)" ' +
-                         'ondragover="engine.dragOver(event, this.id)"'+
-                         'ondrop="engine.dropPiece(event, this.id)"' +
-                         '></td>'
+        // loop over board columns
+        for (var col = 0; col < 16; col++) {
+          // init square
+          var square = row * 16 + col;
+          
+          // make sure square is on board
+          if ((square & 0x88) == 0)
+            // create table cell
+            chessBoard += '<td align="center" id="' + square + 
+                           '"bgcolor="' + ( ((col + row) % 2) ? DARK_SQUARE : LIGHT_SQUARE) + 
+                           '" width="' + CELL_WIDTH + 'px" height="' + CELL_HEIGHT +  'px" ' +
+                           ' onclick="engine.makeMove(this.id)" ' + 
+                           'ondragstart="engine.dragPiece(event, this.id)" ' +
+                           'ondragover="engine.dragOver(event, this.id)"'+
+                           'ondrop="engine.dropPiece(event, this.id)"' +
+                           '></td>'
+        }
+        
+        // close table row tag
+        chessBoard += '</tr>'
       }
       
-      // close table row tag
-      chessBoard += '</tr>'
+      // close div tag
+      chessBoard += '</table>';
+      
+      // render chess board to screen
+      document.getElementById('chessboard').innerHTML = chessBoard;
     }
-    
-    // close div tag
-    chessBoard += '</table>';
-    
-    // render chess board to screen
-    document.getElementById('chessboard').innerHTML = chessBoard;
-  }
 
-  // update board position (draw pieces)
-  function updateBoard() {
-    // loop over board rows
-    for (var row = 0; row < 8; row++) {
-      // loop over board columns
-      for (var col = 0; col < 16; col++) {
-        // init square
-        var square = row * 16 + col;
-        
-        // make sure square is on board
-        if ((square & 0x88) == 0)
-          // draw pieces
-          document.getElementById(square).innerHTML = '<img style="width: ' + 
-                                                       (boardSize ? boardSize / 8: 400 / 8) + 
-                                                      'px" draggable="true" id="' + 
-                                                       board[square] + '" src ="Images/' + 
-                                                      (board[square]) +'.gif">';
+    // update board position (draw pieces)
+    function updateBoard() {
+      // loop over board rows
+      for (var row = 0; row < 8; row++) {
+        // loop over board columns
+        for (var col = 0; col < 16; col++) {
+          // init square
+          var square = row * 16 + col;
+          
+          // make sure square is on board
+          if ((square & 0x88) == 0)
+            // draw pieces
+            document.getElementById(square).innerHTML = '<img style="width: ' + 
+                                                         (boardSize ? boardSize / 8: 400 / 8) + 
+                                                        'px" draggable="true" id="' + 
+                                                         board[square] + '" src ="Images/' + 
+                                                        (board[square]) +'.gif">';
+        }
       }
     }
-  }
-  
-  // pick piece
-  function dragPiece(event, square) {
-    // init source square
-    userSource = square;
-  }
-  
-  // drag piece
-  function dragOver(event, square) {        
-    // needed to allow drop
-    event.preventDefault();
-
-    // erase source image of dragged piece
-    if (square == userSource)
-      event.target.src = 'Images/0.gif';
-  }
-  
-  // drop piece
-  function dropPiece(event, square) {
-    // init target square
-    userTarget = square;
-
-    // move piece
-    movePiece(square);    
     
-    // highlight square
-    if (board[square])
-      document.getElementById(square).style.backgroundColor = SELECT_COLOR;
-    
-    // do not open image file in the tab
-    event.preventDefault();
-  }
-  
-  function tapPiece(square) {
-    // update board
-    drawBoard();
-    updateBoard();
-    
-    // highlight square if piece is on it
-    if (board[square])
-      document.getElementById(square).style.backgroundColor = SELECT_COLOR;
-  
-    // convert div ID to square index
-    var clickSquare = parseInt(square, 10)
-    
-    // if user clicks on source square 
-    if(!clickLock && board[clickSquare]) {      
-      // init user source square
-      userSource = clickSquare;
-      
-      // lock click
-      clickLock ^= 1;
+    // pick piece
+    function dragPiece(event, square) {
+      // init source square
+      userSource = square;
     }
     
-    // if user clicks on destination square
-    else if(clickLock) {      
-      // init user target square
-      userTarget = clickSquare;
-      
-      // make move on GUI board
-      movePiece(square);
+    // drag piece
+    function dragOver(event, square) {        
+      // needed to allow drop
+      event.preventDefault();
+
+      // erase source image of dragged piece
+      if (square == userSource)
+        event.target.src = 'Images/0.gif';
     }
-  }
-  
-  function movePiece(square) {
-    // promoted piece
-    var promotedPiece = Q;
-        
-    // make move on internal board
-    let move_str = coordinates[userSource] + 
-                   coordinates[userTarget] + 
-                   promotedPieces[promotedPiece];
     
-    // move to make
-    /*var valid_move  = is_valid(move_str);
+    // drop piece
+    function dropPiece(event, square) {
+      // init target square
+      userTarget = square;
+
+      // move piece
+      movePiece(square);    
+      
+      // highlight square
+      if (board[square])
+        document.getElementById(square).style.backgroundColor = SELECT_COLOR;
+      
+      // do not open image file in the tab
+      event.preventDefault();
+    }
     
-    // if move is valid
-    if (valid_move) {
-      // push first move into move stack
-      if (move_stack.count == 0) push_move(valid_move);
-      
-      // make move on internal board
-      makeMove(valid_move, all_moves);
-      
-      // push move into move stack
-      pushMove(valid_move);
-      
+    function tapPiece(square) {
       // update board
+      drawBoard();
       updateBoard();
-    }*/
+      
+      // highlight square if piece is on it
+      if (board[square])
+        document.getElementById(square).style.backgroundColor = SELECT_COLOR;
     
-    board[userTarget] = board[userSource];
-    board[userSource] = e;
+      // convert div ID to square index
+      var clickSquare = parseInt(square, 10)
+      
+      // if user clicks on source square 
+      if(!clickLock && board[clickSquare]) {      
+        // init user source square
+        userSource = clickSquare;
+        
+        // lock click
+        clickLock ^= 1;
+      }
+      
+      // if user clicks on destination square
+      else if(clickLock) {      
+        // init user target square
+        userTarget = clickSquare;
+        
+        // make move on GUI board
+        movePiece(square);
+      }
+    }
+    
+    function movePiece(square) {
+      // promoted piece
+      var promotedPiece = Q;
+          
+      // make move on internal board
+      let move_str = coordinates[userSource] + 
+                     coordinates[userTarget] + 
+                     promotedPieces[promotedPiece];
+      
+      // move to make
+      /*var valid_move  = is_valid(move_str);
+      
+      // if move is valid
+      if (valid_move) {
+        // push first move into move stack
+        if (move_stack.count == 0) push_move(valid_move);
+        
+        // make move on internal board
+        makeMove(valid_move, all_moves);
+        
+        // push move into move stack
+        pushMove(valid_move);
+        
+        // update board
+        updateBoard();
+      }*/
+      
+      board[userTarget] = board[userSource];
+      board[userSource] = e;
 
-    // update position
+      // update position
+      drawBoard();
+      
+      // highlight target square if piece is on it
+      if (board[userTarget])
+        document.getElementById(userTarget).style.backgroundColor = SELECT_COLOR;
+      
+      // draw pieces
+      updateBoard();
+      
+      // reset click lock
+      clickLock = 0;
+    }
+    
+    // draw board initially
     drawBoard();
-    
-    // highlight target square if piece is on it
-    if (board[userTarget])
-      document.getElementById(userTarget).style.backgroundColor = SELECT_COLOR;
-    
-    // draw pieces
     updateBoard();
-    
-    // reset click lock
-    clickLock = 0;
   }
-
 
   /****************************\
    ============================
@@ -337,14 +529,10 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
   // init all when Chess() object is created
   (function init_all() {
     // init random keys
-    //init_random_keys();
+    initRandomKeys();
     
     // init hash key for starting position
-    //hash_key = generate_hash_key();
-
-    // draw board initially
-    drawBoard();
-    updateBoard();
+    hash_key = generateHashKey();
     
   }())
 
@@ -357,12 +545,12 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
    ============================              
   \****************************/
 
-  /*function tests() {
+  function debug() {
     // parse position from FEN string
-    set_fen('r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1 ');
-    print_board();
+    //set_fen('r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1 ');
+    printBoard();
     
-    // create move list
+    /* create move list
     var move_list = {
       moves: new Array(256),
       count: 0
@@ -377,8 +565,8 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     // perft test
     //perft_test(3);
     console.log(move_stack)
-    print_attacked_squares(side);
-  }*/
+    print_attacked_squares(side);*/
+  }
   
   return {
 
@@ -396,7 +584,17 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     // event handlers
     dragPiece: function(event, square) { dragPiece(event, square); },
     dragOver: function(event, square) { dragOver(event, square); },
-    dropPiece: function(event, square) { dropPiece(event, square); },
+    dropPiece: function(event, square) { dropPiece(event, square); },  
+  
+    /****************************\
+     ============================
+   
+          PUBLIC API REFERENCE
+
+     ============================              
+    \****************************/
+    
+    debug: function() { debug(); }
   }
 }
 
@@ -410,8 +608,12 @@ if (typeof(document) != 'undefined') {
    ============================              
   \****************************/
   
+  // run in browser mode  
+  console.log('\n  Wukong CHESS ENGINE v' + VERSION + '\n\n');
+  
   // init engine
   var engine = new Engine();
+  engine.debug();
 
 } else if (typeof(exports) != 'undefined') {
 
@@ -424,7 +626,12 @@ if (typeof(document) != 'undefined') {
   \****************************/
 
   // run in UCI mode  
-  console.log('Wukong CHESS ENGINE v' + VERSION);
+  console.log('\n  Wukong CHESS ENGINE v' + VERSION + '\n');
+  
+  // init engine
+  var engine = new Engine();
+  engine.debug();
+
 }
 
 
