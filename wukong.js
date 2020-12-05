@@ -161,7 +161,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
                      '</h4>';
     
     // create HTML rable tag
-    chessBoard += '<table align="center" cellspacing="0" >';
+    chessBoard += '<table border="0" align="center" cellspacing="0" style="border: 1px solid black">';
     
     // loop over board rows
     for (var row = 0; row < 8; row++) {
