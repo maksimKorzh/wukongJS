@@ -161,12 +161,12 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
                      '</h4>';
     
     // create HTML rable tag
-    chessBoard += '<table align="center" cellspacing="0" style="border: 1px solid black">';
+    chessBoard += '<table align="center" cellspacing="0" >';
     
     // loop over board rows
     for (var row = 0; row < 8; row++) {
       // create table row
-      chessBoard += '<tbody><tr>'
+      chessBoard += '<tr>'
       
       // loop over board columns
       for (var col = 0; col < 16; col++) {
@@ -191,7 +191,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     }
     
     // close div tag
-    chessBoard += '</tbody></table>';
+    chessBoard += '</table>';
     
     // render chess board to screen
     document.getElementById('chessboard').innerHTML = chessBoard;
