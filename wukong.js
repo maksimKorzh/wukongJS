@@ -178,11 +178,11 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
           // create table cell
           chessBoard += '<td align="center" id="' + square + 
                          '"bgcolor="' + ( ((col + row) % 2) ? DARK_SQUARE : LIGHT_SQUARE) + 
-                         '" width="' + CELL_WIDTH + '" height="' + CELL_HEIGHT + 
-                         '" onclick="engine.makeMove(this.id)" ' + 
-                         'ondragstart="engine.dragPiece(event, this.id)" ' +
-                         'ondragover="engine.dragOver(event, this.id)"'+
-                         'ondrop="engine.dropPiece(event, this.id)"' +
+                         '" width="' + CELL_WIDTH + 'px" height="' + CELL_HEIGHT +  'px" ' +
+                         //' onclick="engine.makeMove(this.id)" ' + 
+                         //'ondragstart="engine.dragPiece(event, this.id)" ' +
+                         //'ondragover="engine.dragOver(event, this.id)"'+
+                         //'ondrop="engine.dropPiece(event, this.id)"' +
                          '></td>'
       }
       
