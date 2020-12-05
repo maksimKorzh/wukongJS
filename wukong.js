@@ -176,14 +176,14 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
         // make sure square is on board
         if ((square & 0x88) == 0)
           // create table cell
-          chessBoard += '<td align="center" id="' + square + 
+          chessBoard += '<th align="center" id="' + square + 
                          '"bgcolor="' + ( ((col + row) % 2) ? DARK_SQUARE : LIGHT_SQUARE) + 
                          '" width="' + CELL_WIDTH + '" height="' + CELL_HEIGHT + 
                          '" onclick="engine.makeMove(this.id)" ' + 
                          'ondragstart="engine.dragPiece(event, this.id)" ' +
                          'ondragover="engine.dragOver(event, this.id)"'+
                          'ondrop="engine.dropPiece(event, this.id)"' +
-                         '></td>'
+                         '></th>'
       }
       
       // close table row tag
