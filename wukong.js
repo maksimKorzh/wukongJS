@@ -161,7 +161,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
                      '</h4>';
     
     // create HTML rable tag
-    chessBoard += '<table border="0" align="center" cellspacing="0" style="border: 1px solid black">';
+    chessBoard += '<table align="center" cellspacing="0" style="border: 1px solid black">';
     
     // loop over board rows
     for (var row = 0; row < 8; row++) {
@@ -176,14 +176,14 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
         // make sure square is on board
         if ((square & 0x88) == 0)
           // create table cell
-          chessBoard += '<th align="center" id="' + square + 
+          chessBoard += '<td align="center" id="' + square + 
                          '"bgcolor="' + ( ((col + row) % 2) ? DARK_SQUARE : LIGHT_SQUARE) + 
                          '" width="' + CELL_WIDTH + '" height="' + CELL_HEIGHT + 
                          '" onclick="engine.makeMove(this.id)" ' + 
                          'ondragstart="engine.dragPiece(event, this.id)" ' +
                          'ondragover="engine.dragOver(event, this.id)"'+
                          'ondrop="engine.dropPiece(event, this.id)"' +
-                         '></th>'
+                         '></td>'
       }
       
       // close table row tag
