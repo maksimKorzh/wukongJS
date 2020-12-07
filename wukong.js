@@ -100,29 +100,15 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
   // kings' squares
   var kingSquare = [e1, e8];
   
+  // piece list
+  var pieceList = new Array(13 * 10);
+  
   // move stack
   var moveStack = {
     moves: new Array(1000),
     count: 0,
     size: 0
   }
-
-
-  /* TEMP PLACE*/
-
-  
-
-  // castling rights
-  var castlingRights = [
-     7, 15, 15, 15,  3, 15, 15, 11,  o, o, o, o, o, o, o, o,
-    15, 15, 15, 15, 15, 15, 15, 15,  o, o, o, o, o, o, o, o,
-    15, 15, 15, 15, 15, 15, 15, 15,  o, o, o, o, o, o, o, o,
-    15, 15, 15, 15, 15, 15, 15, 15,  o, o, o, o, o, o, o, o,
-    15, 15, 15, 15, 15, 15, 15, 15,  o, o, o, o, o, o, o, o,
-    15, 15, 15, 15, 15, 15, 15, 15,  o, o, o, o, o, o, o, o,
-    15, 15, 15, 15, 15, 15, 15, 15,  o, o, o, o, o, o, o, o,
-    13, 15, 15, 15, 12, 15, 15, 14,  o, o, o, o, o, o, o, o
-  ];
   
 
   /****************************\
@@ -264,6 +250,26 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     }
   }
   
+  // init piece list
+  function initPieceList() {
+    // loop over board ranks
+    for (var rank = 0; rank < 8; rank++) {
+      // loop over board files
+      for (var file = 0; file < 16; file++) {
+        // convert file & rank to square
+        var square = rank * 16 + file;
+                
+        // make sure that the square is on board
+        if ((square & 0x88) == 0) {
+          // if piece is present on the square
+          if (board[square] != e)
+            // add piece to piece list
+            {}
+        }
+      }
+    }
+  }
+  
   
   /****************************\
    ============================
@@ -277,6 +283,19 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
   var bishopOffsets = [15, 17, -15, -17];
   var rookOffsets = [16, -16, 1, -1];
   var kingOffsets = [16, -16, 1, -1, 15, 17, -15, -17];
+  
+  // castling rights
+  var castlingRights = [
+     7, 15, 15, 15,  3, 15, 15, 11,  o, o, o, o, o, o, o, o,
+    15, 15, 15, 15, 15, 15, 15, 15,  o, o, o, o, o, o, o, o,
+    15, 15, 15, 15, 15, 15, 15, 15,  o, o, o, o, o, o, o, o,
+    15, 15, 15, 15, 15, 15, 15, 15,  o, o, o, o, o, o, o, o,
+    15, 15, 15, 15, 15, 15, 15, 15,  o, o, o, o, o, o, o, o,
+    15, 15, 15, 15, 15, 15, 15, 15,  o, o, o, o, o, o, o, o,
+    15, 15, 15, 15, 15, 15, 15, 15,  o, o, o, o, o, o, o, o,
+    13, 15, 15, 15, 12, 15, 15, 14,  o, o, o, o, o, o, o, o
+  ];
+
   
   /*
       Move formatting
@@ -359,22 +378,6 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
       } 
     }
     
-    // king attacks
-    for (var index = 0; index < 8; index++) {
-      // init target square
-      var targetSquare = square + kingOffsets[index];
-      
-      // lookup target piece
-      var targetPiece = board[targetSquare];
-      
-      // if target square is on board
-      if (!(targetSquare & 0x88)) {
-        // if target piece is either white or black king
-        if (!side ? targetPiece == K : targetPiece == k)
-          return 1;
-      } 
-    }
-    
     // bishop & queen attacks
     for (var index = 0; index < 4; index++) {
       // init target square
@@ -423,6 +426,22 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
       }
     }
     
+    // king attacks
+    for (var index = 0; index < 8; index++) {
+      // init target square
+      var targetSquare = square + kingOffsets[index];
+      
+      // lookup target piece
+      var targetPiece = board[targetSquare];
+      
+      // if target square is on board
+      if (!(targetSquare & 0x88)) {
+        // if target piece is either white or black king
+        if (!side ? targetPiece == K : targetPiece == k)
+          return 1;
+      } 
+    }
+
     return 0;
   }
   
