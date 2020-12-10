@@ -100,8 +100,15 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
   // kings' squares
   var kingSquare = [e1, e8];
   
-  // piece list
-  var pieceList = new Array(13 * 10);
+  // piece list [piece * 10 + piece_number]
+  var pieceList = {
+    // piece counts
+    [P]: 0, [N]: 0, [B]: 0, [R]: 0, [Q]: 0, [K]: 0,
+    [P]: 0, [N]: 0, [B]: 0, [R]: 0, [Q]: 0, [K]: 0,
+    
+    // list of pieces with associated squares
+    pieces: new Array(13 * 10)
+  };
   
   // move stack
   var moveStack = {
@@ -148,7 +155,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
    ============================              
   \****************************/ 
  
-  // random piece keys (piece * square)
+  // random piece keys [piece * 128 + square]
   var pieceKeys = new Array(13 * 128);
   
   // random castle keys
@@ -252,19 +259,28 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
   
   // init piece list
   function initPieceList() {
-    // loop over board ranks
-    for (var rank = 0; rank < 8; rank++) {
-      // loop over board files
-      for (var file = 0; file < 16; file++) {
-        // convert file & rank to square
-        var square = rank * 16 + file;
-                
-        // make sure that the square is on board
-        if ((square & 0x88) == 0) {
-          // if piece is present on the square
-          if (board[square] != e)
-            // add piece to piece list
-            {}
+    // reset piece counts
+    for (var piece = P; piece <= k; piece++)
+      pieceList[piece] = 0;
+    
+    // reset piece list
+    for (var index = 0; index < 13 * 10; index++)
+      pieceList.pieces[index] = 0;
+    
+    // associate pieces with squares
+    for (var square = 0; square < 128; square++) {
+      // make sure square is on board
+      if ((square & 0x88) == 0) {
+        // init piece
+        var piece = board[square];
+        
+        // skip empty sqaures
+        if (piece) {
+          // associate square with current piece
+          pieceList.pieces[piece * 10 + pieceList[piece]] = square;
+          
+          // update piece counter
+          pieceList[piece]++;
         }
       }
     }
@@ -275,6 +291,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
    ============================
    
           MOVE GENERATOR
+
    ============================              
   \****************************/
   
@@ -760,7 +777,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
       }
     }
   }
-  
+
   // make move
   function makeMove(move) {
     // backup current board position
@@ -788,8 +805,8 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     board[sourceSquare] = e;
     
     // hash piece
-    hashKey ^= pieceKeys[piece * 128 + sourceSquare];
-    hashKey ^= pieceKeys[piece * 128 + targetSquare];
+    hashKey ^= pieceKeys[piece * 128 + sourceSquare];   // remove piece on source square from hash key
+    hashKey ^= pieceKeys[piece * 128 + targetSquare];   // add piece on target quare to hash key
     
     // increment fifty move rule counter
     fifty++;
@@ -1125,6 +1142,9 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     // init hash key
     hashKey = generateHashKey();
     
+    // init piece list
+    initPieceList();
+    
     // update board on GUI mode
     if (typeof(document) != 'undefined')
       updateBoard();
@@ -1189,6 +1209,29 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     else
       return coordinates[getMoveSource(move)] +
              coordinates[getMoveTarget(move)];
+  }
+  
+  // print piece list & material counts
+  function printPieceList() {
+    // material output string
+    var materialCountString = '    Material counts:\n\n';
+
+    // material counts output
+    for (var piece = P; piece <= k; piece++)
+      materialCountString += '    ' + unicodePieces[piece] + ': ' + pieceList[piece] + '\n';
+
+    console.log(materialCountString);
+    
+    // piece list output string
+    var pieceListString = '    Piece list:\n\n';
+    
+    // piece list output
+    for (var piece = P; piece <= k; piece++)
+      for (var pieceNumber = 0; pieceNumber < pieceList[piece]; pieceNumber++)
+        pieceListString += '    ' + unicodePieces[piece] + ': ' + 
+                                    coordinates[pieceList.pieces[piece * 10 + pieceNumber]] + '\n';
+
+    console.log(pieceListString);
   }
 	
   // print move list
@@ -1280,7 +1323,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
   // perft test
   function perftTest(depth)
   {
-    console.log('Performance test:\n\n');
+    console.log('   Performance test:\n');
     resultString = '';
     
     // init start time
@@ -1311,8 +1354,8 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
       // make only legal moves
       if (!makeMove(moveList.moves[moveCount]))
         // skip illegal move
-        continue;
-      
+        continue;      
+
       // cummulative nodes
       var cumNodes = nodes;
       
@@ -1332,7 +1375,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
       kingSquare = JSON.parse(JSON.stringify(kingSquareCopy));
       
       // print current move
-      console.log(  'move' +
+      console.log(  '   move' +
                     ' ' + (moveCount + 1) + ((moveCount < 9) ? ':  ': ': ') +
                     coordinates[getMoveSource(moveList.moves[moveCount])] +
                     coordinates[getMoveTarget(moveList.moves[moveCount])] +
@@ -1342,9 +1385,9 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     }
     
     // append results
-    resultString += '\nDepth: ' + depth;
-    resultString += '\nNodes: ' + nodes;
-    resultString += '\n Time: ' + (new Date().getTime() - startTime) + ' ms\n';
+    resultString += '\n   Depth: ' + depth;
+    resultString += '\n   Nodes: ' + nodes;
+    resultString += '\n    Time: ' + (new Date().getTime() - startTime) + ' ms\n';
     
     // print results
     console.log(resultString);
@@ -1570,6 +1613,9 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     // init hash key for starting position
     hashKey = generateHashKey();
     
+    // init piece list for starting position
+    initPieceList();
+    
   }())
 
 
@@ -1587,21 +1633,8 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     parseFen('r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1 ');
     printBoard();
     
-    // create move list
-    var moveList = {
-      moves: new Array(256),
-      count: 0
-    }
-    
-    // generate moves
-    generateMoves(moveList);
-
-    // print move list
-    printMoveList(moveList);
-    
     // perft test
-    perftTest(3);
-    
+    perftTest(1);
   }
   
   return {
