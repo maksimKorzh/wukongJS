@@ -780,17 +780,30 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     }
   }
 
+  // make deep copy of board
+  function deepCopy() {
+    // create board copy
+    var boardCopy = [];
+    
+    // copy all squares
+    for (var square = 0; square < 128; square++)
+      boardCopy.push(board[square]);
+    
+    // return board copy
+    return boardCopy;
+  }
+
   // make move
   function makeMove(move) {
     // backup board state variables
     backup.push({
-      boardCopy: JSON.parse(JSON.stringify(board)),
-      sideCopy: side,
-      enpassantCopy: enpassant,
-      castleCopy: castle,
-      fiftyCopy: fifty,
-      hashCopy: hashKey,
-      kingSquareCopy: JSON.parse(JSON.stringify(kingSquare))
+      board: deepCopy(),
+      side: side,
+      enpassant: enpassant,
+      castle: castle,
+      fifty: fifty,
+      hash: hashKey,
+      kingSquare: JSON.parse(JSON.stringify(kingSquare))
     });
     
     // parse move
@@ -965,7 +978,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     
     // hash side
     hashKey ^= sideKey;
-    
+
     // take move back if king is under the check
     if (isSquareAttacked(!side ? kingSquare[side ^ 1] : kingSquare[side ^ 1], side)) {
       // take move back
@@ -983,13 +996,13 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
   // take move back
   function takeBack() {
     // restore board position 
-    board = backup[backup.length - 1].boardCopy;
-    side = backup[backup.length - 1].sideCopy;
-    enpassant = backup[backup.length - 1].enpassantCopy;
-    castle = backup[backup.length - 1].castleCopy;
-    hashKey = backup[backup.length - 1].hashCopy;
-    fifty = backup[backup.length - 1].fiftyCopy;
-    kingSquare = backup[backup.length - 1].kingSquareCopy;
+    board = backup[backup.length - 1].board;
+    side = backup[backup.length - 1].side;
+    enpassant = backup[backup.length - 1].enpassant;
+    castle = backup[backup.length - 1].castle;
+    hashKey = backup[backup.length - 1].hash;
+    fifty = backup[backup.length - 1].fifty;
+    kingSquare = backup[backup.length - 1].kingSquare;
     
     // pop last backup from stack
     backup.pop();
@@ -1325,13 +1338,13 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     
     // generate moves
     generateMoves(moveList);
-    
+
     // loop over the generated moves      
     for (var moveCount = 0; moveCount < moveList.length; moveCount++) {      
       // make only legal moves
       if (!makeMove(moveList[moveCount].move))
         // skip illegal move
-        continue;      
+        continue;
 
       // cummulative nodes
       var cumNodes = nodes;
