@@ -780,17 +780,6 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     }
   }
 
-  // move piece on chess board
-  function movePiece(piece, sourceSquare, targetSquare) {
-    // move piece
-    board[targetSquare] = board[sourceSquare];
-    board[sourceSquare] = e;
-    
-    // hash piece
-    hashKey ^= pieceKeys[piece * 128 + sourceSquare];   // remove piece on source square from hash key
-    hashKey ^= pieceKeys[piece * 128 + targetSquare];   // add piece on target quare to hash key
-  }
-
   // make move
   function makeMove(move) {
     // backup board state variables
@@ -815,7 +804,12 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     var capturedPiece = board[targetSquare];
     
     // move piece
-    movePiece(piece, sourceSquare, targetSquare);
+    board[targetSquare] = board[sourceSquare];
+    board[sourceSquare] = e;
+    
+    // hash piece
+    hashKey ^= pieceKeys[piece * 128 + sourceSquare];   // remove piece on source square from hash key
+    hashKey ^= pieceKeys[piece * 128 + targetSquare];   // add piece on target quare to hash key
     
     // increment fifty move rule counter
     fifty++;
@@ -906,10 +900,49 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     if (castling) {
       // switch target square
       switch(targetSquare) {
-        case g1: movePiece(R, h1, f1); break;
-        case c1: movePiece(R, a1, d1); break;
-        case g8: movePiece(r, h8, f8); break;
-        case c8: movePiece(r, a8, d8); break;
+        // white castles king side
+        case g1:
+          // move H rook
+          board[f1] = board[h1];
+          board[h1] = e;
+          
+          // hash rook
+          hashKey ^= pieceKeys[R * 128 + h1];  // remove rook from h1 from hash key
+          hashKey ^= pieceKeys[R * 128 + f1];  // put rook on f1 into a hash key
+          break;
+        
+        // white castles queen side
+        case c1:
+          // move A rook
+          board[d1] = board[a1];
+          board[a1] = e;
+          
+          // hash rook
+          hashKey ^= pieceKeys[R * 128 + a1];  // remove rook from a1 from hash key
+          hashKey ^= pieceKeys[R * 128 + d1];  // put rook on d1 into a hash key
+          break;
+       
+       // black castles king side
+        case g8:
+          // move H rook
+          board[f8] = board[h8];
+          board[h8] = e;
+          
+          // hash rook
+          hashKey ^= pieceKeys[r * 128 + h8];  // remove rook from h8 from hash key
+          hashKey ^= pieceKeys[r * 128 + f8];  // put rook on f8 into a hash key
+          break;
+       
+       // black castles queen side
+        case c8:
+          // move A rook
+          board[d8] = board[a8];
+          board[a8] = e;
+          
+          // hash rook
+          hashKey ^= pieceKeys[r * 128 + a8];  // remove rook from a8 from hash key
+          hashKey ^= pieceKeys[r * 128 + d8];  // put rook on d8 into a hash key
+          break;
       }
     }
     
