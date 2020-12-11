@@ -467,11 +467,11 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
   
   // populate move list
   function addMove(moveList, move) {
-    // push move into the move list
-    moveList.moves[moveList.count] = move;
-    
-    // increment move count
-    moveList.count++;
+    // push move into move list
+    moveList.push({
+      move: move,
+      score: 0
+    });
   }
 
   // move generator
@@ -1252,12 +1252,12 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     var listMoves = '   Move     Capture  Double   Enpass   Castling\n\n';
 
     // loop over moves in a movelist
-    for (var index = 0; index < moveList.count; index++) {
-      var move = moveList.moves[index];
+    for (var index = 0; index < moveList.length; index++) {
+      var move = moveList[index].move;
       listMoves += '   ' + coordinates[getMoveSource(move)] + coordinates[getMoveTarget(move)];
       listMoves += (getMovePromoted(move) ? promotedPieces[getMovePromoted(move)] : ' ');
       listMoves += '    ' + getMoveCapture(move) +
-                    '        ' +getMovePawn(move) +
+                    '        ' + getMovePawn(move) +
                     '        ' + getMoveEnpassant(move) +
                     '        ' + getMoveCastling(move) + '\n';
     }
@@ -1283,8 +1283,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
   var nodes = 0;
   
   // perft driver
-  function perftDriver(depth)
-  {
+  function perftDriver(depth) {
     // escape condition
     if  (!depth) {
       // count current position
@@ -1293,18 +1292,15 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     }
     
     // create move list
-    var moveList = {
-      moves: new Array(256),
-      count: 0
-    }
+    var moveList = [];
     
     // generate moves
     generateMoves(moveList);
     
     // loop over the generated moves
-    for (var moveCount = 0; moveCount < moveList.count; moveCount++) {      
+    for (var moveCount = 0; moveCount < moveList.length; moveCount++) {      
       // make only legal moves
-      if (!makeMove(moveList.moves[moveCount]))
+      if (!makeMove(moveList[moveCount].move))
         // skip illegal move
         continue;
       
@@ -1317,28 +1313,23 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
   }
 
   // perft test
-  function perftTest(depth)
-  {
+  function perftTest(depth) {
     console.log('   Performance test:\n');
     resultString = '';
     
     // init start time
     var startTime = new Date().getTime();
 
-    // create move list
-    var moveList = {
-      moves: new Array(256),
-      count: 0
-    }
+    // create move list    
+    var moveList = [];
     
     // generate moves
     generateMoves(moveList);
     
-    // loop over the generated moves
-    for (var moveCount = 0; moveCount < moveList.count; moveCount++)
-    {        
+    // loop over the generated moves      
+    for (var moveCount = 0; moveCount < moveList.length; moveCount++) {      
       // make only legal moves
-      if (!makeMove(moveList.moves[moveCount]))
+      if (!makeMove(moveList[moveCount].move))
         // skip illegal move
         continue;      
 
@@ -1357,10 +1348,10 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
       // print current move
       console.log(  '   move' +
                     ' ' + (moveCount + 1) + ((moveCount < 9) ? ':  ': ': ') +
-                    coordinates[getMoveSource(moveList.moves[moveCount])] +
-                    coordinates[getMoveTarget(moveList.moves[moveCount])] +
-                    (getMovePromoted(moveList.moves[moveCount]) ?
-                    promotedPieces[getMovePromoted(moveList.moves[moveCount])]: ' ') +
+                    coordinates[getMoveSource(moveList[moveCount].move)] +
+                    coordinates[getMoveTarget(moveList[moveCount].move)] +
+                    (getMovePromoted(moveList[moveCount].move) ?
+                    promotedPieces[getMovePromoted(moveList[moveCount].move)]: ' ') +
                     '    nodes: ' + oldNodes);
     }
     
@@ -1613,8 +1604,12 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     parseFen('r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1 ');
     printBoard();
     
+    moveList = [];
+    generateMoves(moveList);
+    printMoveList(moveList);
+    
     // perft test
-    perftTest(3);
+    //perftTest(3);
   }
   
   return {
