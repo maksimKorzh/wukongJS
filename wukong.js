@@ -117,6 +117,9 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     size: 0
   }
   
+  // board state variables backup
+  backup = [];
+  
 
   /****************************\
    ============================
@@ -780,15 +783,15 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
 
   // make move
   function makeMove(move) {
-    // backup current board position
-    var boardCopy, kingSquareCopy, sideCopy, enpassantCopy, castleCopy, fiftyCopy, hashCopy;
-    boardCopy = JSON.parse(JSON.stringify(board));
-    sideCopy = side;
-    enpassantCopy = enpassant;
-    castleCopy = castle;
-    hashCopy = hashKey;
-    fiftyCopy = fifty;
-    kingSquareCopy = JSON.parse(JSON.stringify(kingSquare));
+    backup.push({
+      boardCopy: JSON.parse(JSON.stringify(board)),
+      sideCopy: side,
+      enpassantCopy: enpassant,
+      castleCopy: castle,
+      fiftyCopy: fifty,
+      hashCopy: hashKey,
+      kingSquareCopy: JSON.parse(JSON.stringify(kingSquare))
+    });
     
     // parse move
     var sourceSquare = getMoveSource(move);
@@ -965,14 +968,8 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     
     // take move back if king is under the check
     if (isSquareAttacked(!side ? kingSquare[side ^ 1] : kingSquare[side ^ 1], side)) {
-      // restore board position
-      board = JSON.parse(JSON.stringify(boardCopy));
-      side = sideCopy;
-      enpassant = enpassantCopy;
-      castle = castleCopy;
-      hashKey = hashCopy;
-      fifty = fiftyCopy;
-      kingSquare = JSON.parse(JSON.stringify(kingSquareCopy));
+      // take move back
+      takeBack();
 
       // illegal move
       return 0;
@@ -981,6 +978,21 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     else
       // legal move
       return 1;
+  }
+  
+  // take move back
+  function takeBack() {
+    // restore board position 
+    board = backup[backup.length - 1].boardCopy;
+    side = backup[backup.length - 1].sideCopy;
+    enpassant = backup[backup.length - 1].enpassantCopy;
+    castle = backup[backup.length - 1].castleCopy;
+    hashKey = backup[backup.length - 1].hashCopy;
+    fifty = backup[backup.length - 1].fiftyCopy;
+    kingSquare = backup[backup.length - 1].kingSquareCopy;
+    
+    // pop last backup from stack
+    backup.pop();
   }
 
 
@@ -1290,17 +1302,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     generateMoves(moveList);
     
     // loop over the generated moves
-    for (var moveCount = 0; moveCount < moveList.count; moveCount++) {
-      // backup current board position
-      var boardCopy, kingSquareCopy, sideCopy, enpassantCopy, castleCopy, fiftyCopy, hashCopy;
-      boardCopy = JSON.parse(JSON.stringify(board));
-      sideCopy = side;
-      enpassantCopy = enpassant;
-      castleCopy = castle;
-      fiftyCopy = fifty;
-      hashCopy = hashKey;
-      kingSquareCopy = JSON.parse(JSON.stringify(kingSquare));
-      
+    for (var moveCount = 0; moveCount < moveList.count; moveCount++) {      
       // make only legal moves
       if (!makeMove(moveList.moves[moveCount]))
         // skip illegal move
@@ -1309,14 +1311,8 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
       // recursive call
       perftDriver(depth - 1);
       
-      // restore board position
-      board = JSON.parse(JSON.stringify(boardCopy));
-      side = sideCopy;
-      enpassant = enpassantCopy;
-      castle = castleCopy;
-      hashKey = hashCopy;
-      fifty = fiftyCopy;
-      kingSquare = JSON.parse(JSON.stringify(kingSquareCopy));
+      // take move back
+      takeBack();
     }
   }
 
@@ -1340,17 +1336,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     
     // loop over the generated moves
     for (var moveCount = 0; moveCount < moveList.count; moveCount++)
-    {
-      // backup current board position
-      var boardCopy, kingSquareCopy, sideCopy, enpassantCopy, castleCopy, fiftyCopy, hashCopy;
-      boardCopy = JSON.parse(JSON.stringify(board));
-      sideCopy = side;
-      enpassantCopy = enpassant;
-      castleCopy = castle;
-      hashCopy = hashKey;
-      fiftyCopy = fifty;
-      kingSquareCopy = JSON.parse(JSON.stringify(kingSquare));
-        
+    {        
       // make only legal moves
       if (!makeMove(moveList.moves[moveCount]))
         // skip illegal move
@@ -1365,14 +1351,8 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
       // old nodes
       var oldNodes = nodes - cumNodes;
 
-      // restore board position
-      board = JSON.parse(JSON.stringify(boardCopy));
-      side = sideCopy;
-      enpassant = enpassantCopy;
-      castle = castleCopy;
-      hashKey = hashCopy;
-      fifty = fiftyCopy;
-      kingSquare = JSON.parse(JSON.stringify(kingSquareCopy));
+      // take move back
+      takeBack();
       
       // print current move
       console.log(  '   move' +
@@ -1634,7 +1614,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     printBoard();
     
     // perft test
-    perftTest(1);
+    perftTest(3);
   }
   
   return {
