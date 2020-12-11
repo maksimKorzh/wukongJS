@@ -118,7 +118,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
   }
   
   // board state variables backup
-  backup = [];
+  var backup = [];
   
 
   /****************************\
@@ -316,7 +316,6 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     13, 15, 15, 15, 12, 15, 15, 14,  o, o, o, o, o, o, o, o
   ];
 
-  
   /*
       Move formatting
       
@@ -783,6 +782,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
 
   // make move
   function makeMove(move) {
+    // backup board state variables
     backup.push({
       boardCopy: JSON.parse(JSON.stringify(board)),
       sideCopy: side,
@@ -1604,12 +1604,8 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     parseFen('r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1 ');
     printBoard();
     
-    moveList = [];
-    generateMoves(moveList);
-    printMoveList(moveList);
-    
     // perft test
-    //perftTest(3);
+    perftTest(3);
   }
   
   return {
