@@ -90,13 +90,6 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
   var hashKey = 0;
   var kingSquare = [e1, e8];
   
-  // piece list
-  var pieceList = {
-    [P]: 0, [N]: 0, [B]: 0, [R]: 0, [Q]: 0, [K]: 0,
-    [P]: 0, [N]: 0, [B]: 0, [R]: 0, [Q]: 0, [K]: 0,
-    pieces: new Array(13 * 10)
-  };
-  
   // move stack
   var moveStack = {
     moves: new Array(1000),
@@ -190,21 +183,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     kingSquare = [0, 0];
     moveStack = { moves: new Array(1000), count: 0, size: 0 }
   }
-  
-  // init piece list
-  function initPieceList() {
-    for (var piece = P; piece <= k; piece++) pieceList[piece] = 0;
-    for (var index = 0; index < 13 * 10; index++) pieceList.pieces[index] = 0;
-    for (var square = 0; square < 128; square++) {
-      if ((square & 0x88) == 0) {
-        var piece = board[square];
-        if (piece) {
-          pieceList.pieces[piece * 10 + pieceList[piece]] = square;
-          pieceList[piece]++;
-        }
-      }
-    }
-  }
+
   
   /****************************\
    ============================
@@ -215,7 +194,8 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
   \****************************/
   
   // square attacked
-  function isSquareAttacked(square, side) {    
+  function isSquareAttacked(square, side) {
+    var start = new Date().getTime();
     for (let index = 0; index < 2; index++) {
       let direction = pawnDirections.offsets[side][index];
       if (((square + direction) & 0x88) == 0 &&
@@ -243,7 +223,9 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
           targetSquare += sliderPieces[piece].offsets[index];
         }
       }
-    }    
+    }
+    
+    attackedTime += (new Date().getTime() - start);
     return 0;
   }
 
@@ -291,6 +273,12 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
   var rookOffsets = [16, -16, 1, -1];
   var kingOffsets = [16, -16, 1, -1, 15, 17, -15, -17];
   
+  // pawn directions to side mapping
+  var pawnDirections = {
+    offsets: [[17, 15], [-17, -15]],
+    pawn: [P, p]
+  }
+  
   // leaper piece to offset mapping
   var leaperPieces = {
     knight: { offsets: knightOffsets, side: [N, n] },
@@ -302,12 +290,6 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     bishop: { offsets: bishopOffsets, side: [[B, Q], [b, q]] },
     rook: { offsets: rookOffsets, side: [[R, Q], [r, q]] }
   };
-  
-  // pawn directions to side mapping
-  var pawnDirections = {
-    offsets: [[17, 15], [-17, -15]],
-    pawn: [P, p]
-  }
   
   // castling rights
   var castlingRights = [
@@ -331,6 +313,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
 
   // move generator
   function generateMoves(moveList) {
+    var start = new Date().getTime();
     for (var sourceSquare = 0; sourceSquare < 128; sourceSquare++) {
       if ((sourceSquare & 0x88) == 0) {
         if (side == white) {
@@ -369,8 +352,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
                 }
               }
             }
-          }
-          if (board[sourceSquare] == K) {
+          } else if (board[sourceSquare] == K) {
             if (castle & KC) {
               if (!board[f1] && !board[g1]) {
                 if (!isSquareAttacked(e1, black) && !isSquareAttacked(f1, black))
@@ -420,8 +402,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
                 }
               }
             }
-          }
-          if (board[sourceSquare] == k) {
+          } else if (board[sourceSquare] == k) {
             if (castle & kc) {
               if (!board[f8] && !board[g8]) {
                 if (!isSquareAttacked(e8, white) && !isSquareAttacked(f8, white))
@@ -500,20 +481,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
         }
       }
     }
-  }
-
-  // make deep copy of board
-  function boardDeepCopy() {
-    var deepCopy = [];
-    for (var square = 0; square < 128; square++) deepCopy.push(board[square]);
-    return deepCopy;
-  }
-  
-  // make deep copy of king squares
-  function kingSquareDeepCopy() {
-    var deepCopy = [];
-    for (var square = 0; square < 2; square++) deepCopy.push(kingSquare[square]);
-    return deepCopy;
+    movegenTime += new Date().getTime() - start
   }
 
   // move piece on chess board
@@ -526,33 +494,33 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
 
   // make move
   function makeMove(move) {
+    let start = new Date().getTime();
     let sourceSquare = getMoveSource(move);
     let targetSquare = getMoveTarget(move);
     let promotedPiece = getMovePromoted(move);
-    let enpass = getMoveEnpassant(move);
-    let doublePush = getMovePawn(move);
-    let castling = getMoveCastling(move);
-    let piece = board[sourceSquare];
     let capturedPiece = board[targetSquare];
     backup.push({
-      board: boardDeepCopy(),
+      move: move,
+      capturedPiece: 0,
       side: side,
       enpassant: enpassant,
       castle: castle,
       fifty: fifty,
       hash: hashKey,
-      kingSquare: kingSquareDeepCopy()
     });
-    moveCurrentPiece(piece, sourceSquare, targetSquare);
+    moveCurrentPiece(board[sourceSquare], sourceSquare, targetSquare);
     fifty++;
     if (getMoveCapture(move)) {
-      if (capturedPiece) hashKey ^= pieceKeys[capturedPiece * 128 + targetSquare];
+      if (capturedPiece) {
+        backup[backup.length - 1].capturedPiece = capturedPiece;
+        hashKey ^= pieceKeys[capturedPiece * 128 + targetSquare];
+      }
       fifty = 0;
     } else if (board[sourceSquare] == P || board[sourceSquare] == p)
       fifty = 0;
     if (enpassant != noEnpassant) hashKey ^= pieceKeys[enpassant];
     enpassant = noEnpassant;
-    if (doublePush) {
+    if (getMovePawn(move)) {
       if (side == white) {
         enpassant = targetSquare + 16;
         hashKey ^= pieceKeys[targetSquare + 16];
@@ -560,12 +528,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
         enpassant = targetSquare - 16;
         hashKey ^= pieceKeys[targetSquare - 16];
       }
-    } else if (promotedPiece) {
-      if (side == white) hashKey ^= pieceKeys[P * 128 + targetSquare];
-      else hashKey ^= pieceKeys[p * 128 + targetSquare];
-      board[targetSquare] = promotedPiece;
-      hashKey ^= pieceKeys[promotedPiece * 128 + targetSquare];
-    } else if (enpass) {
+    } else if (getMoveEnpassant(move)) {
       if (side == white) {
         board[targetSquare + 16] = e;
         hashKey ^= pieceKeys[p * 128 + targetSquare + 16];
@@ -573,13 +536,18 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
         board[targetSquare - 16] = e;
         hashKey ^= pieceKeys[(P * 128) + (targetSquare - 16)];
       }
-    } else if (castling) {
+    } else if (getMoveCastling(move)) {
       switch(targetSquare) {
         case g1: moveCurrentPiece(R, h1, f1); break;
         case c1: moveCurrentPiece(R, a1, d1); break;
         case g8: moveCurrentPiece(r, h8, f8); break;
         case c8: moveCurrentPiece(r, a8, d8); break;
       }
+    } else if (promotedPiece) {
+      if (side == white) hashKey ^= pieceKeys[P * 128 + targetSquare];
+      else hashKey ^= pieceKeys[p * 128 + targetSquare];
+      board[targetSquare] = promotedPiece;
+      hashKey ^= pieceKeys[promotedPiece * 128 + targetSquare];
     }
     if (board[targetSquare] == K || board[targetSquare] == k) kingSquare[side] = targetSquare;
     hashKey ^= castleKeys[castle];
@@ -588,7 +556,8 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     hashKey ^= castleKeys[castle];
     side ^= 1;
     hashKey ^= sideKey;
-    if (isSquareAttacked(!side ? kingSquare[side ^ 1] : kingSquare[side ^ 1], side)) {
+    makeMoveTime += new Date().getTime() - start;
+    if (isSquareAttacked((side == white) ? kingSquare[side ^ 1] : kingSquare[side ^ 1], side)) {
       takeBack();
       return 0;
     } else return 1;
@@ -597,13 +566,32 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
   // take move back
   function takeBack() {
     let moveIndex = backup.length - 1;
-    board = backup[moveIndex].board;
+    let move = backup[moveIndex].move;    
+    let sourceSquare = getMoveSource(move);
+    let targetSquare = getMoveTarget(move);
+    moveCurrentPiece(board[targetSquare], targetSquare, sourceSquare);
+    if (getMoveCapture(move)) board[targetSquare] = backup[moveIndex].capturedPiece;
+    if (getMoveEnpassant(move)) {
+      if (side == white) {
+        board[targetSquare - 16] = P;
+      } else {
+        board[targetSquare + 16] = p;
+      }
+    } else if (getMoveCastling(move)) {
+      switch(targetSquare) {
+        case g1: moveCurrentPiece(R, f1, h1); break;
+        case c1: moveCurrentPiece(R, d1, a1); break;
+        case g8: moveCurrentPiece(r, f8, h8); break;
+        case c8: moveCurrentPiece(r, d8, a8); break;
+      }
+    } else if (getMovePromoted(move))
+      (side == white) ? board[sourceSquare] = p: board[sourceSquare] = P;
+    if (board[sourceSquare] == K || board[sourceSquare] == k) kingSquare[side ^ 1] = sourceSquare;
     side = backup[moveIndex].side;
     enpassant = backup[moveIndex].enpassant;
     castle = backup[moveIndex].castle;
     hashKey = backup[moveIndex].hash;
     fifty = backup[moveIndex].fifty;
-    kingSquare = backup[moveIndex].kingSquare;
     backup.pop();
   }
 
@@ -621,115 +609,53 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
 
   // decode promoted pieces
   var promotedPieces = {
-    [Q]: 'q',
-    [R]: 'r',
-    [B]: 'b',
-    [N]: 'n',
-    [q]: 'q',
-    [r]: 'r',
-    [b]: 'b',
-    [n]: 'n'
+    [Q]: 'q', [R]: 'r', [B]: 'b', [N]: 'n',
+    [q]: 'q', [r]: 'r', [b]: 'b', [n]: 'n'
   };
 
   // encode ascii pieces
   var charPieces = {
-      'P': P,
-      'N': N,
-      'B': B,
-      'R': R,
-      'Q': Q,
-      'K': K,
-      'p': p,
-      'n': n,
-      'b': b,
-      'r': r,
-      'q': q,
-      'k': k,
+      'P': P, 'N': N, 'B': B, 'R': R, 'Q': Q, 'K': K,
+      'p': p, 'n': n, 'b': b, 'r': r, 'q': q, 'k': k,
   };
   
   // unicode piece representation
   const unicodePieces = [
-    // use dot for empty squares 
-    '.',
-    
-    //  ♙         ♘         ♗         ♖         ♕         ♔  
-    '\u2659', '\u2658', '\u2657', '\u2656', '\u2655', '\u2654',
-    
-    //  ♟︎         ♞         ♝         ♜         ♛         ♚
-    '\u265F', '\u265E', '\u265D', '\u265C', '\u265B', '\u265A'
+    '.', '\u2659', '\u2658', '\u2657', '\u2656', '\u2655', '\u2654',
+         '\u265F', '\u265E', '\u265D', '\u265C', '\u265B', '\u265A'
   ];
 
-  // parse FEN string to init board position
-  function parseFen(fen) {
-    // reset chess board and state variables
+  // set board position from FEN
+  function setBoard(fen) {
     resetBoard();
-    
-    // FEN char index
     var index = 0;
-    
-    // loop over board ranks
     for (var rank = 0; rank < 8; rank++) {
-      // loop over board files
       for (var file = 0; file < 16; file++) {
-        // convert file & rank to square
         var square = rank * 16 + file;
-           
-        // make sure that the square is on board
         if ((square & 0x88) == 0) {
-          // match pieces
           if ((fen[index].charCodeAt() >= 'a'.charCodeAt() &&
                fen[index].charCodeAt() <= 'z'.charCodeAt()) || 
               (fen[index].charCodeAt() >= 'A'.charCodeAt() &&
                fen[index].charCodeAt() <= 'Z'.charCodeAt())) {
-            // set up kings' squares
-            if (fen[index] == 'K')
-              kingSquare[white] = square;
-            
-            else if (fen[index] == 'k')
-              kingSquare[black] = square;
-            
-            // set the piece on board
+            if (fen[index] == 'K') kingSquare[white] = square;
+            else if (fen[index] == 'k') kingSquare[black] = square;
             board[square] = charPieces[fen[index]];
-            
-            // increment FEN pointer
             index++;
           }
-          
-          // match empty squares
           if (fen[index].charCodeAt() >= '0'.charCodeAt() &&
               fen[index].charCodeAt() <= '9'.charCodeAt()) {
-            // calculate offset
             var offset = fen[index] - '0';
-            
-            // decrement file on empty squares
-            if (!(board[square]))
-                file--;
-            
-            // skip empty squares
+            if (!(board[square])) file--;
             file += offset;
-            
-            // increment FEN pointer
             index++;
           }
-          
-          // match end of rank
-          if (fen[index] == '/')
-            // increment FEN pointer
-            index++;
+          if (fen[index] == '/') index++;
         }
       }
     }
-    
-    // go to side parsing
     index++;
-    
-    // parse side to move
     side = (fen[index] == 'w') ? white : black;
-    
-    // go to castling rights parsing
     index += 2;
-    
-    // parse castling rights
     while (fen[index] != ' ') {
       switch(fen[index]) {
         case 'K': castle |= KC; break;
@@ -738,132 +664,57 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
         case 'q': castle |= qc; break;
         case '-': break;
       }
-      
-      // increment pointer
       index++;
     }
-    
-    // got to empassant square
     index++;
-    
-    // parse empassant square
     if (fen[index] != '-') {
-      // parse enpassant square's file & rank
       var file = fen[index].charCodeAt() - 'a'.charCodeAt();
       var rank = 8 - (fen[index + 1].charCodeAt() - '0'.charCodeAt());
-
-      // set up enpassant square
       enpassant = rank * 16 + file;
-    }
-    
-    else
-      // set enpassant to no square (offboard)
-      enpassant = noEnpassant;
-    
-    // parse 50 move count
+    } else enpassant = noEnpassant;
     fifty = Number(fen.slice(index, fen.length - 1).split(' ')[1]);
-
-    // init hash key
     hashKey = generateHashKey();
-    
-    // init piece list
-    initPieceList();
-    
-    // update board on GUI mode
-    if (typeof(document) != 'undefined')
-      updateBoard();
+    if (typeof(document) != 'undefined') updateBoard();
   }
   
   // print chess board to console
   function printBoard() {
-    // chess board string
     var boardString = '';
-    
-    // loop over board ranks
     for (var rank = 0; rank < 8; rank++) {
-      // loop over board files
       for (var file = 0; file < 16; file++) {
-        // convert file & rank to square
         var square = rank * 16 + file;
-        
-        // print ranks
-        if (file == 0)
-          boardString += '   ' + (8 - rank).toString() + ' ';
-        
-        // make sure that the square is on board
-        if ((square & 0x88) == 0)
-        {
-          // init piece
-          var piece = board[square];
-          
-          // append pieces to board string
-          boardString += unicodePieces[piece] + ' ';
-        }
+        if (file == 0) boardString += '   ' + (8 - rank).toString() + ' ';
+        if ((square & 0x88) == 0) boardString += unicodePieces[board[square]] + ' ';
       }
-      
-      // append new line to chess board
       boardString += '\n'
     }
-    
-    // append files to board string
     boardString += '     a b c d e f g h';
-    
-    // append board state variables
     boardString += '\n\n     Side:     ' + ((side == 0) ? 'white': 'black');
     boardString += '\n     Castling:  ' + ((castle & KC) ? 'K' : '-') + 
                                         ((castle & QC) ? 'Q' : '-') +
                                         ((castle & kc) ? 'k' : '-') +
                                         ((castle & qc) ? 'q' : '-');
-                                        
     boardString += '\n     Ep:          ' + ((enpassant == noEnpassant) ? 'no': coordinates[enpassant]);
     boardString += '\n\n     50 moves:    ' + fifty; 
     boardString += '\n     Key: ' + hashKey;
-    
-    // print board string to console
     console.log(boardString + '\n');
   }
   
   // print move
   function moveToString(move) {
-    if (getMovePromoted(move))
+    if (getMovePromoted(move)) {
       return coordinates[getMoveSource(move)] +
              coordinates[getMoveTarget(move)] +
              promotedPieces[getMovePromoted(move)];
-      
-    else
+    } else {
       return coordinates[getMoveSource(move)] +
              coordinates[getMoveTarget(move)];
-  }
-  
-  // print piece list & material counts
-  function printPieceList() {
-    // material output string
-    var materialCountString = '    Material counts:\n\n';
-
-    // material counts output
-    for (var piece = P; piece <= k; piece++)
-      materialCountString += '    ' + unicodePieces[piece] + ': ' + pieceList[piece] + '\n';
-
-    console.log(materialCountString);
-    
-    // piece list output string
-    var pieceListString = '    Piece list:\n\n';
-    
-    // piece list output
-    for (var piece = P; piece <= k; piece++)
-      for (var pieceNumber = 0; pieceNumber < pieceList[piece]; pieceNumber++)
-        pieceListString += '    ' + unicodePieces[piece] + ': ' + 
-                                    coordinates[pieceList.pieces[piece * 10 + pieceNumber]] + '\n';
-
-    console.log(pieceListString);
+    }
   }
 	
   // print move list
   function printMoveList(moveList) {
-    // print table header
     var listMoves = '   Move     Capture  Double   Enpass   Castling\n\n';
-
-    // loop over moves in a movelist
     for (var index = 0; index < moveList.length; index++) {
       var move = moveList[index].move;
       listMoves += '   ' + coordinates[getMoveSource(move)] + coordinates[getMoveTarget(move)];
@@ -873,13 +724,8 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
                     '        ' + getMoveEnpassant(move) +
                     '        ' + getMoveCastling(move) + '\n';
     }
-    
-    // append total moves
     listMoves += '\n   Total moves: ' + moveList.count;
-    
-    // print move list to console
     console.log(listMoves);
-    
   }
   
   
@@ -896,30 +742,12 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
   
   // perft driver
   function perftDriver(depth) {
-    // escape condition
-    if  (depth == 0) {
-      // count current position
-      nodes++;
-      return;
-    }
-    
-    // create move list
-    var moveList = [];
-    
-    // generate moves
+    if  (depth == 0) { nodes++; return; }
+    let moveList = [];
     generateMoves(moveList);
-    
-    // loop over the generated moves
     for (var moveCount = 0; moveCount < moveList.length; moveCount++) {      
-      // make only legal moves
-      if (!makeMove(moveList[moveCount].move))
-        // skip illegal move
-        continue;
-      
-      // recursive call
+      if (!makeMove(moveList[moveCount].move)) continue;
       perftDriver(depth - 1);
-      
-      // take move back
       takeBack();
     }
   }
@@ -928,36 +756,15 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
   function perftTest(depth) {
     console.log('   Performance test:\n');
     resultString = '';
-    
-    // init start time
-    var startTime = new Date().getTime();
-
-    // create move list    
-    var moveList = [];
-    
-    // generate moves
+    let startTime = new Date().getTime();
+    let moveList = [];
     generateMoves(moveList);
-
-    // loop over the generated moves      
     for (var moveCount = 0; moveCount < moveList.length; moveCount++) {      
-      // make only legal moves
-      if (!makeMove(moveList[moveCount].move))
-        // skip illegal move
-        continue;
-
-      // cummulative nodes
-      var cumNodes = nodes;
-      
-      // recursive call
+      if (!makeMove(moveList[moveCount].move)) continue;
+      let cumNodes = nodes;
       perftDriver(depth - 1);
-      
-      // old nodes
-      var oldNodes = nodes - cumNodes;
-
-      // take move back
       takeBack();
-      
-      // print current move
+      let oldNodes = nodes - cumNodes;
       console.log(  '   move' +
                     ' ' + (moveCount + 1) + ((moveCount < 9) ? ':  ': ': ') +
                     coordinates[getMoveSource(moveList[moveCount].move)] +
@@ -966,13 +773,9 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
                     promotedPieces[getMovePromoted(moveList[moveCount].move)]: ' ') +
                     '    nodes: ' + oldNodes);
     }
-    
-    // append results
     resultString += '\n   Depth: ' + depth;
     resultString += '\n   Nodes: ' + nodes;
     resultString += '\n    Time: ' + (new Date().getTime() - startTime) + ' ms\n';
-    
-    // print results
     console.log(resultString);
   }
 
@@ -985,158 +788,95 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
    ============================              
   \****************************/
   
+  // browser mode [TODO: fix inbalanced tags in firefox]
   if (typeof(document) != 'undefined') { 
-    // board appearence
+    // GUI appearance
     var LIGHT_SQUARE = '#f0d9b5';
     var DARK_SQUARE = '#b58863';
     var SELECT_COLOR = 'brown';
-
-    // board square size
     var CELL_WIDTH = 50;
     var CELL_HEIGHT = 50;
-    
-    // override board size
-    if (boardSize) {
-      CELL_WIDTH = boardSize / 8;
-      CELL_HEIGHT = boardSize / 8;
-    }
-    
-    // override board appearence settings
+    var clickLock = 0;
+    var userSource, userTarget;
+    if (boardSize) { CELL_WIDTH = boardSize / 8; CELL_HEIGHT = boardSize / 8; }
     if (lightSquare) LIGHT_SQUARE = lightSquare;
     if (darkSquare) DARK_SQUARE = darkSquare;
     if (selectColor) SELECT_COLOR = selectColor;
       
-    // variable to check click-on-piece state
-    var clickLock = 0;
-
-    // user input variables
-    var userSource, userTarget;
-
+    // render board in browser
     function drawBoard() {      
-      // create HTML rable tag
       var chessBoard = '<table align="center" cellspacing="0" style="border: 1px solid black">';
-      
-      // loop over board rows
       for (var row = 0; row < 8; row++) {
-        // create table row
         chessBoard += '<tr>'
-        
-        // loop over board columns
         for (var col = 0; col < 16; col++) {
-          // init square
           var square = row * 16 + col;
-          
-          // make sure square is on board
           if ((square & 0x88) == 0)
-            // create table cell
-            chessBoard += '<td align="center" id="' + square + 
-                           '"bgcolor="' + ( ((col + row) % 2) ? DARK_SQUARE : LIGHT_SQUARE) + 
-                           '" width="' + CELL_WIDTH + 'px" height="' + CELL_HEIGHT +  'px" ' +
-                           ' onclick="engine.makeMove(this.id)" ' + 
-                           'ondragstart="engine.dragPiece(event, this.id)" ' +
-                           'ondragover="engine.dragOver(event, this.id)"'+
-                           'ondrop="engine.dropPiece(event, this.id)"' +
-                           '></td>'
+            chessBoard += 
+              '<td align="center" id="' + square + 
+              '"bgcolor="' + ( ((col + row) % 2) ? DARK_SQUARE : LIGHT_SQUARE) + 
+              '" width="' + CELL_WIDTH + 'px" height="' + CELL_HEIGHT +  'px" ' +
+              ' onclick="engine.makeMove(this.id)" ' + 
+              'ondragstart="engine.dragPiece(event, this.id)" ' +
+              'ondragover="engine.dragOver(event, this.id)"'+
+              'ondrop="engine.dropPiece(event, this.id)"' +
+              '></td>'
         }
-        
-        // close table row tag
         chessBoard += '</tr>'
       }
-      
-      // close div tag
       chessBoard += '</table>';
-      
-      // render chess board to screen
       document.getElementById('chessboard').innerHTML = chessBoard;
     }
 
-    // update board position (draw pieces)
+    // draw pieces
     function updateBoard() {
-      // loop over board rows
       for (var row = 0; row < 8; row++) {
-        // loop over board columns
         for (var col = 0; col < 16; col++) {
-          // init square
           var square = row * 16 + col;
-          
-          // make sure square is on board
           if ((square & 0x88) == 0)
-            // draw pieces
-            document.getElementById(square).innerHTML = '<img style="width: ' + 
-                                                         (boardSize ? boardSize / 8: 400 / 8) + 
-                                                        'px" draggable="true" id="' + 
-                                                         board[square] + '" src ="Images/' + 
-                                                        (board[square]) +'.gif">';
+            document.getElementById(square).innerHTML = 
+              '<img style="width: ' + 
+               (boardSize ? boardSize / 8: 400 / 8) + 
+              'px" draggable="true" id="' + 
+               board[square] + '" src ="Images/' + 
+              (board[square]) +'.gif">';
         }
       }
     }
     
-    // pick piece
-    function dragPiece(event, square) {
-      // init source square
-      userSource = square;
+    // pick piece handler
+    function dragPiece(event, square) { userSource = square; }
+    
+    // drag piece handler
+    function dragOver(event, square) { event.preventDefault();
+      if (square == userSource) event.target.src = 'Images/0.gif';
     }
     
-    // drag piece
-    function dragOver(event, square) {        
-      // needed to allow drop
-      event.preventDefault();
-
-      // erase source image of dragged piece
-      if (square == userSource)
-        event.target.src = 'Images/0.gif';
-    }
-    
-    // drop piece
+    // drop piece handler
     function dropPiece(event, square) {
-      // init target square
       userTarget = square;
-
-      // move piece
       movePiece(square);    
-      
-      // highlight square
-      if (board[square])
-        document.getElementById(square).style.backgroundColor = SELECT_COLOR;
-      
-      // do not open image file in the tab
+      if (board[square]) document.getElementById(square).style.backgroundColor = SELECT_COLOR;
       event.preventDefault();
     }
     
+    // click event handler
     function tapPiece(square) {
-      // update board
       drawBoard();
       updateBoard();
-      
-      // highlight square if piece is on it
-      if (board[square])
-        document.getElementById(square).style.backgroundColor = SELECT_COLOR;
-    
-      // convert div ID to square index
+      if (board[square]) document.getElementById(square).style.backgroundColor = SELECT_COLOR;
       var clickSquare = parseInt(square, 10)
-      
-      // if user clicks on source square 
       if(!clickLock && board[clickSquare]) {      
-        // init user source square
         userSource = clickSquare;
-        
-        // lock click
         clickLock ^= 1;
       } else if(clickLock) {      
-        // init user target square
         userTarget = clickSquare;
-        
-        // make move on GUI board
         movePiece(square);
       }
     }
     
     function movePiece(square) {
-      // promoted piece
-      var promotedPiece = Q;
-          
-      // make move on internal board
-      let move_str = coordinates[userSource] + 
+      var promotedPiece = Q; // [TODO: pick promoted from GUI]
+      var move_str = coordinates[userSource] + 
                      coordinates[userTarget] + 
                      promotedPieces[promotedPiece];
       
@@ -1160,22 +900,11 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
       
       board[userTarget] = board[userSource];
       board[userSource] = e;
-
-      // update position
       drawBoard();
-      
-      // highlight target square if piece is on it
-      if (board[userTarget])
-        document.getElementById(userTarget).style.backgroundColor = SELECT_COLOR;
-      
-      // draw pieces
+      if (board[userTarget]) document.getElementById(userTarget).style.backgroundColor = SELECT_COLOR;
       updateBoard();
-      
-      // reset click lock
       clickLock = 0;
     }
-    
-    // draw board initially
     drawBoard();
     updateBoard();
   }
@@ -1190,15 +919,8 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
   
   // init all when Chess() object is created
   (function init_all() {
-    // init random keys
     initRandomKeys();
-    
-    // init hash key for starting position
     hashKey = generateHashKey();
-    
-    // init piece list for starting position
-    initPieceList();
-    
   }())
 
 
@@ -1209,15 +931,28 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
 
    ============================              
   \****************************/
+  
+  var attackedTime = 0;
+  var copyTime = 0
+  var makeMoveTime = 0;
+  var movegenTime = 0;
 
   function debug() {
     // parse position from FEN string
-    //parseFen('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1 ');
-    parseFen('r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1 ');
+    //setBoard('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1 ');
+    setBoard('r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1 ');
     printBoard();
     
+    
     // perft test
-    perftTest(3);
+    perftTest(4);
+    
+    
+    console.log('   Profiling:\n')
+    console.log('   isSquareAttacked:', attackedTime, 'ms');
+    console.log('   generateMoves:', movegenTime, 'ms');
+    console.log('   makeMove:', makeMoveTime, 'ms');
+    console.log('   boardCopy:', copyTime, 'ms');
     
     //  VICE in C  tricky depth 4:    1575
     //  VICE in JS tricky depth 4:    2224
