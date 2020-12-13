@@ -629,7 +629,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     }
   }
 
-  // move piece on chess board
+  // move piece on board
   function moveCurrentPiece(piece, sourceSquare, targetSquare) {
     board[targetSquare] = board[sourceSquare];
     board[sourceSquare] = e;
@@ -644,6 +644,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     }
   }
   
+  // remove piece from board
   function removePiece(piece, square) {
     for (let pieceIndex = 0; pieceIndex < pieceList[piece]; pieceIndex++) {
       if (pieceList.pieces[piece * 10 + pieceIndex] == square) {
@@ -656,7 +657,10 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     pieceList.pieces[piece * 10 + capturedIndex] = pieceList.pieces[piece * 10 + pieceList[piece]];    
   }
   
+  // add piece to board
   function addPiece(piece, square) {
+    board[square] = piece;
+    hashKey ^= pieceKeys[piece * 128 + square];
     pieceList.pieces[piece * 10 + pieceList[piece]] = square;    
     pieceList[piece]++;
   }
@@ -691,10 +695,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
       if (capturedPiece) {
         backup[backup.length - 1].capturedPiece = capturedPiece;
         hashKey ^= pieceKeys[capturedPiece * 128 + targetSquare];
-        
-        
-        removePiece(capturedPiece, targetSquare);
-        
+        removePiece(capturedPiece, targetSquare); 
       }
       fifty = 0;
     } else if (board[sourceSquare] == P || board[sourceSquare] == p)
@@ -717,12 +718,10 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
       if (side == white) {
         board[targetSquare + 16] = e;
         hashKey ^= pieceKeys[p * 128 + targetSquare + 16];
-        
         removePiece(p, targetSquare + 16);
       } else {
         board[targetSquare - 16] = e;
         hashKey ^= pieceKeys[(P * 128) + (targetSquare - 16)];
-        
         removePiece(P, targetSquare - 16);
       }
     } else if (getMoveCastling(move)) {
@@ -734,27 +733,17 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
       }
     }
     
+    // handle promotions
     if (promotedPiece) {
-      if (side == white) { // TODO check hash update on depth 5
+      if (side == white) {
         hashKey ^= pieceKeys[P * 128 + targetSquare];
-        
-        
         removePiece(P, targetSquare);
       } else {
         hashKey ^= pieceKeys[p * 128 + targetSquare];
-        
         removePiece(p, targetSquare);
       }
-      
-      
-      board[targetSquare] = promotedPiece;
-      hashKey ^= pieceKeys[promotedPiece * 128 + targetSquare];
-      
-      
-            
-      addPiece(promotedPiece, targetSquare);
-      
-      
+
+      addPiece(promotedPiece, targetSquare);      
     }
     
     // update king square
@@ -790,21 +779,17 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     
     // restore captured piece
     if (getMoveCapture(move)) {
-      board[targetSquare] = backup[moveIndex].capturedPiece;
-      
-      
+      //board[targetSquare] = backup[moveIndex].capturedPiece;
       addPiece(backup[moveIndex].capturedPiece, targetSquare);
     }
     
     // handle special moves
     if (getMoveEnpassant(move)) {
       if (side == white) {
-        board[targetSquare - 16] = P
-        
+        //board[targetSquare - 16] = P
         addPiece(P, targetSquare - 16);
       } else {
-        board[targetSquare + 16] = p;
-        
+        //board[targetSquare + 16] = p;
         addPiece(p, targetSquare + 16);
       }
     } else if (getMoveCastling(move)) {
@@ -815,23 +800,17 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
         case c8: moveCurrentPiece(r, d8, a8); break;
       }
     } else if (getMovePromoted(move)) {
-      //(side == white) ? board[sourceSquare] = p: board[sourceSquare] = P;
+      (side == white) ? addPiece(p, sourceSquare): addPiece(P, sourceSquare);
       
-      if (side == white) {
-        board[sourceSquare] = p;
-        
-        
+      /*if (side == white) {
         addPiece(p, sourceSquare);
       } else {
-        board[sourceSquare] = P;
-        
-
         addPiece(P, sourceSquare);
-      }
-      
-      
+      }*/
+
       removePiece(getMovePromoted(move), sourceSquare);
     }
+
     // update king square
     if (board[sourceSquare] == K || board[sourceSquare] == k) kingSquare[side ^ 1] = sourceSquare;
     
@@ -1245,8 +1224,8 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
   function debug() {
     // parse position from FEN string
     //setBoard('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1 ');
-    setBoard('r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1 ');
-    //setBoard('8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - -');
+    //setBoard('r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1 ');
+    setBoard('8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - -');
     //setBoard('rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPP1NnPP/RNBQK2R w KQ - 1 8');
     printBoard();
     
@@ -1256,7 +1235,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     //printMoveList(moveList);
     
     // perft test
-    perftTest(3);
+    perftTest(6);
     
     
     
