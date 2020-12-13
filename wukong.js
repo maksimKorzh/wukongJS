@@ -387,7 +387,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
 
   // generate moves
   function generateMoves(moveList) {
-    for (let piece = 0; piece < 128; piece++) {
+    for (let piece = P; piece <= k; piece++) {
       for (let pieceIndex = 0; pieceIndex < pieceList[piece]; pieceIndex++) {
         let sourceSquare = pieceList.pieces[piece * 10 + pieceIndex];
         
