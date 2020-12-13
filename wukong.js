@@ -90,13 +90,6 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
   var hashKey = 0;
   var kingSquare = [e1, e8];
   
-  // move stack
-  var moveStack = {
-    moves: new Array(1000),
-    count: 0,
-    size: 0
-  }
-  
   // board state variables backup stack
   var backup = [];
   
@@ -115,10 +108,13 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
   // generate 32-bit pseudo legal numbers
   function random() {
     var number = randomState;
+    
+    // 32-bit XOR shift
     number ^= number << 13;
     number ^= number >> 17;
     number ^= number << 5;
     randomState = number;
+
     return number;
   }
 
@@ -146,15 +142,20 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
   // generate hash key
   function generateHashKey() {
     var finalKey = 0;
+    
+    // hash board position
     for (var square = 0; square < 128; square++) {
       if ((square & 0x88) == 0)	{
         var piece = board[square];
         if (piece != e) finalKey ^= pieceKeys[(piece * 128) + square];
       }		
     }
+    
+    // hash board state variables
     if (side == white) finalKey ^= sideKey;
     if (enpassant != noEnpassant) finalKey ^= pieceKeys[enpassant];
     finalKey ^= castleKeys[castle];
+    
     return finalKey;
   }
 
@@ -169,19 +170,21 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
   
   // reset chess board
   function resetBoard() {
+    // reset board position
     for (var rank = 0; rank < 8; rank++) {
       for (var file = 0; file < 16; file++) {
         var square = rank * 16 + file;
         if ((square & 0x88) == 0) board[square] = e;
       }
     }
+    
+    // reset board state variables
     side = -1;
     enpassant = noEnpassant;
     castle = 0;
     fifty = 0;
     hashKey = 0;
     kingSquare = [0, 0];
-    moveStack = { moves: new Array(1000), count: 0, size: 0 }
   }
 
   
@@ -192,40 +195,39 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
 
    ============================              
   \****************************/
-  
+
   // square attacked
   function isSquareAttacked(square, side) {
-    var start = new Date().getTime();
+    // by pawns
     for (let index = 0; index < 2; index++) {
-      let direction = pawnDirections.offsets[side][index];
-      if (((square + direction) & 0x88) == 0 &&
-           (board[square + direction] == pawnDirections.pawn[side])) return 1;
+      let targetSquare = square + pawnDirections.offsets[side][index] 
+      if (((targetSquare) & 0x88) == 0 &&
+           (board[targetSquare] == pawnDirections.pawn[side])) return 1;
     }
+    
+    // by leaper pieces
     for (let piece in leaperPieces) {      
       for (let index = 0; index < 8; index++) {
         let targetSquare = square + leaperPieces[piece].offsets[index];
         let targetPiece = board[targetSquare];
         if ((targetSquare & 0x88) == 0)
-          if ((side == white) ? targetPiece == leaperPieces[piece].side[white] :
-                                targetPiece == leaperPieces[piece].side[black]) return 1;
+          if (targetPiece == leaperPieces[piece].side[side]) return 1;
       }
     }
+    
+    // by slider pieces
     for (let piece in sliderPieces) {
       for (let index = 0; index < 4; index++) {
         let targetSquare = square + sliderPieces[piece].offsets[index];
         while ((targetSquare & 0x88) == 0) {
           var targetPiece = board[targetSquare];
-          if (!side ? (targetPiece == sliderPieces[piece].side[white][0] ||
-                       targetPiece == sliderPieces[piece].side[white][1]) :
-                      (targetPiece == sliderPieces[piece].side[black][0] ||
-                       targetPiece == sliderPieces[piece].side[black][1])) return 1;
+          if (sliderPieces[piece].side[side].includes(targetPiece)) return 1;
           if (targetPiece) break;
           targetSquare += sliderPieces[piece].offsets[index];
         }
       }
     }
-    
-    attackedTime += (new Date().getTime() - start);
+
     return 0;
   }
 
@@ -291,6 +293,44 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     rook: { offsets: rookOffsets, side: [[R, Q], [r, q]] }
   };
   
+  // pawn & castling mappings
+  var specialMoves = {
+    side: [
+      {
+        offset: [-17, -15],
+        pawn: P,
+        target: -16,
+        doubleTarget: -32,
+        capture: [7, 12],
+        rank7: [a7, h7],
+        rank2: [a2, h2],
+        promoted: [Q, R, B, N],
+        king: K,
+        castling: [1, 2],
+        empty: [f1, g1, d1, b1, c1],
+        attacked: [e1, f1, d1],
+        by: [black, white],
+        castle: [e1, g1, c1]
+      },
+      {
+        offset: [17, 15],
+        pawn: p,
+        target: 16,
+        doubleTarget: 32,
+        capture: [1, 6],
+        rank7: [a2, h2],
+        rank2: [a7, h7],
+        promoted: [q, r, b, n],
+        king: k,
+        castling: [4, 8],
+        empty: [f8, g8, d8, b8, c8],
+        attacked: [e8, f8, d8],
+        by: [black, white],
+        castle: [e8, g8, c8]
+      }
+    ]
+  }
+  
   // castling rights
   var castlingRights = [
      7, 15, 15, 15,  3, 15, 15, 11,  o, o, o, o, o, o, o, o,
@@ -313,175 +353,121 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
 
   // move generator
   function generateMoves(moveList) {
-    var start = new Date().getTime();
-    for (var sourceSquare = 0; sourceSquare < 128; sourceSquare++) {
+    for (let sourceSquare = 0; sourceSquare < 128; sourceSquare++) {
+      // pawns
       if ((sourceSquare & 0x88) == 0) {
-        if (side == white) {
-          if (board[sourceSquare] == P) {
-            var targetSquare = sourceSquare - 16;
-            if (!(targetSquare & 0x88) && !board[targetSquare]) {   
-              if (sourceSquare >= a7 && sourceSquare <= h7) {
-                addMove(moveList, encodeMove(sourceSquare, targetSquare, Q, 0, 0, 0, 0));
-                addMove(moveList, encodeMove(sourceSquare, targetSquare, R, 0, 0, 0, 0));
-                addMove(moveList, encodeMove(sourceSquare, targetSquare, B, 0, 0, 0, 0));
-                addMove(moveList, encodeMove(sourceSquare, targetSquare, N, 0, 0, 0, 0));                            
-              } else {
-                addMove(moveList, encodeMove(sourceSquare, targetSquare, 0, 0, 0, 0, 0));
-                if ((sourceSquare >= a2 && sourceSquare <= h2) && !board[sourceSquare - 32])
-                  addMove(moveList, encodeMove(sourceSquare, sourceSquare - 32, 0, 0, 1, 0, 0));
+        if (board[sourceSquare] == specialMoves.side[side].pawn) {
+          let targetSquare = sourceSquare + specialMoves.side[side].target;
+          
+          // quiet moves
+          if ((targetSquare & 0x88) == 0 && board[targetSquare] == e) {   
+            if (sourceSquare >= specialMoves.side[side].rank7[0] &&
+                sourceSquare <= specialMoves.side[side].rank7[1]) {
+              for (let promotedIndex = 0; promotedIndex < 4; promotedIndex++) {
+                let promotedPiece = specialMoves.side[side].promoted[promotedIndex];
+                addMove(moveList, encodeMove(sourceSquare, targetSquare, promotedPiece, 0, 0, 0, 0));
               }
-            }
-            for (var index = 0; index < 4; index++) {
-              var pawn_offset = bishopOffsets[index];
-              if (pawn_offset < 0) {
-                var targetSquare = sourceSquare + pawn_offset;
-                if (!(targetSquare & 0x88)) {
-                  if ((sourceSquare >= a7 && sourceSquare <= h7) &&
-                      (board[targetSquare] >= 7 && board[targetSquare] <= 12)
-                     ) {
-                    addMove(moveList, encodeMove(sourceSquare, targetSquare, Q, 1, 0, 0, 0));
-                    addMove(moveList, encodeMove(sourceSquare, targetSquare, R, 1, 0, 0, 0));
-                    addMove(moveList, encodeMove(sourceSquare, targetSquare, B, 1, 0, 0, 0));
-                    addMove(moveList, encodeMove(sourceSquare, targetSquare, N, 1, 0, 0, 0));
-                  } else {
-                    if (board[targetSquare] >= 7 && board[targetSquare] <= 12)
-                      addMove(moveList, encodeMove(sourceSquare, targetSquare, 0, 1, 0, 0, 0));
-                    if (targetSquare == enpassant)
-                      addMove(moveList, encodeMove(sourceSquare, targetSquare, 0, 1, 0, 1, 0));
-                  }
-                }
-              }
-            }
-          } else if (board[sourceSquare] == K) {
-            if (castle & KC) {
-              if (!board[f1] && !board[g1]) {
-                if (!isSquareAttacked(e1, black) && !isSquareAttacked(f1, black))
-                  addMove(moveList, encodeMove(e1, g1, 0, 0, 0, 0, 1));
-              }
-            }
-            if (castle & QC) {
-              if (!board[d1] && !board[b1] && !board[c1]) {
-                if (!isSquareAttacked(e1, black) && !isSquareAttacked(d1, black))
-                  addMove(moveList, encodeMove(e1, c1, 0, 0, 0, 0, 1));
-              }
+            } else {
+              addMove(moveList, encodeMove(sourceSquare, targetSquare, 0, 0, 0, 0, 0));
+              let doubleTarget = sourceSquare + specialMoves.side[side].doubleTarget;
+              
+              if ((sourceSquare >= specialMoves.side[side].rank2[0] &&
+                   sourceSquare <= specialMoves.side[side].rank2[1]) &&
+                   board[doubleTarget] == e)
+                addMove(moveList, encodeMove(sourceSquare, doubleTarget, 0, 0, 1, 0, 0));
             }
           }
-        } else {
-          if (board[sourceSquare] == p) {
-            var targetSquare = sourceSquare + 16;
-            if (!(targetSquare & 0x88) && !board[targetSquare]) {   
-              if (sourceSquare >= a2 && sourceSquare <= h2) {
-                addMove(moveList, encodeMove(sourceSquare, targetSquare, q, 0, 0, 0, 0));
-                addMove(moveList, encodeMove(sourceSquare, targetSquare, r, 0, 0, 0, 0));
-                addMove(moveList, encodeMove(sourceSquare, targetSquare, b, 0, 0, 0, 0));
-                addMove(moveList, encodeMove(sourceSquare, targetSquare, n, 0, 0, 0, 0));
-              } else {
-                addMove(moveList, encodeMove(sourceSquare, targetSquare, 0, 0, 0, 0, 0));
-                if ((sourceSquare >= a7 && sourceSquare <= h7) && !board[sourceSquare + 32])
-                  addMove(moveList, encodeMove(sourceSquare, sourceSquare + 32, 0, 0, 1, 0, 0));
-              }
-            }
-            for (var index = 0; index < 4; index++) {
-              var pawn_offset = bishopOffsets[index];
-              if (pawn_offset > 0) {
-                var targetSquare = sourceSquare + pawn_offset;
-                if (!(targetSquare & 0x88)) {
-                  if ((sourceSquare >= a2 && sourceSquare <= h2) &&
-                      (board[targetSquare] >= 1 && board[targetSquare] <= 6)
-                     ) {
-                    addMove(moveList, encodeMove(sourceSquare, targetSquare, q, 1, 0, 0, 0));
-                    addMove(moveList, encodeMove(sourceSquare, targetSquare, r, 1, 0, 0, 0));
-                    addMove(moveList, encodeMove(sourceSquare, targetSquare, b, 1, 0, 0, 0));
-                    addMove(moveList, encodeMove(sourceSquare, targetSquare, n, 1, 0, 0, 0));
-                  } else {
-                    if (board[targetSquare] >= 1 && board[targetSquare] <= 6)
-                      addMove(moveList, encodeMove(sourceSquare, targetSquare, 0, 1, 0, 0, 0));
-                    if (targetSquare == enpassant)
-                      addMove(moveList, encodeMove(sourceSquare, targetSquare, 0, 1, 0, 1, 0));
-                  }
+          
+          // captures
+          for (let index = 0; index < 2; index++) {
+            let pawn_offset = specialMoves.side[side].offset[index];
+            let targetSquare = sourceSquare + pawn_offset;
+            
+            if ((targetSquare & 0x88) == 0) {
+              if ((sourceSquare >= specialMoves.side[side].rank7[0] &&
+                   sourceSquare <= specialMoves.side[side].rank7[1]) &&
+                  (board[targetSquare] >= specialMoves.side[side].capture[0] &&
+                   board[targetSquare] <= specialMoves.side[side].capture[1])
+                 ) {
+                for (let promotedIndex = 0; promotedIndex < 4; promotedIndex++) {
+                  let promotedPiece = specialMoves.side[side].promoted[promotedIndex];
+                  addMove(moveList, encodeMove(sourceSquare, targetSquare, promotedPiece, 1, 0, 0, 0));
                 }
-              }
-            }
-          } else if (board[sourceSquare] == k) {
-            if (castle & kc) {
-              if (!board[f8] && !board[g8]) {
-                if (!isSquareAttacked(e8, white) && !isSquareAttacked(f8, white))
-                  addMove(moveList, encodeMove(e8, g8, 0, 0, 0, 0, 1));
-              }
-            }
-            if (castle & qc) {
-              if (!board[d8] && !board[b8] && !board[c8]) {
-                if (!isSquareAttacked(e8, white) && !isSquareAttacked(d8, white))
-                  addMove(moveList, encodeMove(e8, c8, 0, 0, 0, 0, 1));
+              } else {
+                if (board[targetSquare] >= specialMoves.side[side].capture[0] &&
+                    board[targetSquare] <= specialMoves.side[side].capture[1])
+                  addMove(moveList, encodeMove(sourceSquare, targetSquare, 0, 1, 0, 0, 0));
+                if (targetSquare == enpassant)
+                  addMove(moveList, encodeMove(sourceSquare, targetSquare, 0, 1, 0, 1, 0));
               }
             }
           }
         }
-        if ((side == white) ? board[sourceSquare] == N : board[sourceSquare] == n) {
-          for (var index = 0; index < 8; index++) {
-            var targetSquare = sourceSquare + knightOffsets[index];
-            var piece = board[targetSquare];
-            if (!(targetSquare & 0x88)) {
-              if (!side ? (!piece || (piece >= 7 && piece <= 12)) : 
-                          (!piece || (piece >= 1 && piece <= 6))
-                 ) {
-                if (piece) addMove(moveList, encodeMove(sourceSquare, targetSquare, 0, 1, 0, 0, 0));
-                else addMove(moveList, encodeMove(sourceSquare, targetSquare, 0, 0, 0, 0, 0));
-              }
+
+        // castling
+        else if (board[sourceSquare] == specialMoves.side[side].king) {
+          if (castle & specialMoves.side[side].castling[0]) {
+            if (board[specialMoves.side[side].empty[0]] == e &&
+                board[specialMoves.side[side].empty[1]] == e) {
+              if (isSquareAttacked(specialMoves.side[side].attacked[1], specialMoves.side[side].by[side]) == 0 &&
+                  isSquareAttacked(specialMoves.side[side].attacked[0], specialMoves.side[side].by[side]) == 0)
+                  addMove(moveList, encodeMove(specialMoves.side[side].castle[0], specialMoves.side[side].castle[1], 0, 0, 0, 0, 1));
+            }
+          }
+          if (castle & specialMoves.side[side].castling[1]) {
+            if (board[specialMoves.side[side].empty[2]] == e &&
+                board[specialMoves.side[side].empty[3]] == e &&
+                board[specialMoves.side[side].empty[4]] == e) {
+              if (isSquareAttacked(specialMoves.side[side].attacked[2], specialMoves.side[side].by[side]) == 0 &&
+                  isSquareAttacked(specialMoves.side[side].attacked[0], specialMoves.side[side].by[side]) == 0)
+                  addMove(moveList, encodeMove(specialMoves.side[side].castle[0], specialMoves.side[side].castle[2], 0, 0, 0, 0, 1));
             }
           }
         }
-        if ((side == white) ? board[sourceSquare] == K : board[sourceSquare] == k) {
-          for (var index = 0; index < 8; index++) {
-            var targetSquare = sourceSquare + kingOffsets[index];
-            var piece = board[targetSquare];
-            if (!(targetSquare & 0x88)) {
-              if (!side ? (!piece || (piece >= 7 && piece <= 12)) : 
-                          (!piece || (piece >= 1 && piece <= 6))
-                 ) {
-                  if (piece) addMove(moveList, encodeMove(sourceSquare, targetSquare, 0, 1, 0, 0, 0));
+        
+        // leaper pieces
+        for (let piece in leaperPieces) {
+          if (board[sourceSquare] == leaperPieces[piece].side[side]) {
+            for (let index = 0; index < 8; index++) {
+              let targetSquare = sourceSquare + leaperPieces[piece].offsets[index];
+              let capturedPiece = board[targetSquare];
+              
+              if ((targetSquare & 0x88) == 0) {
+                if ((side == white) ? 
+                    (capturedPiece == e || (capturedPiece >= 7 && capturedPiece <= 12)) : 
+                    (capturedPiece == e || (capturedPiece >= 1 && capturedPiece <= 6))
+                   ) {
+                  if (capturedPiece) addMove(moveList, encodeMove(sourceSquare, targetSquare, 0, 1, 0, 0, 0));
                   else addMove(moveList, encodeMove(sourceSquare, targetSquare, 0, 0, 0, 0, 0));
+                }
               }
             }
           }
         }
-        if ((side == white) ? (board[sourceSquare] == B) || (board[sourceSquare] == Q) :
-                              (board[sourceSquare] == b) || (board[sourceSquare] == q)
-           ) {
-          for (var index = 0; index < 4; index++) {
-            var targetSquare = sourceSquare + bishopOffsets[index];
-            while (!(targetSquare & 0x88)) {
-              var piece = board[targetSquare];
-              if ((side == white) ? (piece >= 1 && piece <= 6) : ((piece >= 7 && piece <= 12))) break;
-              if ((side == white) ? (piece >= 7 && piece <= 12) : ((piece >= 1 && piece <= 6))) {
-                addMove(moveList, encodeMove(sourceSquare, targetSquare, 0, 1, 0, 0, 0));
-                break;
+        
+        // slider pieces
+        for (let piece in sliderPieces) {
+          if (board[sourceSquare] == sliderPieces[piece].side[side][0] ||
+              board[sourceSquare] == sliderPieces[piece].side[side][1]) {
+            for (var index = 0; index < 4; index++) {
+              let targetSquare = sourceSquare + sliderPieces[piece].offsets[index];
+              while (!(targetSquare & 0x88)) {
+                var capturedPiece = board[targetSquare];
+                
+                if ((side == white) ? (capturedPiece >= 1 && capturedPiece <= 6) : ((capturedPiece >= 7 && capturedPiece <= 12))) break;
+                if ((side == white) ? (capturedPiece >= 7 && capturedPiece <= 12) : ((capturedPiece >= 1 && capturedPiece <= 6))) {
+                  addMove(moveList, encodeMove(sourceSquare, targetSquare, 0, 1, 0, 0, 0));
+                  break;
+                }
+                
+                if (capturedPiece == e) addMove(moveList, encodeMove(sourceSquare, targetSquare, 0, 0, 0, 0, 0));
+                targetSquare += sliderPieces[piece].offsets[index];
               }
-              if (piece == e) addMove(moveList, encodeMove(sourceSquare, targetSquare, 0, 0, 0, 0, 0));
-              targetSquare += bishopOffsets[index];
-            }
-          }
-        }
-        if ((side == white) ? (board[sourceSquare] == R) || (board[sourceSquare] == Q) :
-                              (board[sourceSquare] == r) || (board[sourceSquare] == q)
-           ) {
-          for (var index = 0; index < 4; index++) {
-            var targetSquare = sourceSquare + rookOffsets[index];
-            while (!(targetSquare & 0x88)) {
-              var piece = board[targetSquare];
-              if ((side == white) ? (piece >= 1 && piece <= 6) : ((piece >= 7 && piece <= 12))) break;
-              if ((side == white) ? (piece >= 7 && piece <= 12) : ((piece >= 1 && piece <= 6))) {
-                addMove(moveList, encodeMove(sourceSquare, targetSquare, 0, 1, 0, 0, 0));
-                break;
-              }
-              if (piece == 0) addMove(moveList, encodeMove(sourceSquare, targetSquare, 0, 0, 0, 0, 0));
-              targetSquare += rookOffsets[index];
             }
           }
         }
       }
     }
-    movegenTime += new Date().getTime() - start
   }
 
   // move piece on chess board
@@ -494,11 +480,13 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
 
   // make move
   function makeMove(move) {
-    let start = new Date().getTime();
+    // parse move
     let sourceSquare = getMoveSource(move);
     let targetSquare = getMoveTarget(move);
     let promotedPiece = getMovePromoted(move);
     let capturedPiece = board[targetSquare];
+    
+    // backup board state variables
     backup.push({
       move: move,
       capturedPiece: 0,
@@ -508,8 +496,14 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
       fifty: fifty,
       hash: hashKey,
     });
+    
+    // move piece
     moveCurrentPiece(board[sourceSquare], sourceSquare, targetSquare);
+    
+    // update 50 move rule
     fifty++;
+
+    // handle capture
     if (getMoveCapture(move)) {
       if (capturedPiece) {
         backup[backup.length - 1].capturedPiece = capturedPiece;
@@ -518,8 +512,12 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
       fifty = 0;
     } else if (board[sourceSquare] == P || board[sourceSquare] == p)
       fifty = 0;
+    
+    // update enpassant square
     if (enpassant != noEnpassant) hashKey ^= pieceKeys[enpassant];
     enpassant = noEnpassant;
+    
+    // handle special moves
     if (getMovePawn(move)) {
       if (side == white) {
         enpassant = targetSquare + 16;
@@ -549,14 +547,21 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
       board[targetSquare] = promotedPiece;
       hashKey ^= pieceKeys[promotedPiece * 128 + targetSquare];
     }
+    
+    // update king square
     if (board[targetSquare] == K || board[targetSquare] == k) kingSquare[side] = targetSquare;
+    
+    // update castling rights
     hashKey ^= castleKeys[castle];
     castle &= castlingRights[sourceSquare];
     castle &= castlingRights[targetSquare];
     hashKey ^= castleKeys[castle];
+    
+    // switch side to move
     side ^= 1;
     hashKey ^= sideKey;
-    makeMoveTime += new Date().getTime() - start;
+    
+    // return illegal move if king is left in check 
     if (isSquareAttacked((side == white) ? kingSquare[side ^ 1] : kingSquare[side ^ 1], side)) {
       takeBack();
       return 0;
@@ -565,18 +570,22 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
   
   // take move back
   function takeBack() {
+    // parse move
     let moveIndex = backup.length - 1;
     let move = backup[moveIndex].move;    
     let sourceSquare = getMoveSource(move);
     let targetSquare = getMoveTarget(move);
+    
+    // move piece
     moveCurrentPiece(board[targetSquare], targetSquare, sourceSquare);
+    
+    // restore captured piece
     if (getMoveCapture(move)) board[targetSquare] = backup[moveIndex].capturedPiece;
+    
+    // handle special moves
     if (getMoveEnpassant(move)) {
-      if (side == white) {
-        board[targetSquare - 16] = P;
-      } else {
-        board[targetSquare + 16] = p;
-      }
+      if (side == white) board[targetSquare - 16] = P;
+      else board[targetSquare + 16] = p;
     } else if (getMoveCastling(move)) {
       switch(targetSquare) {
         case g1: moveCurrentPiece(R, f1, h1); break;
@@ -586,12 +595,19 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
       }
     } else if (getMovePromoted(move))
       (side == white) ? board[sourceSquare] = p: board[sourceSquare] = P;
+    
+    // update king square
     if (board[sourceSquare] == K || board[sourceSquare] == k) kingSquare[side ^ 1] = sourceSquare;
+    
+    // switch side to move
     side = backup[moveIndex].side;
+    
+    // restore board state variables
     enpassant = backup[moveIndex].enpassant;
     castle = backup[moveIndex].castle;
     hashKey = backup[moveIndex].hash;
     fifty = backup[moveIndex].fifty;
+
     backup.pop();
   }
 
@@ -605,7 +621,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
   \****************************/
   
   // castling bits
-  const KC = 1, QC = 2, kc = 4, qc = 8;
+  var KC = 1, QC = 2, kc = 4, qc = 8;
 
   // decode promoted pieces
   var promotedPieces = {
@@ -629,6 +645,8 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
   function setBoard(fen) {
     resetBoard();
     var index = 0;
+    
+    // parse board position
     for (var rank = 0; rank < 8; rank++) {
       for (var file = 0; file < 16; file++) {
         var square = rank * 16 + file;
@@ -653,9 +671,13 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
         }
       }
     }
+    
+    // parse side to move
     index++;
     side = (fen[index] == 'w') ? white : black;
     index += 2;
+    
+    // parse castling rights
     while (fen[index] != ' ') {
       switch(fen[index]) {
         case 'K': castle |= KC; break;
@@ -664,22 +686,34 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
         case 'q': castle |= qc; break;
         case '-': break;
       }
+
       index++;
     }
+    
     index++;
+    
+    // parse enpassant square
     if (fen[index] != '-') {
       var file = fen[index].charCodeAt() - 'a'.charCodeAt();
       var rank = 8 - (fen[index + 1].charCodeAt() - '0'.charCodeAt());
       enpassant = rank * 16 + file;
     } else enpassant = noEnpassant;
+    
+    // parse 50 rule move counter
     fifty = Number(fen.slice(index, fen.length - 1).split(' ')[1]);
+    
+    // generate unique position identifier
     hashKey = generateHashKey();
+    
+    // render board in browser
     if (typeof(document) != 'undefined') updateBoard();
   }
   
   // print chess board to console
   function printBoard() {
     var boardString = '';
+    
+    // print board position
     for (var rank = 0; rank < 8; rank++) {
       for (var file = 0; file < 16; file++) {
         var square = rank * 16 + file;
@@ -688,7 +722,10 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
       }
       boardString += '\n'
     }
+    
     boardString += '     a b c d e f g h';
+    
+    // print board state variables
     boardString += '\n\n     Side:     ' + ((side == 0) ? 'white': 'black');
     boardString += '\n     Castling:  ' + ((castle & KC) ? 'K' : '-') + 
                                         ((castle & QC) ? 'Q' : '-') +
@@ -715,6 +752,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
   // print move list
   function printMoveList(moveList) {
     var listMoves = '   Move     Capture  Double   Enpass   Castling\n\n';
+    
     for (var index = 0; index < moveList.length; index++) {
       var move = moveList[index].move;
       listMoves += '   ' + coordinates[getMoveSource(move)] + coordinates[getMoveTarget(move)];
@@ -724,7 +762,8 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
                     '        ' + getMoveEnpassant(move) +
                     '        ' + getMoveCastling(move) + '\n';
     }
-    listMoves += '\n   Total moves: ' + moveList.count;
+    
+    listMoves += '\n   Total moves: ' + moveList.length;
     console.log(listMoves);
   }
   
@@ -743,8 +782,10 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
   // perft driver
   function perftDriver(depth) {
     if  (depth == 0) { nodes++; return; }
+    
     let moveList = [];
     generateMoves(moveList);
+    
     for (var moveCount = 0; moveCount < moveList.length; moveCount++) {      
       if (!makeMove(moveList[moveCount].move)) continue;
       perftDriver(depth - 1);
@@ -757,8 +798,10 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     console.log('   Performance test:\n');
     resultString = '';
     let startTime = new Date().getTime();
+    
     let moveList = [];
     generateMoves(moveList);
+    
     for (var moveCount = 0; moveCount < moveList.length; moveCount++) {      
       if (!makeMove(moveList[moveCount].move)) continue;
       let cumNodes = nodes;
@@ -773,6 +816,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
                     promotedPieces[getMovePromoted(moveList[moveCount].move)]: ' ') +
                     '    nodes: ' + oldNodes);
     }
+    
     resultString += '\n   Depth: ' + depth;
     resultString += '\n   Nodes: ' + nodes;
     resultString += '\n    Time: ' + (new Date().getTime() - startTime) + ' ms\n';
@@ -806,6 +850,8 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     // render board in browser
     function drawBoard() {      
       var chessBoard = '<table align="center" cellspacing="0" style="border: 1px solid black">';
+      
+      // generate board <table> tag
       for (var row = 0; row < 8; row++) {
         chessBoard += '<tr>'
         for (var col = 0; col < 16; col++) {
@@ -821,8 +867,10 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
               'ondrop="engine.dropPiece(event, this.id)"' +
               '></td>'
         }
+
         chessBoard += '</tr>'
       }
+
       chessBoard += '</table>';
       document.getElementById('chessboard').innerHTML = chessBoard;
     }
@@ -863,8 +911,10 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     function tapPiece(square) {
       drawBoard();
       updateBoard();
+      
       if (board[square]) document.getElementById(square).style.backgroundColor = SELECT_COLOR;
       var clickSquare = parseInt(square, 10)
+      
       if(!clickLock && board[clickSquare]) {      
         userSource = clickSquare;
         clickLock ^= 1;
@@ -932,27 +982,23 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
    ============================              
   \****************************/
   
-  var attackedTime = 0;
-  var copyTime = 0
-  var makeMoveTime = 0;
-  var movegenTime = 0;
-
   function debug() {
     // parse position from FEN string
     //setBoard('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1 ');
     setBoard('r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1 ');
+    //setBoard('8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - -');
+    //setBoard('rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPP1NnPP/RNBQK2R w KQ - 1 8');
     printBoard();
     
+    
+    //moveList = [];
+    //generateMoves(moveList);
+    //printMoveList(moveList);
     
     // perft test
     perftTest(4);
     
     
-    console.log('   Profiling:\n')
-    console.log('   isSquareAttacked:', attackedTime, 'ms');
-    console.log('   generateMoves:', movegenTime, 'ms');
-    console.log('   makeMove:', makeMoveTime, 'ms');
-    console.log('   boardCopy:', copyTime, 'ms');
     
     //  VICE in C  tricky depth 4:    1575
     //  VICE in JS tricky depth 4:    2224
