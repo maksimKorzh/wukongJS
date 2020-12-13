@@ -940,14 +940,16 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
   
   // browser mode [TODO: fix inbalanced tags in firefox]
   if (typeof(document) != 'undefined') { 
-    // GUI appearance
+    // color theme
     var LIGHT_SQUARE = '#f0d9b5';
     var DARK_SQUARE = '#b58863';
     var SELECT_COLOR = 'brown';
+    
+    // square size
     var CELL_WIDTH = 50;
     var CELL_HEIGHT = 50;
-    var clickLock = 0;
-    var userSource, userTarget;
+    
+    // override board appearance
     if (boardSize) { CELL_WIDTH = boardSize / 8; CELL_HEIGHT = boardSize / 8; }
     if (lightSquare) LIGHT_SQUARE = lightSquare;
     if (darkSquare) DARK_SQUARE = darkSquare;
@@ -967,10 +969,10 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
               '<td align="center" id="' + square + 
               '"bgcolor="' + ( ((col + row) % 2) ? DARK_SQUARE : LIGHT_SQUARE) + 
               '" width="' + CELL_WIDTH + 'px" height="' + CELL_HEIGHT +  'px" ' +
-              ' onclick="engine.makeMove(this.id)" ' + 
-              'ondragstart="engine.dragPiece(event, this.id)" ' +
-              'ondragover="engine.dragOver(event, this.id)"'+
-              'ondrop="engine.dropPiece(event, this.id)"' +
+              ' onclick="makeMove(this.id)" ' + 
+              'ondragstart="dragPiece(event, this.id)" ' +
+              'ondragover="dragOver(event, this.id)"'+
+              'ondrop="dropPiece(event, this.id)"' +
               '></td>'
         }
 
@@ -994,39 +996,6 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
                board[square] + '" src ="Images/' + 
               (board[square]) +'.gif">';
         }
-      }
-    }
-    
-    // pick piece handler
-    function dragPiece(event, square) { userSource = square; }
-    
-    // drag piece handler
-    function dragOver(event, square) { event.preventDefault();
-      if (square == userSource) event.target.src = 'Images/0.gif';
-    }
-    
-    // drop piece handler
-    function dropPiece(event, square) {
-      userTarget = square;
-      movePiece(square);    
-      if (board[square]) document.getElementById(square).style.backgroundColor = SELECT_COLOR;
-      event.preventDefault();
-    }
-    
-    // click event handler
-    function tapPiece(square) {
-      drawBoard();
-      updateBoard();
-      
-      if (board[square]) document.getElementById(square).style.backgroundColor = SELECT_COLOR;
-      var clickSquare = parseInt(square, 10)
-      
-      if(!clickLock && board[clickSquare]) {      
-        userSource = clickSquare;
-        clickLock ^= 1;
-      } else if(clickLock) {      
-        userTarget = clickSquare;
-        movePiece(square);
       }
     }
     
@@ -1112,23 +1081,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     // Wukong in C tricky depth 4:    1400
   }
   
-  return {
-
-    /****************************\
-     ============================
-   
-            GUI EVENT BINDS
-
-     ============================              
-    \****************************/
-    
-    // move piece on chess board
-    makeMove: function(square) { tapPiece(square); },
-    
-    // event handlers
-    dragPiece: function(event, square) { dragPiece(event, square); },
-    dragOver: function(event, square) { dragOver(event, square); },
-    dropPiece: function(event, square) { dropPiece(event, square); },  
+  return {    
   
     /****************************\
      ============================
@@ -1137,7 +1090,9 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
 
      ============================              
     \****************************/
-    
+
+    board: function() { return board; },
+    movePiece: function(square) { movePiece(square); },
     debug: function() { debug(); }
   }
 }
@@ -1151,23 +1106,80 @@ if (typeof(document) != 'undefined') {
 
    ============================              
   \****************************/
-  
+    
   // run in browser mode  
   console.log('\n  Wukong JS - CHESS ENGINE - v' + VERSION + '\n\n');
   
-  // create basic HTML structure
-  var html = '<html><head><title>Wukong JS v' + VERSION +
-             '</title></head>' +
-             '<h4 style="text-align: center; position: relative; top: 10px;">' +
-             'Wukong JS - CHESS ENGINE - v' + VERSION +
-             '</h4><body><div id="chessboard"></div></body></html>';
+  // auto init in stand alone mode
+  if (document.body == null) {
+    // create basic HTML structure
+    var html = 
+      '<html>\n' + 
+      '  <head>\n' +
+      '    <meta content="text/html;charset=utf-8" http-equiv="Content-Type">\n' +
+      '    <meta content="utf-8" http-equiv="encoding">\n' +
+      '    <title>Wukong JS v' + VERSION + '</title>\n' +
+      '  </head>\n' +
+      '  <body>\n' +
+      '    <h4 style="text-align: center; position: relative; top: 10px;">\n' +
+      '      Wukong JS - CHESS ENGINE - v' + VERSION + '\n' +
+      '    </h4>\n' +
+      '    <div id="chessboard"></div>\n' +
+      '  </body>\n' +
+      '</html>';
+
+    // render HTML
+    document.write(html);
+
+    // init engine
+    var engine = new Engine();
+    engine.debug();
+  }
+
+  /****************************\
+   ============================
+ 
+          GUI EVENT BINDS
+
+   ============================              
+  \****************************/
   
-  // render HTML
-  document.write(html);
+  // user input controls
+  var clickLock = 0;
+  var userSource, userTarget;
+    
+  // pick piece handler
+  function dragPiece(event, square) { userSource = square; }
   
-  // init engine
-  var engine = new Engine();
-  engine.debug();
+  // drag piece handler
+  function dragOver(event, square) { event.preventDefault();
+    if (square == userSource) event.target.src = 'Images/0.gif';
+  }
+  
+  // drop piece handler
+  function dropPiece(event, square) {
+    userTarget = square;
+    engine.movePiece(square);    
+    if (engine.board[square]) document.getElementById(square).style.backgroundColor = SELECT_COLOR;
+    event.preventDefault();
+  }
+  
+  // click event handler
+  function tapPiece(square) {
+    drawBoard();
+    updateBoard();
+    
+    if (board[square]) document.getElementById(square).style.backgroundColor = SELECT_COLOR;
+    var clickSquare = parseInt(square, 10)
+    
+    if(!clickLock && board[clickSquare]) {      
+      userSource = clickSquare;
+      clickLock ^= 1;
+    } else if(clickLock) {      
+      userTarget = clickSquare;
+      engine.movePiece(square);
+    }
+  }
 
 } else if (typeof(exports) != 'undefined') {
 
