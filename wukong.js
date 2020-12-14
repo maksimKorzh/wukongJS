@@ -1170,7 +1170,7 @@ if (typeof(document) != 'undefined') {
   // auto init in stand alone mode
   if (document.body == null) {
     // run in browser mode  
-    console.log('\n  Wukong JS - CHESS ENGINE - v' + VERSION + '\n\n');
+    console.log('\n  Wukong JS - BROWSER MODE - v' + VERSION + '\n\n');
   
     // create basic HTML structure
     var html = 
@@ -1256,12 +1256,114 @@ if (typeof(document) != 'undefined') {
   \****************************/
 
   // run in UCI mode  
-  console.log('\n  Wukong JS - CHESS ENGINE - v' + VERSION + '\n\n');
+  console.log('\n  Wukong JS - UCI mode - v' + VERSION + '\n\n');
   
   // init engine
   var engine = new Engine();
   engine.debug();
+  
+  
+  
+  /*
+  // main UCI loop
+void uci_loop()
+{
+   
 
+   
+        
+        // parse UCI "isready" command
+        if (strncmp(input, "isready", 7) == 0)
+        {
+            printf("readyok\n");
+            continue;
+        }
+        
+        // parse UCI "position" command
+        else if (strncmp(input, "position", 8) == 0)
+        {
+            // call parse position function
+            parse_position(input);
+        
+            // clear hash table
+            clear_hash_table();
+        }
+        // parse UCI "ucinewgame" command
+        else if (strncmp(input, "ucinewgame", 10) == 0)
+        {
+            // call parse position function
+            parse_position("position startpos");
+            
+            // clear hash table
+            clear_hash_table();
+        }
+        // parse UCI "go" command
+        else if (strncmp(input, "go", 2) == 0)
+            // call parse go function
+            parse_go(input);
+        
+        // parse UCI "quit" command
+        else if (strncmp(input, "quit", 4) == 0)
+            // quit from the UCI loop (terminate program)
+            break;
+        
+        // parse UCI "uci" command
+        else if (strncmp(input, "uci", 3) == 0)
+        {
+            // print engine info
+            printf("id name BBC %s\n", version);
+            printf("id author Code Monkey King\n");
+            printf("option name Hash type spin default 64 min 4 max %d\n", max_hash);
+            printf("uciok\n");
+        }
+        
+        else if (!strncmp(input, "setoption name Hash value ", 26)) {			
+            // init MB
+            sscanf(input,"%*s %*s %*s %*s %d", &mb);
+            
+            // adjust MB if going beyond the aloowed bounds
+            if(mb < 4) mb = 4;
+            if(mb > max_hash) mb = max_hash;
+            
+            // set hash table size in MB
+            printf("    Set hash table size to %dMB\n", mb);
+            init_hash_table(mb);
+        }
+    }
+}
+  */
+  
+  
+  
+  
+  
+  // UCI loop
+  process.stdin.on('data', function (data) {
+    
+    // uci
+    if (data.toString() == 'uci\n') {
+      process.stdout.write('id name WukongJS ' + VERSION + '\n');
+      process.stdout.write('id author Code Monkey King\n');
+    }
+
+    // isready
+    if (data.toString() == 'isready\n')
+      process.stdout.write('readyok\n');
+    
+    // quit
+    if (data.toString() == 'quit\n')
+      process.exit();
+    
+    // ucinewgame
+    if (data.toString() == 'ucinewgame\n')
+      process.stdout.write('parse command ucinewgame\n');
+    
+    // test
+    if (data.toString() == 'go depth 1\n')
+      process.stdout.write('bestmove d2d4\n')
+    
+  });
+  
 }
 
 
