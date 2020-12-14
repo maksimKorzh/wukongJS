@@ -995,29 +995,64 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
       
     // render board in browser
     function drawBoard() {      
-      var chessBoard = '<table align="center" cellspacing="0" style="border: 1px solid black">';
+      var chessBoard = '<table align="center" cellspacing="0">'
       
-      // generate board <table> tag
+      chessBoard += '<tr><td></td>';
+      
+      
+
+      for (let index in ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']) {
+        chessBoard += 
+          '<td align="center" height="30" style="' + 
+          'border-bottom: 1px solid black;' +
+          'font-size: 18px; font-weight: bold"></td>';
+      }
+      
+      chessBoard += '</td>';
+      
+      // board table
       for (var row = 0; row < 8; row++) {
         chessBoard += '<tr>'
         for (var col = 0; col < 16; col++) {
           var square = row * 16 + col;
+          
+          // board ranks
+          if (col == 0) chessBoard += 
+            '<td width="15" style="border-right: 1px solid black; font-size: 18px; font-weight: bold">' + 
+            (8 - row ) + '</td>';
+          
+          // hack to avoid border overlap
+          if (col == 8) chessBoard += 
+            '<td style="border-left: 1px solid black"></td>';
+          
           if ((square & 0x88) == 0)
             chessBoard += 
               '<td align="center" id="' + square + 
               '"bgcolor="' + ( ((col + row) % 2) ? DARK_SQUARE : LIGHT_SQUARE) + 
               '" width="' + CELL_WIDTH + 'px" height="' + CELL_HEIGHT +  'px" ' +
-              ' onclick="tapPiece(this.id)" ' + 
+              'onclick="tapPiece(this.id)" ' + 
               'ondragstart="dragPiece(event, this.id)" ' +
               'ondragover="dragOver(event, this.id)"'+
               'ondrop="dropPiece(event, this.id)"' +
-              '></td>'
+              '></td>';
         }
 
-        chessBoard += '</tr>'
+        chessBoard += '</tr>';
+      }
+      
+      chessBoard += '<tr><td></td>';
+      
+      // board files
+      let files = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
+
+      for (let index in files) {
+        chessBoard += 
+          '<td align="center" height="30" style="' + 
+          'border-top: 1px solid black;' +
+          'font-size: 18px; font-weight: bold">' + files[index] + '</td>';
       }
 
-      chessBoard += '</table>';
+      chessBoard += '</tr></table>';
       document.getElementById('chessboard').innerHTML = chessBoard;
     }
 
