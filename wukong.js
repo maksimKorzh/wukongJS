@@ -94,7 +94,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
   var pieceList = {
     // piece counts
     [P]: 0, [N]: 0, [B]: 0, [R]: 0, [Q]: 0, [K]: 0,
-    [P]: 0, [N]: 0, [B]: 0, [R]: 0, [Q]: 0, [K]: 0,
+    [p]: 0, [n]: 0, [b]: 0, [r]: 0, [q]: 0, [k]: 0,
     
     // list of pieces with associated squares
     pieces: new Array(13 * 10)
@@ -1124,7 +1124,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     //printMoveList(moveList);
     
     // perft test
-    //perftTest(3);
+    //perftTest(4);
     
     
     
@@ -1175,15 +1175,15 @@ if (typeof(document) != 'undefined') {
     // create basic HTML structure
     var html = 
       '<html>\n' + 
-      '  <head>\n' +
-      '    <title>Wukong JS v' + VERSION + '</title>\n' +
-      '  </head>\n' +
-      '  <body>\n' +
-      '    <h4 style="text-align: center; position: relative; top: 10px;">\n' +
-      '      Wukong JS - CHESS ENGINE - v' + VERSION + '\n' +
-      '    </h4>\n' +
-      '    <div id="chessboard"></div>\n' +
-      '  </body>\n' +
+        '<head>\n' +
+          '<title>Wukong JS v' + VERSION + '</title>\n' +
+        '</head>\n' +
+        '<body>\n' +
+          '<h4 style="text-align: center; position: relative; top: 10px;">\n' +
+            'Wukong JS - CHESS ENGINE - v' + VERSION + '\n' +
+           '</h4>\n' +
+          '<div id="chessboard"></div>\n' +
+        '</body>\n' +
       '</html>';
 
     // render HTML
