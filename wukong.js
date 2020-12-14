@@ -178,7 +178,11 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
    ============================              
   \****************************/
   
-  // reset chess board
+  // board interface
+  function getPiece(square) { return board[square]; }
+  function setPiece(piece, square) { board[square] = piece; }
+  
+  // reset board
   function resetBoard() {
     // reset board position
     for (var rank = 0; rank < 8; rank++) {
@@ -219,6 +223,40 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
         }
       }
     }
+  }
+  
+  // validate move
+  function isValid(moveString) {
+    let moveList = [];
+    generateMoves(moveList);
+
+    // parse move string
+    var sourceSquare = (moveString[0].charCodeAt() - 'a'.charCodeAt()) +(8 - (moveString[1].charCodeAt() - '0'.charCodeAt())) * 16;
+    var targetSquare = (moveString[2].charCodeAt() - 'a'.charCodeAt()) + (8 - (moveString[3].charCodeAt() - '0'.charCodeAt())) * 16;
+
+    // validate
+    for(var count = 0; count < moveList.length; count++) {
+      var move = moveList[count].move;
+      var promotedPiece = 0;
+
+      if(getMoveSource(move) == sourceSquare && getMoveTarget(move) == targetSquare) {
+        promotedPiece = getMovePromoted(move);
+
+        if(promotedPiece) {
+          if((promotedPiece == N || promotedPiece == n) && move_str[4] == 'n') return move;
+          else if((promotedPiece == B || promotedPiece == b) && move_str[4] == 'b') return move;
+          else if((promotedPiece == R || promotedPiece == r) && move_str[4] == 'r') return move;
+          else if((promotedPiece == Q || promotedPiece == q) && move_str[4] == 'q') return move;
+          continue;
+        }
+
+        // legal move
+        return move;
+      }
+    }
+
+    // illegal move
+    return 0;
   }
 
   
@@ -969,7 +1007,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
               '<td align="center" id="' + square + 
               '"bgcolor="' + ( ((col + row) % 2) ? DARK_SQUARE : LIGHT_SQUARE) + 
               '" width="' + CELL_WIDTH + 'px" height="' + CELL_HEIGHT +  'px" ' +
-              ' onclick="makeMove(this.id)" ' + 
+              ' onclick="tapPiece(this.id)" ' + 
               'ondragstart="dragPiece(event, this.id)" ' +
               'ondragover="dragOver(event, this.id)"'+
               'ondrop="dropPiece(event, this.id)"' +
@@ -999,37 +1037,16 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
       }
     }
     
-    function movePiece(square) {
-      var promotedPiece = Q; // [TODO: pick promoted from GUI]
-      var move_str = coordinates[userSource] + 
-                     coordinates[userTarget] + 
-                     promotedPieces[promotedPiece];
-      
-      // move to make
-      /*var valid_move  = is_valid(move_str);
-      
-      // if move is valid
-      if (valid_move) {
-        // push first move into move stack
-        if (move_stack.count == 0) push_move(valid_move);
-        
-        // make move on internal board
-        makeMove(valid_move, all_moves);
-        
-        // push move into move stack
-        pushMove(valid_move);
-        
-        // update board
-        updateBoard();
-      }*/
-      
-      board[userTarget] = board[userSource];
-      board[userSource] = e;
+    // move piece in GUI
+    function movePiece(userSource, userTarget, promotedPiece) {
+      let moveString = coordinates[userSource] + coordinates[userTarget] + promotedPieces[promotedPiece];
+      let validMove  = isValid(moveString);
+      if (validMove) { makeMove(validMove); updateBoard(); }
       drawBoard();
-      if (board[userTarget]) document.getElementById(userTarget).style.backgroundColor = SELECT_COLOR;
       updateBoard();
-      clickLock = 0;
     }
+
+    // render board initially
     drawBoard();
     updateBoard();
   }
@@ -1072,7 +1089,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     //printMoveList(moveList);
     
     // perft test
-    perftTest(3);
+    //perftTest(3);
     
     
     
@@ -1086,13 +1103,21 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     /****************************\
      ============================
    
-          PUBLIC API REFERENCE
+              PUBLIC API
 
      ============================              
     \****************************/
-
-    board: function() { return board; },
-    movePiece: function(square) { movePiece(square); },
+    
+    // engine constants reference
+    SELECT_COLOR: SELECT_COLOR,
+    
+    // engine methods reference
+    drawBoard: function() { return drawBoard(); },
+    updateBoard: function() { return updateBoard(); },
+    getPiece: function(square) { return getPiece(square); },
+    setPiece: function(piece, square) { return setPiece(piece, square); },
+    takeBack: function() { if (backup.length) return takeBack(); },
+    movePiece: function(userSource, userTarget, promotedPiece) { movePiece(userSource, userTarget, promotedPiece); },
     debug: function() { debug(); }
   }
 }
@@ -1106,18 +1131,16 @@ if (typeof(document) != 'undefined') {
 
    ============================              
   \****************************/
-    
-  // run in browser mode  
-  console.log('\n  Wukong JS - CHESS ENGINE - v' + VERSION + '\n\n');
   
   // auto init in stand alone mode
   if (document.body == null) {
+    // run in browser mode  
+    console.log('\n  Wukong JS - CHESS ENGINE - v' + VERSION + '\n\n');
+  
     // create basic HTML structure
     var html = 
       '<html>\n' + 
       '  <head>\n' +
-      '    <meta content="text/html;charset=utf-8" http-equiv="Content-Type">\n' +
-      '    <meta content="utf-8" http-equiv="encoding">\n' +
       '    <title>Wukong JS v' + VERSION + '</title>\n' +
       '  </head>\n' +
       '  <body>\n' +
@@ -1134,53 +1157,59 @@ if (typeof(document) != 'undefined') {
     // init engine
     var engine = new Engine();
     engine.debug();
-  }
+    
+    /****************************\
+     ============================
+   
+            GUI EVENT BINDS
 
-  /****************************\
-   ============================
- 
-          GUI EVENT BINDS
-
-   ============================              
-  \****************************/
-  
-  // user input controls
-  var clickLock = 0;
-  var userSource, userTarget;
+     ============================              
+    \****************************/
     
-  // pick piece handler
-  function dragPiece(event, square) { userSource = square; }
-  
-  // drag piece handler
-  function dragOver(event, square) { event.preventDefault();
-    if (square == userSource) event.target.src = 'Images/0.gif';
-  }
-  
-  // drop piece handler
-  function dropPiece(event, square) {
-    userTarget = square;
-    engine.movePiece(square);    
-    if (engine.board[square]) document.getElementById(square).style.backgroundColor = SELECT_COLOR;
-    event.preventDefault();
-  }
-  
-  // click event handler
-  function tapPiece(square) {
-    drawBoard();
-    updateBoard();
+    // user input controls
+    var clickLock = 0;
+    var userSource, userTarget;
+      
+    // pick piece handler
+    function dragPiece(event, square) { userSource = square; }
     
-    if (board[square]) document.getElementById(square).style.backgroundColor = SELECT_COLOR;
-    var clickSquare = parseInt(square, 10)
+    // drag piece handler
+    function dragOver(event, square) { event.preventDefault();
+      if (square == userSource) event.target.src = 'Images/0.gif';
+    }
     
-    if(!clickLock && board[clickSquare]) {      
-      userSource = clickSquare;
-      clickLock ^= 1;
-    } else if(clickLock) {      
-      userTarget = clickSquare;
-      engine.movePiece(square);
+    // drop piece handler
+    function dropPiece(event, square) {
+      userTarget = square;
+      engine.movePiece(userSource, userTarget, 5);  // TODO take promoted from GUI  
+      clickLock = 0;
+      
+      if (engine.getPiece(square))
+        document.getElementById(square).style.backgroundColor = engine.SELECT_COLOR;
+      
+      event.preventDefault();
+    }
+    
+    // click event handler
+    function tapPiece(square) {
+      engine.drawBoard();
+      engine.updateBoard();
+      
+      if (engine.getPiece(square))
+        document.getElementById(square).style.backgroundColor = engine.SELECT_COLOR;
+      
+      var clickSquare = parseInt(square, 10)
+      
+      if(!clickLock && engine.getPiece(clickSquare)) {      
+        userSource = clickSquare;
+        clickLock ^= 1;
+      } else if(clickLock) {      
+        userTarget = clickSquare;
+        engine.movePiece(userSource, userTarget, 5);  // TODO take promoted from GUI
+        clickLock = 0;
+      }
     }
   }
-
 } else if (typeof(exports) != 'undefined') {
 
   /****************************\
