@@ -70,6 +70,9 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
    ============================              
   \****************************/
   
+  // starting position
+  const startFen = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1 ';
+  
   // 0x88 chess board representation
   var board = [
       r, n, b, q, k, b, n, r,  o, o, o, o, o, o, o, o,
@@ -102,6 +105,10 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
   
   // board state variables backup stack
   var backup = [];
+  
+  // plies
+  var searchPly = 0;
+  var gamePly = 0;
   
 
   /****************************\
@@ -200,6 +207,10 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     hashKey = 0;
     kingSquare = [0, 0];
     backup = [];
+    
+    // reset plies
+    searchPly = 0;
+    gamePly = 0;
   }
   
   // init piece list
@@ -585,6 +596,10 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
 
   // make move
   function makeMove(move) {
+    // update plies
+    searchPly++;
+    gamePly++;
+    
     // parse move
     let sourceSquare = getMoveSource(move);
     let targetSquare = getMoveTarget(move);
@@ -616,7 +631,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
         removePiece(capturedPiece, targetSquare); 
       }
       fifty = 0;
-    } else if (board[sourceSquare] == P || board[sourceSquare] == p)
+    } else if (board[targetSquare] == P || board[targetSquare] == p)
       fifty = 0;
     
     // update enpassant square
@@ -686,6 +701,10 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
   
   // take move back
   function takeBack() {
+    // update plies
+    searchPly--;
+    gamePly--;
+    
     // parse move
     let moveIndex = backup.length - 1;
     let move = backup[moveIndex].move;    
@@ -730,6 +749,260 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     fifty = backup[moveIndex].fifty;
 
     backup.pop();
+  }
+  
+  
+  /****************************\
+   ============================
+   
+              PERFT
+
+   ============================              
+  \****************************/
+
+  // visited nodes count
+  var nodes = 0;
+  
+  // perft driver
+  function perftDriver(depth) {
+    if  (depth == 0) { nodes++; return; }
+    
+    let moveList = [];
+    generateMoves(moveList);
+    
+    for (var moveCount = 0; moveCount < moveList.length; moveCount++) {      
+      if (!makeMove(moveList[moveCount].move)) continue;
+      perftDriver(depth - 1);
+      takeBack();
+    }
+  }
+
+  // perft test
+  function perftTest(depth) {
+    console.log('   Performance test:\n');
+    resultString = '';
+    let startTime = new Date().getTime();
+    
+    let moveList = [];
+    generateMoves(moveList);
+    
+    for (var moveCount = 0; moveCount < moveList.length; moveCount++) {      
+      if (!makeMove(moveList[moveCount].move)) continue;
+      let cumNodes = nodes;
+      perftDriver(depth - 1);
+      takeBack();
+      let oldNodes = nodes - cumNodes;
+      console.log(  '   move' +
+                    ' ' + (moveCount + 1) + ((moveCount < 9) ? ':  ': ': ') +
+                    coordinates[getMoveSource(moveList[moveCount].move)] +
+                    coordinates[getMoveTarget(moveList[moveCount].move)] +
+                    (getMovePromoted(moveList[moveCount].move) ?
+                    promotedPieces[getMovePromoted(moveList[moveCount].move)]: ' ') +
+                    '    nodes: ' + oldNodes);
+    }
+    
+    resultString += '\n   Depth: ' + depth;
+    resultString += '\n   Nodes: ' + nodes;
+    resultString += '\n    Time: ' + (new Date().getTime() - startTime) + ' ms\n';
+    console.log(resultString);
+  }
+
+
+  /****************************\
+   ============================
+   
+            EVALUATION
+
+   ============================              
+  \****************************/
+  
+  const materialWeights = [0, 100, 300, 350, 500, 900, 1000, -100, -300, -350, -500, -900, -1000];
+  
+  const pst = [
+    -5,   0,   0,   0,   0,   0,   0,  -5,    o, o, o, o, o, o, o, o,
+    -5,   0,   0,  10,  10,   0,   0,  -5,    o, o, o, o, o, o, o, o,
+    -5,   5,  20,  20,  20,  20,   5,  -5,    o, o, o, o, o, o, o, o,
+    -5,  10,  20,  30,  30,  20,  10,  -5,    o, o, o, o, o, o, o, o,
+    -5,  10,  20,  30,  30,  20,  10,  -5,    o, o, o, o, o, o, o, o,
+    -5,   5,  20,  10,  10,  20,   5,  -5,    o, o, o, o, o, o, o, o,
+    -5,   0,   0,   0,   0,   0,   0,  -5,    o, o, o, o, o, o, o, o,
+    -5, -10,   0,   0,   0,   0, -10,  -5,    o, o, o, o, o, o, o, o
+  ];
+  
+  const mirrorSquare = [
+    a1, b1, c1, d1, e1, f1, g1, h1,    o, o, o, o, o, o, o, o,
+	  a2, b2, c2, d2, e2, f2, g2, h2,    o, o, o, o, o, o, o, o,
+	  a3, b3, c3, d3, e3, f3, g3, h3,    o, o, o, o, o, o, o, o,
+	  a4, b4, c4, d4, e4, f4, g4, h4,    o, o, o, o, o, o, o, o,
+	  a5, b5, c5, d5, e5, f5, g5, h5,    o, o, o, o, o, o, o, o,
+	  a6, b6, c6, d6, e6, f6, g6, h6,    o, o, o, o, o, o, o, o,
+	  a7, b7, c7, d7, e7, f7, g7, h7,    o, o, o, o, o, o, o, o,
+	  a8, b8, c8, d8, e8, f8, g8, h8,    o, o, o, o, o, o, o, o
+  ]
+  
+  function evaluate() {
+    let score = 0;
+    
+    for (let piece = P; piece <= k; piece++) {
+      for (pieceIndex = 0; pieceIndex < pieceList[piece]; pieceIndex++) {
+        let square = pieceList.pieces[piece * 10 + pieceIndex];
+
+        // evaluate material
+        score += materialWeights[piece];
+        (piece >= 1 && piece <= 6) ? score += pst[square]: score -= pst[mirrorSquare[square]];
+      }
+    }
+    
+    return (side == white) ? score: -score;
+  }
+  
+  /****************************\
+   ============================
+   
+              SEARCH
+
+   ============================              
+  \****************************/
+  
+  // search  constants
+  const maxPly = 64;
+  const infinity = 50000;
+  const mateScore = 49000;
+
+  // search variables
+  //var stopped = 0;
+  //var timeset = 1;
+  
+  var timing = {
+    timeset: 0,
+    stopped: 0,
+    startTime: 0,
+    stopTime: 0,
+    movestogo: 30,
+    movetime: -1,
+    time: -1,
+    inc: 0,
+  }
+  
+  // PV table
+  var pvTable = new Array(maxPly * maxPly);
+  var pvLength = new Array(maxPly);
+  
+  function resetTimeControl() {
+    timing = {
+      timeset: 0,
+      stopped: 0,
+      startTime: 0,
+      stopTime: 0,
+      movestogo: 30,
+      movetime: -1,
+      time: -1,
+      inc: 0,
+    }
+  }
+  
+  function clearSearch() {
+    // reset nodes counter
+    nodes = 0;
+    stopped = 0;
+    
+    for (var index = 0; index < pvTable.length; index++) pvTable[index] = 0;
+    for (var index = 0; index < pvLength.length; index++) pvLength[index] = 0;
+  }
+  
+  // communicate
+  function communicate() {
+    // if time is up break here
+    if(timing.timeset == 1 && new Date().getTime() > timing.stoptime) timing.stopped = 1;
+    
+  }
+  
+  // negamax search
+  function negamax(alpha, beta, depth) {
+    pvLength[searchPly] = searchPly;
+    
+    let score = 0;
+
+    if ((nodes & 2047 ) == 0) communicate();
+    if (depth == 0) { nodes++; return evaluate(); }
+    
+    let legalMoves = 0;
+    let inCheck = isSquareAttacked(kingSquare[side], side ^ 1);
+    if (inCheck) depth++;
+    
+    
+    let moveList = [];
+    generateMoves(moveList);
+    
+    for (let moveCount = 0; moveCount < moveList.length; moveCount++) {
+      let move = moveList[moveCount].move;
+      if (makeMove(move) == 0) continue;
+      legalMoves++;
+      score = -negamax(-beta, -alpha, depth - 1);
+      takeBack();
+      
+      if (timing.stopped == 1) return 0;
+      
+      if (score > alpha) {
+        alpha = score;
+        
+        // store PV move
+        pvTable[searchPly * 64 + searchPly] = move;
+        for (var nextPly = searchPly + 1; nextPly < pvLength[searchPly + 1]; nextPly++)
+          pvTable[searchPly * 64 + nextPly] = pvTable[(searchPly + 1) * 64 + nextPly];
+        pvLength[searchPly] = pvLength[searchPly + 1]
+        
+        if (score >= beta) {
+          return beta;
+        }
+      }
+    }
+    
+    // checkmate or stalemate
+    if (legalMoves == 0) {
+      if (inCheck) return -mateScore + searchPly;
+      else return 0;
+    }
+
+    return alpha;
+  }
+  
+  async function searchPosition(depth) {
+    var start = new Date().getTime();
+    var score = 0;
+    
+    clearSearch();
+
+    // iterative deepening
+    for (var current_depth = 1; current_depth <= depth; current_depth++)
+    {
+      if (stopped == 1) break;
+	        
+      score = negamax(-infinity, infinity, current_depth);
+
+      // if PV is available
+      if (pvLength[0]) {
+        //if (score > -mate_value && score < -mate_score)
+          //console.log('Score: mate in %d\nDepth: %d\nNodes: %d\nTime %d', -(score + mate_value) / 2 - 1, current_depth, nodes, new Date().getTime() - start);
+        
+        //else if (score > mate_score && score < mate_value)
+          //console.log('Score: mate in %d\nDepth: %d\nNodes: %d\nTime %d', (mate_value - score) / 2 + 1, current_depth, nodes, new Date().getTime() - start);   
+        
+        //else
+        let info = 'info score cp ' + score + 
+                   ' depth ' + current_depth +
+                   ' nodes ' + nodes +
+                   ' time ' + (new Date().getTime() - start) +
+                   ' pv ';
+
+        for (var count = 0; count < pvLength[0]; count++)
+          info += moveToString(pvTable[count]) + ' ';
+        
+        process.stdout.write(info + '\n');
+      }
+    }
+    
+    process.stdout.write('bestmove ' + moveToString(pvTable[0]) + '\n');    
   }
 
 
@@ -833,6 +1106,20 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     if (typeof(document) != 'undefined') updateBoard();
   }
   
+  // load move sequence
+  function loadMoves(moves) {
+    moves = moves.split(' ');
+    
+    for (const index in moves) {
+      let move = moves[index];
+      let moveString = moves[index];
+      let validMove = isValid(move);
+      if (validMove) makeMove(validMove);
+    }
+    
+    searchPly = 0;
+  }
+  
   // print chess board to console
   function printBoard() {
     var boardString = '';
@@ -910,63 +1197,6 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
 
     console.log(pieceListString);
   }
-  
-  
-  /****************************\
-   ============================
-   
-              PERFT
-
-   ============================              
-  \****************************/
-
-  // visited nodes count
-  var nodes = 0;
-  
-  // perft driver
-  function perftDriver(depth) {
-    if  (depth == 0) { nodes++; return; }
-    
-    let moveList = [];
-    generateMoves(moveList);
-    
-    for (var moveCount = 0; moveCount < moveList.length; moveCount++) {      
-      if (!makeMove(moveList[moveCount].move)) continue;
-      perftDriver(depth - 1);
-      takeBack();
-    }
-  }
-
-  // perft test
-  function perftTest(depth) {
-    console.log('   Performance test:\n');
-    resultString = '';
-    let startTime = new Date().getTime();
-    
-    let moveList = [];
-    generateMoves(moveList);
-    
-    for (var moveCount = 0; moveCount < moveList.length; moveCount++) {      
-      if (!makeMove(moveList[moveCount].move)) continue;
-      let cumNodes = nodes;
-      perftDriver(depth - 1);
-      takeBack();
-      let oldNodes = nodes - cumNodes;
-      console.log(  '   move' +
-                    ' ' + (moveCount + 1) + ((moveCount < 9) ? ':  ': ': ') +
-                    coordinates[getMoveSource(moveList[moveCount].move)] +
-                    coordinates[getMoveTarget(moveList[moveCount].move)] +
-                    (getMovePromoted(moveList[moveCount].move) ?
-                    promotedPieces[getMovePromoted(moveList[moveCount].move)]: ' ') +
-                    '    nodes: ' + oldNodes);
-    }
-    
-    resultString += '\n   Depth: ' + depth;
-    resultString += '\n   Nodes: ' + nodes;
-    resultString += '\n    Time: ' + (new Date().getTime() - startTime) + ' ms\n';
-    console.log(resultString);
-  }
-
 
   /****************************\
    ============================
@@ -1075,8 +1305,8 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     // move piece in GUI
     function movePiece(userSource, userTarget, promotedPiece) {
       let moveString = coordinates[userSource] + coordinates[userTarget] + promotedPieces[promotedPiece];
-      let validMove  = isValid(moveString);
-      if (validMove) { makeMove(validMove); updateBoard(); }
+      engine.loadMoves(moveString);
+      console.log(gamePly);
       drawBoard();
       updateBoard();
     }
@@ -1085,6 +1315,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     drawBoard();
     updateBoard();
   }
+  
 
   /****************************\
    ============================
@@ -1117,7 +1348,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     //setBoard('r4rk1/1pp1qppp/p1np1n2/2b1p1B1/2B1P1b1/P1NP1N2/1PP1QPPP/R4RK1 w - - 0 10');
     //setBoard('rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPP1NnPP/RNBQK2R w KQ - 1 8');
     printBoard();
-    
+    console.log('score:', evaluate());
     
     //moveList = [];
     //generateMoves(moveList);
@@ -1145,14 +1376,22 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     
     // engine constants reference
     SELECT_COLOR: SELECT_COLOR,
+    START_FEN: startFen,
     
-    // engine methods reference
+    // engine methods [BROWSER MODE]
     drawBoard: function() { return drawBoard(); },
     updateBoard: function() { return updateBoard(); },
-    getPiece: function(square) { return getPiece(square); },
-    setPiece: function(piece, square) { return setPiece(piece, square); },
-    takeBack: function() { if (backup.length) return takeBack(); },
+    
+    // engine methods [CONSOLE MODE]
+    printBoard: function() { printBoard(); },
+    setBoard: function(fen) { setBoard(fen); },
+    loadMoves: function(moves) { loadMoves(moves); },
+    getPiece: function(square) { getPiece(square); },
+    setPiece: function(piece, square) { setPiece(piece, square); },
+    takeBack: function() { if (backup.length) takeBack(); },
     movePiece: function(userSource, userTarget, promotedPiece) { movePiece(userSource, userTarget, promotedPiece); },
+    perft: function(depth) { perftTest(depth); },
+    search: function(depth) { return searchPosition(depth) }, timing: timing,
     debug: function() { debug(); }
   }
 }
@@ -1255,115 +1494,172 @@ if (typeof(document) != 'undefined') {
    ============================              
   \****************************/
 
-  // run in UCI mode  
-  console.log('\n  Wukong JS - UCI mode - v' + VERSION + '\n\n');
-  
   // init engine
   var engine = new Engine();
-  engine.debug();
-  
-  
-  
-  /*
-  // main UCI loop
-void uci_loop()
-{
-   
+  //engine.debug();
+  //return;
 
-   
-        
-        // parse UCI "isready" command
-        if (strncmp(input, "isready", 7) == 0)
-        {
-            printf("readyok\n");
-            continue;
-        }
-        
-        // parse UCI "position" command
-        else if (strncmp(input, "position", 8) == 0)
-        {
-            // call parse position function
-            parse_position(input);
-        
-            // clear hash table
-            clear_hash_table();
-        }
-        // parse UCI "ucinewgame" command
-        else if (strncmp(input, "ucinewgame", 10) == 0)
-        {
-            // call parse position function
-            parse_position("position startpos");
-            
-            // clear hash table
-            clear_hash_table();
-        }
-        // parse UCI "go" command
-        else if (strncmp(input, "go", 2) == 0)
-            // call parse go function
-            parse_go(input);
-        
-        // parse UCI "quit" command
-        else if (strncmp(input, "quit", 4) == 0)
-            // quit from the UCI loop (terminate program)
-            break;
-        
-        // parse UCI "uci" command
-        else if (strncmp(input, "uci", 3) == 0)
-        {
-            // print engine info
-            printf("id name BBC %s\n", version);
-            printf("id author Code Monkey King\n");
-            printf("option name Hash type spin default 64 min 4 max %d\n", max_hash);
-            printf("uciok\n");
-        }
-        
-        else if (!strncmp(input, "setoption name Hash value ", 26)) {			
-            // init MB
-            sscanf(input,"%*s %*s %*s %*s %d", &mb);
-            
-            // adjust MB if going beyond the aloowed bounds
-            if(mb < 4) mb = 4;
-            if(mb > max_hash) mb = max_hash;
-            
-            // set hash table size in MB
-            printf("    Set hash table size to %dMB\n", mb);
-            init_hash_table(mb);
-        }
+  process.stdin.setEncoding('utf-8');
+  console.log('\n  Wukong JS - UCI mode - v' + VERSION + '\n\n');
+  
+  
+  console.log(engine.timing)
+  /*
+  
+
+// parse UCI command "go"
+void parse_go(char *command)
+{
+    // reset time control
+    reset_time_control();
+    
+    // init parameters
+    int depth = -1;
+
+    // init argument
+    char *argument = NULL;
+
+    // infinite search
+    if ((argument = strstr(command,"infinite"))) {}
+
+    // match UCI "binc" command
+    if ((argument = strstr(command,"binc")) && side == black)
+        // parse black time increment
+        inc = atoi(argument + 5);
+
+    // match UCI "winc" command
+    if ((argument = strstr(command,"winc")) && side == white)
+        // parse white time increment
+        inc = atoi(argument + 5);
+
+    // match UCI "wtime" command
+    if ((argument = strstr(command,"wtime")) && side == white)
+        // parse white time limit
+        time = atoi(argument + 6);
+
+    // match UCI "btime" command
+    if ((argument = strstr(command,"btime")) && side == black)
+        // parse black time limit
+        time = atoi(argument + 6);
+
+    // match UCI "movestogo" command
+    if ((argument = strstr(command,"movestogo")))
+        // parse number of moves to go
+        movestogo = atoi(argument + 10);
+
+    // match UCI "movetime" command
+    if ((argument = strstr(command,"movetime")))
+        // parse amount of time allowed to spend to make a move
+        movetime = atoi(argument + 9);
+
+    // match UCI "depth" command
+    if ((argument = strstr(command,"depth")))
+        // parse search depth
+        depth = atoi(argument + 6);
+
+    // if move time is not available
+    if(movetime != -1)
+    {
+        // set time equal to move time
+        time = movetime;
+
+        // set moves to go to 1
+        movestogo = 1;
     }
+
+    // init start time
+    starttime = get_time_ms();
+
+    // init search depth
+    depth = depth;
+
+    // if time control is available
+    if(time != -1)
+    {
+        // flag we're playing with time control
+        timeset = 1;
+
+        // set up timing
+        time /= movestogo;
+        
+        // lag compensation
+        time -= 50;
+        
+        // if time is up
+        if (time < 0)
+        {
+            // restore negative time to 0
+            time = 0;
+            
+            // inc lag compensation on 0+inc time controls
+            inc -= 50;
+            
+            // timing for 0 seconds left and no inc
+            if (inc < 0) inc = 1;
+        }
+        
+        // init stoptime
+        stoptime = starttime + time + inc;        
+    }
+
+    // if depth is not available
+    if(depth == -1)
+        // set depth to 64 plies (takes ages to complete...)
+        depth = 64;
+
+    // print debug info
+    printf("time: %d  inc: %d  start: %u  stop: %u  depth: %d  timeset:%d\n",
+            time, inc, starttime, stoptime, depth, timeset);
+
+    // search position
+    search_position(depth);
 }
   */
   
-  
-  
-  
+  // parse UCI "position" command
+  function parsePosition(command) {
+      let position = command.split(' ');
+      if (position[1].includes('startpos')) engine.setBoard(engine.START_FEN);
+      else if (position[1] == 'fen') engine.setBoard(command.split('position fen ')[1]);
+      let moves = command.split('moves ')[1];
+      if (moves) { engine.loadMoves(moves); };
+      engine.printBoard();
+  }
   
   // UCI loop
-  process.stdin.on('data', function (data) {
-    
+  process.stdin.on('data', function (command) {
     // uci
-    if (data.toString() == 'uci\n') {
+    if (command == 'uci\n') {
       process.stdout.write('id name WukongJS ' + VERSION + '\n');
       process.stdout.write('id author Code Monkey King\n');
     }
 
     // isready
-    if (data.toString() == 'isready\n')
+    if (command == 'isready\n')
       process.stdout.write('readyok\n');
     
     // quit
-    if (data.toString() == 'quit\n')
+    if (command == 'quit\n')
       process.exit();
     
     // ucinewgame
-    if (data.toString() == 'ucinewgame\n')
-      process.stdout.write('parse command ucinewgame\n');
+    if (command == 'ucinewgame\n') {
+      parsePosition("position startpos");
+    }
+    
+    // position
+    if (command.split(' ')[0] == 'position') {
+      parsePosition(command);
+    }
     
     // test
-    if (data.toString() == 'go depth 1\n')
-      process.stdout.write('bestmove d2d4\n')
-    
+    if (command == 'go depth 1\n') {
+      engine.timing.timeset = 1;
+      engine.timing.starttime = new Date().getTime();
+      engine.timing.stoptime = engine.timing.starttime + 1000;
+      //console.log(timing);
+    }
   });
-  
 }
 
 
