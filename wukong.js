@@ -211,6 +211,9 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     // reset plies
     searchPly = 0;
     gamePly = 0;
+    
+    // reset repetition table
+    for (let index in repetitionTable) repetitionTable[index] = 0;
   }
   
   // init piece list
@@ -254,10 +257,10 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
         promotedPiece = getMovePromoted(move);
 
         if(promotedPiece) {
-          if((promotedPiece == N || promotedPiece == n) && move_str[4] == 'n') return move;
-          else if((promotedPiece == B || promotedPiece == b) && move_str[4] == 'b') return move;
-          else if((promotedPiece == R || promotedPiece == r) && move_str[4] == 'r') return move;
-          else if((promotedPiece == Q || promotedPiece == q) && move_str[4] == 'q') return move;
+          if((promotedPiece == N || promotedPiece == n) && moveString[4] == 'n') return move;
+          else if((promotedPiece == B || promotedPiece == b) && moveString[4] == 'b') return move;
+          else if((promotedPiece == R || promotedPiece == r) && moveString[4] == 'r') return move;
+          else if((promotedPiece == Q || promotedPiece == q) && moveString[4] == 'q') return move;
           continue;
         }
 
@@ -600,6 +603,9 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     searchPly++;
     gamePly++;
     
+    // update repetition table
+    repetitionTable[gamePly] = hashKey;
+    
     // parse move
     let sourceSquare = getMoveSource(move);
     let targetSquare = getMoveTarget(move);
@@ -819,14 +825,14 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
   const materialWeights = [0, 100, 300, 350, 500, 900, 1000, -100, -300, -350, -500, -900, -1000];
   
   const pst = [
-    -5,   0,   0,   0,   0,   0,   0,  -5,    o, o, o, o, o, o, o, o,
-    -5,   0,   0,  10,  10,   0,   0,  -5,    o, o, o, o, o, o, o, o,
-    -5,   5,  20,  20,  20,  20,   5,  -5,    o, o, o, o, o, o, o, o,
-    -5,  10,  20,  30,  30,  20,  10,  -5,    o, o, o, o, o, o, o, o,
-    -5,  10,  20,  30,  30,  20,  10,  -5,    o, o, o, o, o, o, o, o,
-    -5,   5,  20,  10,  10,  20,   5,  -5,    o, o, o, o, o, o, o, o,
-    -5,   0,   0,   0,   0,   0,   0,  -5,    o, o, o, o, o, o, o, o,
-    -5, -10,   0,   0,   0,   0, -10,  -5,    o, o, o, o, o, o, o, o
+    0,  0,  5,  5,  0,  0,  5,  0,  o, o, o, o, o, o, o, o, 
+    5,  5,  0,  0,  0,  0,  5,  5,  o, o, o, o, o, o, o, o,
+    5, 10, 15, 20, 20, 15, 10,  5,  o, o, o, o, o, o, o, o,
+    5, 10, 20, 30, 30, 20, 10,  5,  o, o, o, o, o, o, o, o,
+    5, 10, 20, 30, 30, 20, 10,  5,  o, o, o, o, o, o, o, o,
+    5, 10, 15, 20, 20, 15, 10,  5,  o, o, o, o, o, o, o, o,
+    5,  5,  0,  0,  0,  0,  5,  5,  o, o, o, o, o, o, o, o,
+    0,  0,  5,  5,  0,  0,  5,  0,  o, o, o, o, o, o, o, o
   ];
   
   const mirrorSquare = [
@@ -872,6 +878,9 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
   // PV table
   var pvTable = new Array(maxPly * maxPly);
   var pvLength = new Array(maxPly);
+  
+  // repetition table
+  var repetitionTable = new Array(1000);
 
   // time control handling  
   var timing = {
@@ -905,9 +914,17 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     for (var index = 0; index < pvLength.length; index++) pvLength[index] = 0;
   }
   
-  // communicate
+  // handle time control
   function communicate() {
     if(timing.timeSet == 1 && new Date().getTime() > timing.stopTime) timing.stopped = 1;
+  }
+
+  // position repetition detection
+  function isRepetition() {
+    for (let index = 0; index < gamePly; index++)
+      if (repetitionTable[index] == hashKey) return 1;
+
+    return 0;
   }
   
   // negamax search
@@ -916,6 +933,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     
     let score = 0;
 
+    if ((searchPly && isRepetition()) || fifty >= 100) return 0;
     if ((nodes & 2047 ) == 0) communicate();
     if (depth == 0) { nodes++; return evaluate(); }
     
@@ -991,11 +1009,11 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
         for (var count = 0; count < pvLength[0]; count++)
           info += moveToString(pvTable[count]) + ' ';
         
-        process.stdout.write(info + '\n');
+        console.log(info);
       }
     }
     
-    process.stdout.write('bestmove ' + moveToString(pvTable[0]) + '\n');    
+    console.log('bestmove ' + moveToString(pvTable[0]) + '\n');    
   }
 
 
@@ -1354,7 +1372,10 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     // perft test
     //perftTest(4);
     
-    
+    /*
+          3 fold repetition depth 1
+          position startpos moves d2d4 d7d5 e2e4 d5e4 c2c3 d8d4 d1d4 e7e5 d4e5 e8d8 e5e4 c7c6 e4c6 b7c6 f2f3 f7f6 c1f4 c8f5 f4b8 a8b8 f1c4 f5b1 a1b1 b8b2 b1b2 f8c5 c4g8 h8g8 g2g4 c5g1 h1g1 g7g5 b2b4 g8g6 b4d4 d8e8 g1g3 a7a6 a2a3 a6a5 a3a4 c6c5 f3f4 c5d4 c3d4 g5f4 g3f3 g6g4 f3f4 g4f4 h2h3 f4d4 h3h4 d4h4 e1e2 h4a4 e2f3 a4d4 f3e3 a5a4 e3d4 a4a3 d4d5 a3a2 d5d4 a2a1q d4d5 a1d4 d5d4 f6f5 d4d5 f5f4 d5d4 f4f3 d4d5 h7h6 d5d4 h6h5 d4d5 h5h4 d5d4 h4h3 d4d5 e8e7 d5d4 e7f6 d4d5 f6f5 d5d4 f5f4 d4d5 f4f5 d5d4 f5f4 d4d5
+    */
     
     //  VICE in C  tricky depth 4:    1575
     //  VICE in JS tricky depth 4:    2224
@@ -1507,6 +1528,8 @@ if (typeof(document) != 'undefined') {
   
   // parse UCI "go" command
   function parseGo(command) {
+    if (command.includes('infinite')) return;
+
     engine.resetTimeControl();
     timing = engine.getTimeControl();
 
@@ -1515,9 +1538,7 @@ if (typeof(document) != 'undefined') {
     var movestogo = 30;
     var movetime = -1;
     var inc = 0;
-    
-    // parse time control
-    if (command.includes('infinite')) {}
+
     if (go[1] == 'wtime' && engine.getSide() == engine.WHITE ) { timing.time = parseInt(go[2]); }
     if (go[3] == 'btime' && engine.getSide() == engine.BLACK ) { timing.time = parseInt(go[4]); }
     if (go[5] == 'winc' && engine.getSide() == engine.WHITE) { inc = parseInt(go[6]); }
@@ -1525,7 +1546,7 @@ if (typeof(document) != 'undefined') {
     if (go[9] == 'movestogo') { movestogo = parseInt(go[10]); }
     if (go[1] == 'movetime') { movetime = parseInt(go[2]); }
     if (go[1] == 'depth') { depth = parseInt(go[2]); }
-    
+
     if(movetime != -1) {
       timing.time = movetime;
       movestogo = 1;
@@ -1578,38 +1599,28 @@ if (typeof(document) != 'undefined') {
       
       engine.printBoard();
   }
+
+  // create CLI interface
+  var readline = require('readline');
+  var uci = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+    terminal: false
+  });
   
   // UCI loop
-  process.stdin.on('data', function (command) {
-    // uci
-    if (command == 'uci\n') {
-      process.stdout.write('id name WukongJS ' + VERSION + '\n');
-      process.stdout.write('id author Code Monkey King\n');
+  uci.on('line', function(command){
+    if (command == 'uci') {
+      console.log('id name WukongJS ' + VERSION);
+      console.log('id author Code Monkey King');
     }
 
-    // isready
-    if (command == 'isready\n')
-      process.stdout.write('readyok\n');
-    
-    // quit
-    if (command == 'quit\n')
-      process.exit();
-    
-    // ucinewgame
-    if (command == 'ucinewgame\n') {
-      parsePosition("position startpos");
-    }
-    
-    // position
-    if (command.includes('position')) {
-      parsePosition(command);
-    }
-    
-    // go
-    if (command.includes('go')) {
-      parseGo(command);
-    }
-  });
+    if (command == 'isready') console.log('readyok');
+    if (command == 'quit') process.exit();
+    if (command == 'ucinewgame') parsePosition("position startpos");
+    if (command.includes('position')) parsePosition(command);
+    if (command.includes('go')) parseGo(command);
+  })
 }
 
 
