@@ -875,12 +875,9 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
 
   // time control handling  
   var timing = {
-    timeset: 0,
-    stopped: 0,
-    startTime: 0,
+    timeSet: 0,
     stopTime: 0,
-    movestogo: 30,
-    movetime: -1,
+    stopped: 0,
     time: -1,
     inc: 0,
   }
@@ -891,12 +888,9 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
   // reset time control
   function resetTimeControl() {
     timing = {
-      timeset: 0,
-      stopped: 0,
-      startTime: 0,
+      timeSet: 0,
       stopTime: 0,
-      movestogo: 30,
-      movetime: -1,
+      stopped: 0,
       time: -1,
       inc: 0,
     }
@@ -913,9 +907,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
   
   // communicate
   function communicate() {
-    // if time is up break here
-    if(timing.timeset == 1 && new Date().getTime() > timing.stoptime) timing.stopped = 1;
-    
+    if(timing.timeSet == 1 && new Date().getTime() > timing.stopTime) timing.stopped = 1;
   }
   
   // negamax search
@@ -1095,10 +1087,10 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     } else enpassant = noEnpassant;
     
     // parse 50 rule move counter
-    fifty = Number(fen.slice(index, fen.length - 1).split(' ')[1]);
+    fifty = parseInt(fen.slice(index, fen.length - 1).split(' ')[1]);
 
     // parse full move counter
-    gamePly = Number(fen.slice(index, fen.length - 1).split(' ')[2]) * 2;
+    gamePly = parseInt(fen.slice(index, fen.length - 1).split(' ')[2]) * 2;
 
     // generate unique position identifier
     hashKey = generateHashKey();
@@ -1381,6 +1373,8 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     
     // engine constants reference
     SELECT_COLOR: SELECT_COLOR,
+    WHITE: white,
+    BLACK: black,
     START_FEN: startFen,
     
     // engine methods [BROWSER MODE]
@@ -1393,13 +1387,14 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     loadMoves: function(moves) { loadMoves(moves); },
     getPiece: function(square) { getPiece(square); },
     setPiece: function(piece, square) { setPiece(piece, square); },
+    getSide: function() { return side; },
     takeBack: function() { if (backup.length) takeBack(); },
     movePiece: function(userSource, userTarget, promotedPiece) { movePiece(userSource, userTarget, promotedPiece); },
     perft: function(depth) { perftTest(depth); },
     search: function(depth) { return searchPosition(depth) },
     resetTimeControl: function() { resetTimeControl(); },
     setTimeControl: function(timeControl) { setTimeControl(timeControl); },
-    getTimeControl: function() { return timing},
+    getTimeControl: function() { return JSON.parse(JSON.stringify(timing))},
     debug: function() { debug(); }
   }
 }
@@ -1512,133 +1507,75 @@ if (typeof(document) != 'undefined') {
   
   // parse UCI "go" command
   function parseGo(command) {
-    timing = engine.getTimeControl();
-    console.log(timing);
-    timing.time = 1000;
-    console.log(timing);
     engine.resetTimeControl();
-    console.log(timing);
-  }
-  
-  /*
-  
+    timing = engine.getTimeControl();
 
-// parse UCI command "go"
-void parse_go(char *command)
-{
-    // reset time control
-    reset_time_control();
+    var go = command.split(' ');
+    var depth = -1;
+    var movestogo = 30;
+    var movetime = -1;
+    var inc = 0;
     
-    // init parameters
-    int depth = -1;
-
-    // init argument
-    char *argument = NULL;
-
-    // infinite search
-    if ((argument = strstr(command,"infinite"))) {}
-
-    // match UCI "binc" command
-    if ((argument = strstr(command,"binc")) && side == black)
-        // parse black time increment
-        inc = atoi(argument + 5);
-
-    // match UCI "winc" command
-    if ((argument = strstr(command,"winc")) && side == white)
-        // parse white time increment
-        inc = atoi(argument + 5);
-
-    // match UCI "wtime" command
-    if ((argument = strstr(command,"wtime")) && side == white)
-        // parse white time limit
-        time = atoi(argument + 6);
-
-    // match UCI "btime" command
-    if ((argument = strstr(command,"btime")) && side == black)
-        // parse black time limit
-        time = atoi(argument + 6);
-
-    // match UCI "movestogo" command
-    if ((argument = strstr(command,"movestogo")))
-        // parse number of moves to go
-        movestogo = atoi(argument + 10);
-
-    // match UCI "movetime" command
-    if ((argument = strstr(command,"movetime")))
-        // parse amount of time allowed to spend to make a move
-        movetime = atoi(argument + 9);
-
-    // match UCI "depth" command
-    if ((argument = strstr(command,"depth")))
-        // parse search depth
-        depth = atoi(argument + 6);
-
-    // if move time is not available
-    if(movetime != -1)
-    {
-        // set time equal to move time
-        time = movetime;
-
-        // set moves to go to 1
-        movestogo = 1;
+    // parse time control
+    if (command.includes('infinite')) {}
+    if (go[1] == 'wtime' && engine.getSide() == engine.WHITE ) { timing.time = parseInt(go[2]); }
+    if (go[3] == 'btime' && engine.getSide() == engine.BLACK ) { timing.time = parseInt(go[4]); }
+    if (go[5] == 'winc' && engine.getSide() == engine.WHITE) { inc = parseInt(go[6]); }
+    if (go[7] == 'binc' && engine.getSide() == engine.BLACK) { inc = parseInt(go[8]); }
+    if (go[9] == 'movestogo') { movestogo = parseInt(go[10]); }
+    if (go[1] == 'movetime') { movetime = parseInt(go[2]); }
+    if (go[1] == 'depth') { depth = parseInt(go[2]); }
+    
+    if(movetime != -1) {
+      timing.time = movetime;
+      movestogo = 1;
+    }
+    
+    var startTime = new Date().getTime();
+    
+    if(timing.time != -1) {
+      timing.timeSet = 1;
+      timing.time /= movestogo;
+      timing.time = parseInt(timing.time);
+      timing.time -= 50;
+      
+      if (timing.time < 0) {
+          timing.time = 0;
+          inc -= 50;
+          if (inc < 0) inc = 1;
+      }
+      
+      timing.stopTime = startTime + timing.time + inc;        
     }
 
-    // init start time
-    starttime = get_time_ms();
+    // "infinite" depth if it's not specified
+    if (depth == -1) depth = 64;
 
-    // init search depth
-    depth = depth;
-
-    // if time control is available
-    if(time != -1)
-    {
-        // flag we're playing with time control
-        timeset = 1;
-
-        // set up timing
-        time /= movestogo;
-        
-        // lag compensation
-        time -= 50;
-        
-        // if time is up
-        if (time < 0)
-        {
-            // restore negative time to 0
-            time = 0;
-            
-            // inc lag compensation on 0+inc time controls
-            inc -= 50;
-            
-            // timing for 0 seconds left and no inc
-            if (inc < 0) inc = 1;
-        }
-        
-        // init stoptime
-        stoptime = starttime + time + inc;        
-    }
-
-    // if depth is not available
-    if(depth == -1)
-        // set depth to 64 plies (takes ages to complete...)
-        depth = 64;
-
-    // print debug info
-    printf("time: %d  inc: %d  start: %u  stop: %u  depth: %d  timeset:%d\n",
-            time, inc, starttime, stoptime, depth, timeset);
+    // set time control
+    engine.setTimeControl(timing);
+    console.log(
+      'time:', timing.time,
+      'inc', inc,
+      'start', startTime,
+      'stop', timing.stopTime,
+      'depth', depth,
+      'timeset', timing.timeSet
+    );
 
     // search position
-    search_position(depth);
-}
-  */
+    engine.search(depth);
+  }
   
   // parse UCI "position" command
   function parsePosition(command) {
       let position = command.split(' ');
+      
       if (position[1].includes('startpos')) engine.setBoard(engine.START_FEN);
       else if (position[1] == 'fen') engine.setBoard(command.split('position fen ')[1]);
+      
       let moves = command.split('moves ')[1];
       if (moves) { engine.loadMoves(moves); };
+      
       engine.printBoard();
   }
   
@@ -1671,14 +1608,6 @@ void parse_go(char *command)
     // go
     if (command.includes('go')) {
       parseGo(command);
-    }
-    
-    // test
-    if (command == 'go depth 1\n') {
-      engine.timing.timeset = 1;
-      engine.timing.starttime = new Date().getTime();
-      engine.timing.stoptime = engine.timing.starttime + 1000;
-      //console.log(timing);
     }
   });
 }
