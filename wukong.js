@@ -868,11 +868,12 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
   const maxPly = 64;
   const infinity = 50000;
   const mateScore = 49000;
-
-  // search variables
-  //var stopped = 0;
-  //var timeset = 1;
   
+  // PV table
+  var pvTable = new Array(maxPly * maxPly);
+  var pvLength = new Array(maxPly);
+
+  // time control handling  
   var timing = {
     timeset: 0,
     stopped: 0,
@@ -884,10 +885,10 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     inc: 0,
   }
   
-  // PV table
-  var pvTable = new Array(maxPly * maxPly);
-  var pvLength = new Array(maxPly);
+  // set time control
+  function setTimeControl(timeControl) { timing = timeControl; }
   
+  // reset time control
   function resetTimeControl() {
     timing = {
       timeset: 0,
@@ -904,7 +905,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
   function clearSearch() {
     // reset nodes counter
     nodes = 0;
-    stopped = 0;
+    timing.stopped = 0;
     
     for (var index = 0; index < pvTable.length; index++) pvTable[index] = 0;
     for (var index = 0; index < pvLength.length; index++) pvLength[index] = 0;
@@ -976,7 +977,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     // iterative deepening
     for (var current_depth = 1; current_depth <= depth; current_depth++)
     {
-      if (stopped == 1) break;
+      if (timing.stopped == 1) break;
 	        
       score = negamax(-infinity, infinity, current_depth);
 
@@ -1095,7 +1096,10 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     
     // parse 50 rule move counter
     fifty = Number(fen.slice(index, fen.length - 1).split(' ')[1]);
-    
+
+    // parse full move counter
+    gamePly = Number(fen.slice(index, fen.length - 1).split(' ')[2]) * 2;
+
     // generate unique position identifier
     hashKey = generateHashKey();
     
@@ -1143,8 +1147,9 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
                                         ((castle & kc) ? 'k' : '-') +
                                         ((castle & qc) ? 'q' : '-');
     boardString += '\n     Ep:          ' + ((enpassant == noEnpassant) ? 'no': coordinates[enpassant]);
-    boardString += '\n\n     50 moves:    ' + fifty; 
-    boardString += '\n     Key: ' + hashKey;
+    boardString += '\n\n     Key: ' + hashKey;
+    boardString += '\n 50 rule:          ' + fifty;
+    boardString += '\n   moves:          ' + ((gamePly % 2) ? Math.round(gamePly / 2) - 1 : Math.round(gamePly / 2));
     console.log(boardString + '\n');
   }
   
@@ -1159,7 +1164,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
              coordinates[getMoveTarget(move)];
     }
   }
-	
+
   // print move list
   function printMoveList(moveList) {
     var listMoves = '   Move     Capture  Double   Enpass   Castling\n\n';
@@ -1344,7 +1349,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
   function debug() {
     // parse position from FEN string
     //setBoard('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1 ');
-    setBoard('r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1 ');
+    setBoard('r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 10 ');
     //setBoard('r4rk1/1pp1qppp/p1np1n2/2b1p1B1/2B1P1b1/P1NP1N2/1PP1QPPP/R4RK1 w - - 0 10');
     //setBoard('rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPP1NnPP/RNBQK2R w KQ - 1 8');
     printBoard();
@@ -1391,7 +1396,10 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     takeBack: function() { if (backup.length) takeBack(); },
     movePiece: function(userSource, userTarget, promotedPiece) { movePiece(userSource, userTarget, promotedPiece); },
     perft: function(depth) { perftTest(depth); },
-    search: function(depth) { return searchPosition(depth) }, timing: timing,
+    search: function(depth) { return searchPosition(depth) },
+    resetTimeControl: function() { resetTimeControl(); },
+    setTimeControl: function(timeControl) { setTimeControl(timeControl); },
+    getTimeControl: function() { return timing},
     debug: function() { debug(); }
   }
 }
@@ -1502,8 +1510,16 @@ if (typeof(document) != 'undefined') {
   process.stdin.setEncoding('utf-8');
   console.log('\n  Wukong JS - UCI mode - v' + VERSION + '\n\n');
   
+  // parse UCI "go" command
+  function parseGo(command) {
+    timing = engine.getTimeControl();
+    console.log(timing);
+    timing.time = 1000;
+    console.log(timing);
+    engine.resetTimeControl();
+    console.log(timing);
+  }
   
-  console.log(engine.timing)
   /*
   
 
@@ -1648,8 +1664,13 @@ void parse_go(char *command)
     }
     
     // position
-    if (command.split(' ')[0] == 'position') {
+    if (command.includes('position')) {
       parsePosition(command);
+    }
+    
+    // go
+    if (command.includes('go')) {
+      parseGo(command);
     }
     
     // test
