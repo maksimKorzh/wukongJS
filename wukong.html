@@ -22,7 +22,7 @@
     <!-- Controls -->
     <div align="center" style="margin-top: 10px; margin-left: 20px">
       <button class="control" onclick="engine.setBoard(engine.START_FEN)">New</button>
-      <button class="control" onclick="engine.loadMoves(engine.search(1)); engine.updateBoard()">Move</button>
+      <button class="control" onclick="engine.loadMoves(engine.search(5)); engine.updateBoard()">Move</button>
       <button class="control" onclick="engine.takeBack(); engine.updateBoard();">Undo</button>
     </div>
 
@@ -36,7 +36,7 @@
       console.log('  type "engine" for public API reference');
 
       // init engine
-      var engine = new Engine();
+      var engine = new Engine(); //engine.debug();
 
       /****************************\
        ============================

@@ -910,83 +910,94 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
    ============================              
   \****************************/
   
-  const materialWeights = [0, 100, 300, 300, 500, 1000, 10000, -100, -300, -300, -500, -1000, -10000];
+  const materialWeights = [0, 100, 300, 350, 500, 1000, 10000, -100, -300, -350, -500, -1000, -10000];
   
   const pstPawn = [
+    // opening
     0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o, 
+    5, 10, 10, 10, 10, 10, 10,  5,  o, o, o, o, o, o, o, o,
+    5, 10, 20, 20, 20, 20, 10,  5,  o, o, o, o, o, o, o, o,
+    5, 10, 20, 30, 30, 20, 10,  5,  o, o, o, o, o, o, o, o,
+    5, 10, 20, 30, 30, 20, 10,  5,  o, o, o, o, o, o, o, o,
+    5, 10, 20, 20, 20, 20, 10,  5,  o, o, o, o, o, o, o, o,
+    5, 10, 10, 10, 10, 10, 10,  5,  o, o, o, o, o, o, o, o,
     0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o,
-    0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o,
-    0,  0,  0, 30, 30,  0,  0,  0,  o, o, o, o, o, o, o, o,
-    0,  0, 20, 30, 30,  0,  0,  0,  o, o, o, o, o, o, o, o,
-    0, -5, 10, 20, 20,  0, -5,  0,  o, o, o, o, o, o, o, o,
-    0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o,
+    
+   // endgame
+   90, 80, 70, 60, 60, 70, 80, 90,  o, o, o, o, o, o, o, o, 
+   80, 70, 60, 50, 50, 60, 70, 80,  o, o, o, o, o, o, o, o,
+   70, 60, 50, 40, 40, 50, 60, 70,  o, o, o, o, o, o, o, o,
+   60, 50, 40, 30, 30, 40, 50, 60,  o, o, o, o, o, o, o, o,
+   50, 40, 30, 30, 30, 30, 40, 50,  o, o, o, o, o, o, o, o,
+   40, 30, 20, 10, 10, 20, 30, 40,  o, o, o, o, o, o, o, o,
+   -5, -5, -5, -5, -5, -5, -5, -5,  o, o, o, o, o, o, o, o,
     0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o
   ];
   
   const pstKnight = [
-   -5,  0,  0,  0,  0,  0,  0, -5,  o, o, o, o, o, o, o, o, 
-   -5,  0,  0,  0,  0,  0,  0, -5,  o, o, o, o, o, o, o, o,
-   -5,  0,  0,  0,  0,  0,  0, -5,  o, o, o, o, o, o, o, o,
-   -5,  0,  0, 30, 30,  0,  0, -5,  o, o, o, o, o, o, o, o,
-   -5,  0,  0, 30, 30,  0,  0, -5,  o, o, o, o, o, o, o, o,
-   -5,  0, 20,  0,  0, 20,  0, -5,  o, o, o, o, o, o, o, o,
-   -5,  0,  0,  0,  0,  0,  0, -5,  o, o, o, o, o, o, o, o,
-   -5, -5,  0,  0,  0,  0, -5, -5,  o, o, o, o, o, o, o, o
+   -5, -5, -5, -5, -5, -5, -5, -5,  o, o, o, o, o, o, o, o, 
+   -5, 10, 10, 10, 10, 10, 10, -5,  o, o, o, o, o, o, o, o,
+   -5, 10, 20, 20, 20, 20, 10, -5,  o, o, o, o, o, o, o, o,
+   -5, 10, 20, 30, 30, 20, 10, -5,  o, o, o, o, o, o, o, o,
+   -5, 10, 20, 30, 30, 20, 10, -5,  o, o, o, o, o, o, o, o,
+   -5, 10, 20, 20, 20, 20, 10, -5,  o, o, o, o, o, o, o, o,
+   -5, 10, 10, 10, 10, 10, 10, -5,  o, o, o, o, o, o, o, o,
+   -5, -5, -5, -5, -5, -5, -5, -5,  o, o, o, o, o, o, o, o
   ];
   
   const pstBishop = [
-    0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o, 
-    0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o,
-    0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o,
-    0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o,
-    0,  0, 30,  0,  0, 30,  0,  0,  o, o, o, o, o, o, o, o,
-    0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o,
-    0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o,
-    0,  0, -5,  0,  0, -5,  0,  0,  o, o, o, o, o, o, o, o
+   -5, -5, -5, -5, -5, -5, -5, -5,  o, o, o, o, o, o, o, o, 
+    5, 20, 20, 20, 20, 20, 20,  5,  o, o, o, o, o, o, o, o,
+    5, 20, 30, 30, 30, 30, 20,  5,  o, o, o, o, o, o, o, o,
+    5, 20, 30, 10, 10, 30, 20,  5,  o, o, o, o, o, o, o, o,
+    5, 20, 30, 10, 10, 30, 20,  5,  o, o, o, o, o, o, o, o,
+    5, 20, 30, 20, 20, 30, 20,  5,  o, o, o, o, o, o, o, o,
+    5, 20, 20, 20, 20, 20, 20,  5,  o, o, o, o, o, o, o, o,
+   -5, -5, -5, -5, -5, -5, -5, -5,  o, o, o, o, o, o, o, o
   ];
-  
+
   const pstRook = [
     0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o, 
    30, 30, 30, 30, 30, 30, 30, 30,  o, o, o, o, o, o, o, o,
-    0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o,
-    0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o,
-    0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o,
-    0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o,
-    0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o,
-    0,  0,  0, 20,  0,  20,  0,  0,  o, o, o, o, o, o, o, o
+   20, 20, 20, 20, 20, 20, 20, 20,  o, o, o, o, o, o, o, o,
+    0,  0,  0, 10, 10,  0,  0,  0,  o, o, o, o, o, o, o, o,
+    0,  0,  0, 10, 10,  0,  0,  0,  o, o, o, o, o, o, o, o,
+    0,  0,  0, 10, 10,  0,  0,  0,  o, o, o, o, o, o, o, o,
+    0,  0,  0, 10, 10,  0,  0,  0,  o, o, o, o, o, o, o, o,
+    0,  0,  0, 10, 10,  0,  0,  0,  o, o, o, o, o, o, o, o
   ];
   
   const pstQueen = [
-    0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o, 
-    0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o,
-    0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o,
-    0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o,
-    0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o,
-    0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o,
-    0,  0,  0, 10,  0,  0,  0,  0,  o, o, o, o, o, o, o, o,
-    0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o
+   -5, -5, -5, -5, -5, -5, -5, -5,  o, o, o, o, o, o, o, o, 
+   -5, 10, 10, 10, 10, 10, 10, -5,  o, o, o, o, o, o, o, o,
+   -5, 10, 20, 20, 20, 20, 10, -5,  o, o, o, o, o, o, o, o,
+   -5, 10, 20, 30, 30, 20, 10, -5,  o, o, o, o, o, o, o, o,
+   -5, 10, 20, 30, 30, 20, 10, -5,  o, o, o, o, o, o, o, o,
+   -5, 10, 20, 20, 20, 20, 10, -5,  o, o, o, o, o, o, o, o,
+   -5, 10, 10, 10, 10, 10, 10, -5,  o, o, o, o, o, o, o, o,
+   -5, -5, -5, -5, -5, -5, -5, -5,  o, o, o, o, o, o, o, o
   ];
   
-  const pstKingOpening = [
-    0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o, 
-    0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o,
-    0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o,
-    0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o,
-    0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o,
-    0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o,
-    0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o,
-    0,  0, 20,  0, -5,  0, 10,  0,  o, o, o, o, o, o, o, o
-  ];
-  
-  const pstKingEndgame = [
-    0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o, 
-    0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o,
-    0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o,
-    0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o,
-    0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o,
-    0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o,
-    0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o,
-    0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o
+  const pstKing = [
+   // opening
+   -5, -5, -5, -5, -5, -5, -5, -5,  o, o, o, o, o, o, o, o, 
+   -5, -5, -5, -5, -5, -5, -5, -5,  o, o, o, o, o, o, o, o,
+   -5, -5, -5, -5, -5, -5, -5, -5,  o, o, o, o, o, o, o, o,
+   -5, -5, -5, -5, -5, -5, -5, -5,  o, o, o, o, o, o, o, o,
+   -5, -5, -5, -5, -5, -5, -5, -5,  o, o, o, o, o, o, o, o,
+   -5, -5, -5, -5, -5, -5, -5, -5,  o, o, o, o, o, o, o, o,
+   -5, -5, -5, -5, -5, -5, -5, -5,  o, o, o, o, o, o, o, o,
+   -5, -5, 30, -5, -5, -5, 20, -5,  o, o, o, o, o, o, o, o,
+   
+   // endgame
+   -5, -5, -5, -5, -5, -5, -5, -5,  o, o, o, o, o, o, o, o, 
+   -5, 10, 10, 10, 10, 10, 10, -5,  o, o, o, o, o, o, o, o,
+   -5, 10, 20, 20, 20, 20, 10, -5,  o, o, o, o, o, o, o, o,
+   -5, 10, 20, 30, 30, 20, 10, -5,  o, o, o, o, o, o, o, o,
+   -5, 10, 20, 30, 30, 20, 10, -5,  o, o, o, o, o, o, o, o,
+   -5, 10, 20, 20, 20, 20, 10, -5,  o, o, o, o, o, o, o, o,
+   -5, 10, 10, 10, 10, 10, 10, -5,  o, o, o, o, o, o, o, o,
+   -5, -5, -5, -5, -5, -5, -5, -5,  o, o, o, o, o, o, o, o
   ];
   
   const mirrorSquare = [
@@ -1000,8 +1011,18 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
 	  a8, b8, c8, d8, e8, f8, g8, h8,    o, o, o, o, o, o, o, o
   ]
   
+  function getGamePhase() {
+    let phaseScore = 0;
+    for (let piece = N; piece <= Q; piece++) phaseScore += pieceList[piece] * materialWeights[piece];
+    for (let piece = n; piece <= q; piece++) phaseScore += pieceList[piece] * -materialWeights[piece];
+    
+    // "1" for opening, "0" for endgame
+    return (phaseScore > 2000 ) ? 0: 1;
+  }
+  
   function evaluate() {
     let score = 0;
+    let phase = getGamePhase();
     
     for (let piece = P; piece <= k; piece++) {
       for (pieceIndex = 0; pieceIndex < pieceList[piece]; pieceIndex++) {
@@ -1012,18 +1033,18 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
         
         // positional score
         switch (piece) {
-          case P: score += pstPawn[square]; break;
+          case P: score += pstPawn[phase * 128 + square]; break;
           case N: score += pstKnight[square]; break;
           case B: score += pstBishop[square]; break;
           case R: score += pstRook[square]; break;
           case Q: score += pstQueen[square]; break;
-          case K: score += pstKingOpening[square]; break;
-          case p: score -= pstPawn[mirrorSquare[square]]; break;
+          case K: score += pstKing[phase * 128 + square]; break;
+          case p: score -= pstPawn[mirrorSquare[phase * 128 + square]]; break;
           case n: score -= pstKnight[mirrorSquare[square]]; break;
           case b: score -= pstBishop[mirrorSquare[square]]; break;
           case r: score -= pstRook[mirrorSquare[square]]; break;
           case q: score -= pstQueen[mirrorSquare[square]]; break;
-          case k: score -= pstKingOpening[mirrorSquare[square]]; break;
+          case k: score -= pstKing[mirrorSquare[phase * 128 + square]]; break;
         }
       }
     }
@@ -1617,38 +1638,13 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
   
   function debug() {
     // parse position from FEN string
-    //setBoard('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1 ');
+    setBoard('krr5/pppppppp/8/8/8/8/PPPPPPPP/KRR5 w KQkq - 0 1 ');
     //setBoard('r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 10 ');
     //setBoard('r4rk1/1pp1qppp/p1np1n2/2b1p1B1/2B1P1b1/P1NP1N2/1PP1QPPP/R4RK1 w - - 0 10');
     //setBoard('rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPP1NnPP/RNBQK2R w KQ - 1 8');
     //setBoard('rnbqkbnr/pp4pp/2p5/3Npp2/2PpP3/3P1P2/PP4PP/R1BQKBNR b KQkq e3 0 6 ');
-    
     //setBoard('rn2kb1r/pp5p/5n2/2p5/4pN2/111P4/PPP2PPP/R2Q1RK1 w kq - 0 15 ');
-    
-    
-    /*setBoard('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1 ');
-    printPieceList();
-    negamax(-50000, 50000, 4);
-    console.log('nodes:', nodes);
-    nodes = 0;
-    printPieceList();*/
-    
-    //initPieceList();
-    //setBoard('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1 ');
-    //negamax(-50000, 50000, 4);
-    //console.log('nodes:', nodes);
-    
-    /*var moveList = [];
-    generateMoves(moveList);
-    
-    for (let index = 0; index < moveList.length; index++)
-      sortMove(index, moveList)
-
-    printMoveList(moveList);
-    
-    // perft test
-    perftTest(4);
-    */
+    evaluate();
   }
   
   return {
