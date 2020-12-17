@@ -431,9 +431,20 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
 
   // populate move list
   function addMove(moveList, move) {
+    let moveScore = 0;
+    
+    if (getMoveCapture(move)) {
+      moveScore = mvvLva[board[getMoveSource(move)] * 13 + board[getMoveTarget(move)]];
+      moveScore += 10000;
+    } else {
+      if (killerMoves[searchPly] == move) moveScore = 9000;
+      else if (killerMoves[maxPly + searchPly] == move) moveScore = 8000;
+      else moveScore = historyMoves[board[getMoveSource(move)] * 128 + getMoveTarget(move)];
+    }
+    
     moveList.push({
       move: move,
-      score: 0
+      score: moveScore
     });
   }
 
@@ -552,6 +563,83 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
                 }
                 
                 if (capturedPiece == e) addMove(moveList, encodeMove(sourceSquare, targetSquare, 0, 0, 0, 0, 0));
+                targetSquare += sliderPieces[piece].offsets[index];
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  
+  // generate captures
+  function generateCaptures(moveList) {
+    for (let piece = P; piece <= k; piece++) {
+      for (let pieceIndex = 0; pieceIndex < pieceList[piece]; pieceIndex++) {
+        let sourceSquare = pieceList.pieces[piece * 10 + pieceIndex];
+        
+        // pawns
+        if (board[sourceSquare] == specialMoves.side[side].pawn) {
+          let targetSquare = sourceSquare + specialMoves.side[side].target;
+          for (let index = 0; index < 2; index++) {
+            let pawn_offset = specialMoves.side[side].offset[index];
+            let targetSquare = sourceSquare + pawn_offset;
+            
+            if ((targetSquare & 0x88) == 0) {
+              if ((sourceSquare >= specialMoves.side[side].rank7[0] &&
+                   sourceSquare <= specialMoves.side[side].rank7[1]) &&
+                  (board[targetSquare] >= specialMoves.side[side].capture[0] &&
+                   board[targetSquare] <= specialMoves.side[side].capture[1])
+                 ) {
+                for (let promotedIndex = 0; promotedIndex < 4; promotedIndex++) {
+                  let promotedPiece = specialMoves.side[side].promoted[promotedIndex];
+                  addMove(moveList, encodeMove(sourceSquare, targetSquare, promotedPiece, 1, 0, 0, 0));
+                }
+              } else {
+                if (board[targetSquare] >= specialMoves.side[side].capture[0] &&
+                    board[targetSquare] <= specialMoves.side[side].capture[1])
+                  addMove(moveList, encodeMove(sourceSquare, targetSquare, 0, 1, 0, 0, 0));
+                if (targetSquare == enpassant)
+                  addMove(moveList, encodeMove(sourceSquare, targetSquare, 0, 1, 0, 1, 0));
+              }
+            }
+          }
+        }
+        
+        // leaper pieces
+        for (let piece in leaperPieces) {
+          if (board[sourceSquare] == leaperPieces[piece].side[side]) {
+            for (let index = 0; index < 8; index++) {
+              let targetSquare = sourceSquare + leaperPieces[piece].offsets[index];
+              let capturedPiece = board[targetSquare];
+              
+              if ((targetSquare & 0x88) == 0) {
+                if ((side == white) ? 
+                    (capturedPiece == e || (capturedPiece >= 7 && capturedPiece <= 12)) : 
+                    (capturedPiece == e || (capturedPiece >= 1 && capturedPiece <= 6))
+                   ) {
+                  if (capturedPiece) addMove(moveList, encodeMove(sourceSquare, targetSquare, 0, 1, 0, 0, 0));
+                }
+              }
+            }
+          }
+        }
+        
+        // slider pieces
+        for (let piece in sliderPieces) {
+          if (board[sourceSquare] == sliderPieces[piece].side[side][0] ||
+              board[sourceSquare] == sliderPieces[piece].side[side][1]) {
+            for (var index = 0; index < 4; index++) {
+              let targetSquare = sourceSquare + sliderPieces[piece].offsets[index];
+              while (!(targetSquare & 0x88)) {
+                var capturedPiece = board[targetSquare];
+                
+                if ((side == white) ? (capturedPiece >= 1 && capturedPiece <= 6) : ((capturedPiece >= 7 && capturedPiece <= 12))) break;
+                if ((side == white) ? (capturedPiece >= 7 && capturedPiece <= 12) : ((capturedPiece >= 1 && capturedPiece <= 6))) {
+                  addMove(moveList, encodeMove(sourceSquare, targetSquare, 0, 1, 0, 0, 0));
+                  break;
+                }
+
                 targetSquare += sliderPieces[piece].offsets[index];
               }
             }
@@ -776,8 +864,8 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     let moveList = [];
     generateMoves(moveList);
     
-    for (var moveCount = 0; moveCount < moveList.length; moveCount++) {      
-      if (!makeMove(moveList[moveCount].move)) continue;
+    for (var count = 0; count < moveList.length; count++) {      
+      if (!makeMove(moveList[count].move)) continue;
       perftDriver(depth - 1);
       takeBack();
     }
@@ -792,18 +880,18 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     let moveList = [];
     generateMoves(moveList);
     
-    for (var moveCount = 0; moveCount < moveList.length; moveCount++) {      
-      if (!makeMove(moveList[moveCount].move)) continue;
+    for (var count = 0; count < moveList.length; count++) {      
+      if (!makeMove(moveList[count].move)) continue;
       let cumNodes = nodes;
       perftDriver(depth - 1);
       takeBack();
       let oldNodes = nodes - cumNodes;
       console.log(  '   move' +
-                    ' ' + (moveCount + 1) + ((moveCount < 9) ? ':  ': ': ') +
-                    coordinates[getMoveSource(moveList[moveCount].move)] +
-                    coordinates[getMoveTarget(moveList[moveCount].move)] +
-                    (getMovePromoted(moveList[moveCount].move) ?
-                    promotedPieces[getMovePromoted(moveList[moveCount].move)]: ' ') +
+                    ' ' + (count + 1) + ((count < 9) ? ':  ': ': ') +
+                    coordinates[getMoveSource(moveList[count].move)] +
+                    coordinates[getMoveTarget(moveList[count].move)] +
+                    (getMovePromoted(moveList[count].move) ?
+                    promotedPieces[getMovePromoted(moveList[count].move)]: ' ') +
                     '    nodes: ' + oldNodes);
     }
     
@@ -855,13 +943,14 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
 
         // evaluate material
         score += materialWeights[piece];
-        (piece >= 1 && piece <= 6) ? score += pst[square]: score -= pst[mirrorSquare[square]];
+        (piece >= 1 && piece <= 6) ? score += pst[square]: score -= pst[square];//pst[mirrorSquare[square]];
       }
     }
     
     return (side == white) ? score: -score;
   }
-  
+
+
   /****************************\
    ============================
    
@@ -869,6 +958,23 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
 
    ============================              
   \****************************/
+  
+  const mvvLva = [
+	  0,   0,   0,   0,   0,   0,   0,  0,   0,   0,   0,   0,   0,
+	  0, 105, 205, 305, 405, 505, 605,  105, 205, 305, 405, 505, 605,
+	  0, 104, 204, 304, 404, 504, 604,  104, 204, 304, 404, 504, 604,
+	  0, 103, 203, 303, 403, 503, 603,  103, 203, 303, 403, 503, 603,
+	  0, 102, 202, 302, 402, 502, 602,  102, 202, 302, 402, 502, 602,
+	  0, 101, 201, 301, 401, 501, 601,  101, 201, 301, 401, 501, 601,
+	  0, 100, 200, 300, 400, 500, 600,  100, 200, 300, 400, 500, 600,
+
+	  0, 105, 205, 305, 405, 505, 605,  105, 205, 305, 405, 505, 605,
+	  0, 104, 204, 304, 404, 504, 604,  104, 204, 304, 404, 504, 604,
+	  0, 103, 203, 303, 403, 503, 603,  103, 203, 303, 403, 503, 603,
+	  0, 102, 202, 302, 402, 502, 602,  102, 202, 302, 402, 502, 602,
+	  0, 101, 201, 301, 401, 501, 601,  101, 201, 301, 401, 501, 601,
+	  0, 100, 200, 300, 400, 500, 600,  100, 200, 300, 400, 500, 600
+  ];
   
   // search  constants
   const maxPly = 64;
@@ -879,6 +985,12 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
   var pvTable = new Array(maxPly * maxPly);
   var pvLength = new Array(maxPly);
   
+  // killer moves
+  var killerMoves = new Array(2 * maxPly);
+
+  // history moves
+  var historyMoves = new Array(13 * 128);
+  
   // repetition table
   var repetitionTable = new Array(1000);
 
@@ -887,8 +999,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     timeSet: 0,
     stopTime: 0,
     stopped: 0,
-    time: -1,
-    inc: 0,
+    time: -1
   }
   
   // set time control
@@ -900,8 +1011,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
       timeSet: 0,
       stopTime: 0,
       stopped: 0,
-      time: -1,
-      inc: 0,
+      time: -1
     }
   }
   
@@ -910,12 +1020,14 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     nodes = 0;
     timing.stopped = 0;
     
-    for (var index = 0; index < pvTable.length; index++) pvTable[index] = 0;
-    for (var index = 0; index < pvLength.length; index++) pvLength[index] = 0;
+    for (let index = 0; index < pvTable.length; index++) pvTable[index] = 0;
+    for (let index = 0; index < pvLength.length; index++) pvLength[index] = 0;
+    for (let index = 0; index < killerMoves.length; index++) killerMoves[index] = 0;
+    for (let index = 0; index < historyMoves.length; index++) historyMoves[index] = 0;
   }
   
   // handle time control
-  function communicate() {
+  function checkTime() {
     if(timing.timeSet == 1 && new Date().getTime() > timing.stopTime) timing.stopped = 1;
   }
 
@@ -927,72 +1039,129 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     return 0;
   }
   
+  // move ordering
+  function sortMove(currentCount, moveList) {
+    for (let nextCount = currentCount + 1; nextCount < moveList.length; nextCount++) {
+      if (moveList[currentCount].score < moveList[nextCount].score) {
+        let tempMove = moveList[currentCount];
+
+        moveList[currentCount] = moveList[nextCount];
+        moveList[nextCount] = tempMove;
+      }
+    }
+  }
+  
+  // quiescence search
+  function quiescence(alpha, beta) {
+    nodes++;
+    
+    if((nodes & 2047 ) == 0) checkTime();
+    if (searchPly > maxPly - 1) return evaluate();
+
+    var evaluation = evaluate();
+    
+    if (evaluation >= beta) return beta;
+    if (evaluation > alpha) alpha = evaluation;
+    
+    var moveList = [];
+    generateCaptures(moveList);
+
+    for (var count = 0; count < moveList.length; count++) { 
+      sortMove(count, moveList)
+      let move = moveList[count].move;
+      
+      if (makeMove(move) == 0) continue;
+      var score = -quiescence(-beta, -alpha);
+      takeBack();
+      
+      if (timing.stopped == 1) return 0;
+      if (score > alpha) {
+        alpha = score;
+        if (score >= beta) return beta;
+      }
+    }
+
+    return alpha;
+  }
+  
   // negamax search
   function negamax(alpha, beta, depth) {
     pvLength[searchPly] = searchPly;
     
     let score = 0;
 
-    if ((searchPly && isRepetition()) || fifty >= 100) return 0;
-    if ((nodes & 2047 ) == 0) communicate();
+    //if ((searchPly && isRepetition()) || fifty >= 100) return 0;
+    //if ((nodes & 2047 ) == 0) checkTime();
     if (depth == 0) { nodes++; return evaluate(); }
     
     let legalMoves = 0;
     let inCheck = isSquareAttacked(kingSquare[side], side ^ 1);
-    if (inCheck) depth++;
+    //if (inCheck) depth++;
     
     
     let moveList = [];
     generateMoves(moveList);
     
-    for (let moveCount = 0; moveCount < moveList.length; moveCount++) {
-      let move = moveList[moveCount].move;
+    for (let count = 0; count < moveList.length; count++) {
+      //sortMove(count, moveList);
+      let move = moveList[count].move;
       if (makeMove(move) == 0) continue;
       legalMoves++;
       score = -negamax(-beta, -alpha, depth - 1);
       takeBack();
       
-      if (timing.stopped == 1) return 0;
-      
+      //if (timing.stopped == 1) return 0;
       if (score > alpha) {
         alpha = score;
         
+        // store history moves
+        //if (getMoveCapture(move) == 0)
+          //historyMoves[board[getMoveSource(move)] * 128 + getMoveTarget(move)] += depth;
+        
         // store PV move
-        pvTable[searchPly * 64 + searchPly] = move;
+        /*pvTable[searchPly * 64 + searchPly] = move;
         for (var nextPly = searchPly + 1; nextPly < pvLength[searchPly + 1]; nextPly++)
           pvTable[searchPly * 64 + nextPly] = pvTable[(searchPly + 1) * 64 + nextPly];
         pvLength[searchPly] = pvLength[searchPly + 1]
-        
+        */
         if (score >= beta) {
+          // store killer moves
+          if (getMoveCapture(move) == 0) {
+            //killerMoves[maxPly + searchPly] = killerMoves[searchPly];
+            //killerMoves[searchPly] = move;
+          }
+          
           return beta;
         }
       }
     }
     
     // checkmate or stalemate
-    if (legalMoves == 0) {
+    /*if (legalMoves == 0) {
       if (inCheck) return -mateScore + searchPly;
       else return 0;
-    }
+    }*/
 
     return alpha;
   }
   
-  async function searchPosition(depth) {
+  function searchPosition(depth) {
+    negamax(-infinity, infinity, depth);
+    console.log(nodes)
+    return
+    
     var start = new Date().getTime();
     var score = 0;
     
     clearSearch();
 
     // iterative deepening
-    for (var current_depth = 1; current_depth <= depth; current_depth++)
-    {
+    for (var current_depth = 1; current_depth <= depth; current_depth++) {
       if (timing.stopped == 1) break;
-	        
       score = negamax(-infinity, infinity, current_depth);
 
       // if PV is available
-      if (pvLength[0]) {
+      //if (pvLength[0]) {
         //if (score > -mate_value && score < -mate_score)
           //console.log('Score: mate in %d\nDepth: %d\nNodes: %d\nTime %d', -(score + mate_value) / 2 - 1, current_depth, nodes, new Date().getTime() - start);
         
@@ -1010,7 +1179,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
           info += moveToString(pvTable[count]) + ' ';
         
         console.log(info);
-      }
+      //}
     }
     
     console.log('bestmove ' + moveToString(pvTable[0]) + '\n');    
@@ -1177,7 +1346,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
 
   // print move list
   function printMoveList(moveList) {
-    var listMoves = '   Move     Capture  Double   Enpass   Castling\n\n';
+    var listMoves = '   Move     Capture  Double   Enpass   Castling  Score\n\n';
     
     for (var index = 0; index < moveList.length; index++) {
       var move = moveList[index].move;
@@ -1186,7 +1355,8 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
       listMoves += '    ' + getMoveCapture(move) +
                     '        ' + getMovePawn(move) +
                     '        ' + getMoveEnpassant(move) +
-                    '        ' + getMoveCastling(move) + '\n';
+                    '        ' + getMoveCastling(move) + 
+                    '         ' + moveList[index].score + '\n';
     }
     
     listMoves += '\n   Total moves: ' + moveList.length;
@@ -1358,31 +1528,36 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
   
   function debug() {
     // parse position from FEN string
-    //setBoard('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1 ');
-    setBoard('r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 10 ');
+    setBoard('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1 ');
+    //setBoard('r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 10 ');
     //setBoard('r4rk1/1pp1qppp/p1np1n2/2b1p1B1/2B1P1b1/P1NP1N2/1PP1QPPP/R4RK1 w - - 0 10');
     //setBoard('rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPP1NnPP/RNBQK2R w KQ - 1 8');
-    printBoard();
-    console.log('score:', evaluate());
+    //setBoard('rnbqkbnr/pp4pp/2p5/3Npp2/2PpP3/3P1P2/PP4PP/R1BQKBNR b KQkq e3 0 6 ');
     
-    //moveList = [];
-    //generateMoves(moveList);
-    //printMoveList(moveList);
+    //setBoard('rn2kb1r/pp5p/5n2/2p5/4pN2/111P4/PPP2PPP/R2Q1RK1 w kq - 0 15 ');
+    printBoard();
+    perftTest(4);
+    console.log(searchPly, gamePly);
+    printBoard();
+    perftTest(4);
+    console.log(searchPly, gamePly);
+    printBoard();
+    //console.log('nodes:', nodes);
+    
+    /*var moveList = [];
+    generateMoves(moveList);
+    
+    for (let index = 0; index < moveList.length; index++)
+      sortMove(index, moveList)
+
+    printMoveList(moveList);
     
     // perft test
-    //perftTest(4);
-    
-    /*
-          3 fold repetition depth 1
-          position startpos moves d2d4 d7d5 e2e4 d5e4 c2c3 d8d4 d1d4 e7e5 d4e5 e8d8 e5e4 c7c6 e4c6 b7c6 f2f3 f7f6 c1f4 c8f5 f4b8 a8b8 f1c4 f5b1 a1b1 b8b2 b1b2 f8c5 c4g8 h8g8 g2g4 c5g1 h1g1 g7g5 b2b4 g8g6 b4d4 d8e8 g1g3 a7a6 a2a3 a6a5 a3a4 c6c5 f3f4 c5d4 c3d4 g5f4 g3f3 g6g4 f3f4 g4f4 h2h3 f4d4 h3h4 d4h4 e1e2 h4a4 e2f3 a4d4 f3e3 a5a4 e3d4 a4a3 d4d5 a3a2 d5d4 a2a1q d4d5 a1d4 d5d4 f6f5 d4d5 f5f4 d5d4 f4f3 d4d5 h7h6 d5d4 h6h5 d4d5 h5h4 d5d4 h4h3 d4d5 e8e7 d5d4 e7f6 d4d5 f6f5 d5d4 f5f4 d4d5 f4f5 d5d4 f5f4 d4d5
+    perftTest(4);
     */
-    
-    //  VICE in C  tricky depth 4:    1575
-    //  VICE in JS tricky depth 4:    2224
-    // Wukong in C tricky depth 4:    1400
   }
   
-  return {    
+  return {
   
     /****************************\
      ============================
@@ -1412,7 +1587,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     takeBack: function() { if (backup.length) takeBack(); },
     movePiece: function(userSource, userTarget, promotedPiece) { movePiece(userSource, userTarget, promotedPiece); },
     perft: function(depth) { perftTest(depth); },
-    search: function(depth) { return searchPosition(depth) },
+    search: function(depth) { searchPosition(depth) },
     resetTimeControl: function() { resetTimeControl(); },
     setTimeControl: function(timeControl) { setTimeControl(timeControl); },
     getTimeControl: function() { return JSON.parse(JSON.stringify(timing))},
@@ -1455,7 +1630,8 @@ if (typeof(document) != 'undefined') {
     // init engine
     var engine = new Engine();
     engine.debug();
-    
+
+
     /****************************\
      ============================
    
@@ -1520,8 +1696,8 @@ if (typeof(document) != 'undefined') {
 
   // init engine
   var engine = new Engine();
-  //engine.debug();
-  //return;
+  engine.debug();
+  return;
 
   process.stdin.setEncoding('utf-8');
   console.log('\n  Wukong JS - UCI mode - v' + VERSION + '\n\n');
@@ -1584,7 +1760,7 @@ if (typeof(document) != 'undefined') {
     );
 
     // search position
-    engine.search(depth);
+    engine.perft(depth);
   }
   
   // parse UCI "position" command
