@@ -1148,11 +1148,10 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
   function searchPosition(depth) {
     let start = new Date().getTime();
     let score = 0;
-    
-    clearSearch();
-    
     let lastBestMove = 0;
     
+    clearSearch();
+
     // iterative deepening
     for (let current_depth = 1; current_depth <= depth; current_depth++) {
       lastBestMove = pvTable[0];
@@ -1167,8 +1166,6 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
                ' pv ';
       
       } else if (score > mateScore && score < mateValue) {
-        //console.log('+mate')
-        //info = 'mate';
         info = 'info score mate ' + (parseInt((mateValue - score) / 2 + 1)) + 
                ' depth ' + current_depth +
                ' nodes ' + nodes +
