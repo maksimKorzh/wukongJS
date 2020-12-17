@@ -910,17 +910,83 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
    ============================              
   \****************************/
   
-  const materialWeights = [0, 100, 300, 350, 500, 900, 1000, -100, -300, -350, -500, -900, -1000];
+  const materialWeights = [0, 100, 300, 300, 500, 1000, 10000, -100, -300, -300, -500, -1000, -10000];
   
-  const pst = [
-    0,  0,  5,  5,  0,  0,  5,  0,  o, o, o, o, o, o, o, o, 
-    5,  5,  0,  0,  0,  0,  5,  5,  o, o, o, o, o, o, o, o,
-    5, 10, 15, 20, 20, 15, 10,  5,  o, o, o, o, o, o, o, o,
-    5, 10, 20, 30, 30, 20, 10,  5,  o, o, o, o, o, o, o, o,
-    5, 10, 20, 30, 30, 20, 10,  5,  o, o, o, o, o, o, o, o,
-    5, 10, 15, 20, 20, 15, 10,  5,  o, o, o, o, o, o, o, o,
-    5,  5,  0,  0,  0,  0,  5,  5,  o, o, o, o, o, o, o, o,
-    0,  0,  5,  5,  0,  0,  5,  0,  o, o, o, o, o, o, o, o
+  const pstPawn = [
+    0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o, 
+    0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o,
+    0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o,
+    0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o,
+    0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o,
+    0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o,
+    0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o,
+    0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o
+  ];
+  
+  const pstKnight = [
+    0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o, 
+    0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o,
+    0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o,
+    0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o,
+    0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o,
+    0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o,
+    0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o,
+    0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o
+  ];
+  
+  const pstBishop = [
+    0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o, 
+    0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o,
+    0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o,
+    0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o,
+    0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o,
+    0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o,
+    0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o,
+    0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o
+  ];
+  
+  const pstRook = [
+    0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o, 
+    0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o,
+    0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o,
+    0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o,
+    0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o,
+    0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o,
+    0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o,
+    0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o
+  ];
+  
+  const pstQueen = [
+    0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o, 
+    0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o,
+    0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o,
+    0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o,
+    0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o,
+    0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o,
+    0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o,
+    0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o
+  ];
+  
+  const pstKingOpening = [
+    0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o, 
+    0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o,
+    0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o,
+    0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o,
+    0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o,
+    0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o,
+    0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o,
+    0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o
+  ];
+  
+  const pstKingEndgame = [
+    0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o, 
+    0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o,
+    0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o,
+    0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o,
+    0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o,
+    0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o,
+    0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o,
+    0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o
   ];
   
   const mirrorSquare = [
@@ -943,7 +1009,22 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
 
         // evaluate material
         score += materialWeights[piece];
-        (piece >= 1 && piece <= 6) ? score += pst[square]: score -= pst[mirrorSquare[square]];
+        
+        // positional score
+        switch (piece) {
+          case P: score += pstPawn[square]; break;
+          case N: score += pstKnight[square]; break;
+          case B: score += pstBishop[square]; break;
+          case R: score += pstRook[square]; break;
+          case Q: score += pstQueen[square]; break;
+          case K: score += pstKingOpening[square]; break;
+          case p: score -= pstPawn[mirrorSquare[square]]; break;
+          case n: score -= pstKnight[mirrorSquare[square]]; break;
+          case b: score -= pstBishop[mirrorSquare[square]]; break;
+          case r: score -= pstRook[mirrorSquare[square]]; break;
+          case q: score -= pstQueen[mirrorSquare[square]]; break;
+          case k: score -= pstKingOpening[mirrorSquare[square]]; break;
+        }
       }
     }
     
@@ -1167,7 +1248,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
                ' nodes ' + nodes +
                ' time ' + (new Date().getTime() - start) +
                ' pv ';
-      
+
       } else if (score > mateScore && score < mateValue) {
         info = 'info score mate ' + (parseInt((mateValue - score) / 2 + 1)) + 
                ' depth ' + current_depth +
@@ -1189,8 +1270,9 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
       console.log(info);
     }
 
-    console.log('bestmove ' + ( (timing.stopped == 1) ? moveToString(lastBestMove):
-                                                        moveToString(pvTable[0])) + '\n');
+    let bestMove = (timing.stopped == 1) ? moveToString(lastBestMove): moveToString(pvTable[0]);
+    console.log('bestmove ' + bestMove);
+    return bestMove;
   }
 
 
@@ -1421,14 +1503,12 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
       var chessBoard = '<table align="center" cellspacing="0">'
       
       chessBoard += '<tr><td></td>';
-      
-      
 
       for (let index in ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']) {
         chessBoard += 
-          '<td align="center" height="30" style="' + 
+          '<td align="center" height="0" style="' + 
           'border-bottom: 1px solid black;' +
-          'font-size: 18px; font-weight: bold"></td>';
+          'font-size: 0px; font-weight: bold">1</td>';
       }
       
       chessBoard += '</td>';
@@ -1441,7 +1521,9 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
           
           // board ranks
           if (col == 0) chessBoard += 
-            '<td width="15" style="border-right: 1px solid black; font-size: 18px; font-weight: bold">' + 
+            '<td width="15"' +
+            'style="border-right: 1px solid black;' +
+            'font-family: monospace; font-size: 18px; font-weight: bold">' + 
             (8 - row ) + '</td>';
           
           // hack to avoid border overlap
@@ -1472,7 +1554,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
         chessBoard += 
           '<td align="center" height="30" style="' + 
           'border-top: 1px solid black;' +
-          'font-size: 18px; font-weight: bold">' + files[index] + '</td>';
+          'font-size: 18px; font-family: monospace; font-weight: bold">' + files[index] + '</td>';
       }
 
       chessBoard += '</tr></table>';
@@ -1499,7 +1581,6 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     function movePiece(userSource, userTarget, promotedPiece) {
       let moveString = coordinates[userSource] + coordinates[userTarget] + promotedPieces[promotedPiece];
       engine.loadMoves(moveString);
-      console.log(gamePly);
       drawBoard();
       updateBoard();
     }
@@ -1600,7 +1681,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     takeBack: function() { if (backup.length) takeBack(); },
     movePiece: function(userSource, userTarget, promotedPiece) { movePiece(userSource, userTarget, promotedPiece); },
     perft: function(depth) { perftTest(depth); },
-    search: function(depth) { searchPosition(depth) },
+    search: function(depth) { return searchPosition(depth) },
     resetTimeControl: function() { resetTimeControl(); },
     setTimeControl: function(timeControl) { setTimeControl(timeControl); },
     getTimeControl: function() { return JSON.parse(JSON.stringify(timing))},
@@ -1608,96 +1689,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
   }
 }
 
-if (typeof(document) != 'undefined') {
-
-  /****************************\
-   ============================
-
-         WEB BROWSER MODE
-
-   ============================              
-  \****************************/
-  
-  // auto init in stand alone mode
-  if (document.body == null) {
-    // run in browser mode  
-    console.log('\n  Wukong JS - BROWSER MODE - v' + VERSION + '\n\n');
-  
-    // create basic HTML structure
-    var html = 
-      '<html>\n' + 
-        '<head>\n' +
-          '<title>Wukong JS v' + VERSION + '</title>\n' +
-        '</head>\n' +
-        '<body>\n' +
-          '<h4 style="text-align: center; position: relative; top: 10px;">\n' +
-            'Wukong JS - CHESS ENGINE - v' + VERSION + '\n' +
-           '</h4>\n' +
-          '<div id="chessboard"></div>\n' +
-        '</body>\n' +
-      '</html>';
-
-    // render HTML
-    document.write(html);
-
-    // init engine
-    var engine = new Engine();
-    engine.debug();
-
-
-    /****************************\
-     ============================
-   
-            GUI EVENT BINDS
-
-     ============================              
-    \****************************/
-    
-    // user input controls
-    var clickLock = 0;
-    var userSource, userTarget;
-      
-    // pick piece handler
-    function dragPiece(event, square) { userSource = square; }
-    
-    // drag piece handler
-    function dragOver(event, square) { event.preventDefault();
-      if (square == userSource) event.target.src = 'Images/0.gif';
-    }
-    
-    // drop piece handler
-    function dropPiece(event, square) {
-      userTarget = square;
-      engine.movePiece(userSource, userTarget, 5);  // TODO take promoted from GUI  
-      clickLock = 0;
-      
-      if (engine.getPiece(square))
-        document.getElementById(square).style.backgroundColor = engine.SELECT_COLOR;
-      
-      event.preventDefault();
-    }
-    
-    // click event handler
-    function tapPiece(square) {
-      engine.drawBoard();
-      engine.updateBoard();
-      
-      if (engine.getPiece(square))
-        document.getElementById(square).style.backgroundColor = engine.SELECT_COLOR;
-      
-      var clickSquare = parseInt(square, 10)
-      
-      if(!clickLock && engine.getPiece(clickSquare)) {      
-        userSource = clickSquare;
-        clickLock ^= 1;
-      } else if(clickLock) {      
-        userTarget = clickSquare;
-        engine.movePiece(userSource, userTarget, 5);  // TODO take promoted from GUI
-        clickLock = 0;
-      }
-    }
-  }
-} else if (typeof(exports) != 'undefined') {
+if (typeof(exports) != 'undefined') {
 
   /****************************\
    ============================

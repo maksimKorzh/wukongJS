@@ -1,2 +1,94 @@
-<!-- Chess board script -->
-<script src="wukong.js"></script>
+<html>
+  <head>
+    <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+    <meta content="utf-8" http-equiv="encoding">
+  
+    <style>
+      button.control {
+        width: 100px;
+        height: 40px;
+        font-family: monospace;
+        font-size: 18px;
+        font-weight: bold;
+      }
+    </style>
+  </head>
+  <body>
+    <h4 align="center" style="margin-top: 20px; margin-left: 20px;">Wukong JS - CHESS ENGINE</h4>
+    
+    <!-- Chess board view -->
+    <div id="chessboard"></div>
+    
+    <!-- Controls -->
+    <div align="center" style="margin-top: 10px; margin-left: 20px">
+      <button class="control" onclick="engine.setBoard(engine.START_FEN)">New</button>
+      <button class="control" onclick="engine.loadMoves(engine.search(1)); engine.updateBoard()">Move</button>
+      <button class="control" onclick="engine.takeBack(); engine.updateBoard();">Undo</button>
+    </div>
+
+    <!-- Chess board script -->
+    <script src="wukong.js"></script>
+
+    <!-- User input handling -->
+    <script>
+      // run in browser mode  
+      console.log('\n  Wukong JS - BROWSER MODE - v' + VERSION);
+      console.log('  type "engine" for public API reference');
+
+      // init engine
+      var engine = new Engine();
+
+      /****************************\
+       ============================
+     
+              GUI EVENT BINDS
+
+       ============================              
+      \****************************/
+      
+      // user input controls
+      var clickLock = 0;
+      var userSource, userTarget;
+        
+      // pick piece handler
+      function dragPiece(event, square) { userSource = square; }
+      
+      // drag piece handler
+      function dragOver(event, square) { event.preventDefault();
+        if (square == userSource) event.target.src = 'Images/0.gif';
+      }
+      
+      // drop piece handler
+      function dropPiece(event, square) {
+        userTarget = square;
+        engine.movePiece(userSource, userTarget, 5);  // TODO take promoted from GUI  
+        clickLock = 0;
+        
+        if (engine.getPiece(square))
+          document.getElementById(square).style.backgroundColor = engine.SELECT_COLOR;
+        
+        event.preventDefault();
+      }
+      
+      // click event handler
+      function tapPiece(square) {
+        engine.drawBoard();
+        engine.updateBoard();
+        
+        if (engine.getPiece(square))
+          document.getElementById(square).style.backgroundColor = engine.SELECT_COLOR;
+        
+        var clickSquare = parseInt(square, 10)
+        
+        if(!clickLock && engine.getPiece(clickSquare)) {      
+          userSource = clickSquare;
+          clickLock ^= 1;
+        } else if(clickLock) {      
+          userTarget = clickSquare;
+          engine.movePiece(userSource, userTarget, 5);  // TODO take promoted from GUI
+          clickLock = 0;
+        }
+      }
+    </script>
+  </body>
+<html>
