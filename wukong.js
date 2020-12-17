@@ -916,22 +916,22 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o, 
     0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o,
     0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o,
-    0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o,
-    0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o,
-    0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o,
+    0,  0,  0, 30, 30,  0,  0,  0,  o, o, o, o, o, o, o, o,
+    0,  0, 20, 30, 30,  0,  0,  0,  o, o, o, o, o, o, o, o,
+    0, -5, 10, 20, 20,  0, -5,  0,  o, o, o, o, o, o, o, o,
     0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o,
     0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o
   ];
   
   const pstKnight = [
-    0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o, 
-    0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o,
-    0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o,
-    0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o,
-    0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o,
-    0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o,
-    0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o,
-    0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o
+   -5,  0,  0,  0,  0,  0,  0, -5,  o, o, o, o, o, o, o, o, 
+   -5,  0,  0,  0,  0,  0,  0, -5,  o, o, o, o, o, o, o, o,
+   -5,  0,  0,  0,  0,  0,  0, -5,  o, o, o, o, o, o, o, o,
+   -5,  0,  0, 30, 30,  0,  0, -5,  o, o, o, o, o, o, o, o,
+   -5,  0,  0, 30, 30,  0,  0, -5,  o, o, o, o, o, o, o, o,
+   -5,  0, 20,  0,  0, 20,  0, -5,  o, o, o, o, o, o, o, o,
+   -5,  0,  0,  0,  0,  0,  0, -5,  o, o, o, o, o, o, o, o,
+   -5, -5,  0,  0,  0,  0, -5, -5,  o, o, o, o, o, o, o, o
   ];
   
   const pstBishop = [
@@ -939,21 +939,21 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o,
     0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o,
     0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o,
+    0,  0, 30,  0,  0, 30,  0,  0,  o, o, o, o, o, o, o, o,
     0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o,
     0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o,
-    0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o,
-    0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o
+    0,  0, -5,  0,  0, -5,  0,  0,  o, o, o, o, o, o, o, o
   ];
   
   const pstRook = [
     0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o, 
+   30, 30, 30, 30, 30, 30, 30, 30,  o, o, o, o, o, o, o, o,
     0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o,
     0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o,
     0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o,
     0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o,
     0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o,
-    0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o,
-    0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o
+    0,  0,  0, 20,  0,  20,  0,  0,  o, o, o, o, o, o, o, o
   ];
   
   const pstQueen = [
@@ -963,7 +963,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o,
     0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o,
     0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o,
-    0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o,
+    0,  0,  0, 10,  0,  0,  0,  0,  o, o, o, o, o, o, o, o,
     0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o
   ];
   
@@ -975,7 +975,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o,
     0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o,
     0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o,
-    0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o
+    0,  0, 20,  0, -5,  0, 10,  0,  o, o, o, o, o, o, o, o
   ];
   
   const pstKingEndgame = [
