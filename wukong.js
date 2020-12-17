@@ -1075,7 +1075,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
       var score = -quiescence(-beta, -alpha);
       takeBack();
       
-      if (timing.stopped == 1) {console.log('quiescence done');return 0;}
+      if (timing.stopped == 1) return 0;
       if (score > alpha) {
         alpha = score;
         if (score >= beta) return beta;
@@ -1093,7 +1093,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
 
     if ((searchPly && isRepetition()) || fifty >= 100) return 0;
     if ((nodes & 2047 ) == 0) checkTime();
-    if (depth == 0) { nodes++; return evaluate(); }
+    if (depth == 0) { nodes++; return quiescence(alpha, beta); }
     
     let legalMoves = 0;
     let inCheck = isSquareAttacked(kingSquare[side], side ^ 1);
@@ -1145,6 +1145,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     return alpha;
   }
   
+  // search position for the best move
   function searchPosition(depth) {
     let start = new Date().getTime();
     let score = 0;
@@ -1157,7 +1158,9 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
       lastBestMove = pvTable[0];
       score = negamax(-infinity, infinity, current_depth);
       if (timing.stopped == 1) break;
-      var info = '';
+      
+      let info = '';
+      
       if (score > -mateValue && score < -mateScore) {
         info = 'info score mate ' + (parseInt(-(score + mateValue) / 2 - 1)) + 
                ' depth ' + current_depth +
@@ -1282,7 +1285,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     fifty = parseInt(fen.slice(index, fen.length - 1).split(' ')[1]);
 
     // parse full move counter
-    gamePly = parseInt(fen.slice(index, fen.length - 1).split(' ')[2]) * 2;
+    gamePly = parseInt(fen.slice(index, fen.length + 1).split(' ')[2]) * 2;
 
     // generate unique position identifier
     hashKey = generateHashKey();
@@ -1542,12 +1545,12 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     //setBoard('rn2kb1r/pp5p/5n2/2p5/4pN2/111P4/PPP2PPP/R2Q1RK1 w kq - 0 15 ');
     
     
-    setBoard('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1 ');
+    /*setBoard('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1 ');
     printPieceList();
     negamax(-50000, 50000, 4);
     console.log('nodes:', nodes);
     nodes = 0;
-    printPieceList();
+    printPieceList();*/
     
     //initPieceList();
     //setBoard('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1 ');
