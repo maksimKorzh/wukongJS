@@ -1544,68 +1544,45 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     if (lightSquare) LIGHT_SQUARE = lightSquare;
     if (darkSquare) DARK_SQUARE = darkSquare;
     if (selectColor) SELECT_COLOR = selectColor;
-      
+    
+    // flip board
+    var flip = 0;
+    
     // render board in browser
-    function drawBoard() {      
-      var chessBoard = '<table align="center" cellspacing="0">'
-      
-      chessBoard += '<tr><td></td>';
-
-      for (let index in ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']) {
-        chessBoard += 
-          '<td align="center" height="0" style="' + 
-          'border-bottom: 1px solid black;' +
-          'onclick="tapPiece(this.id);"' +
-          'font-size: 0px; font-weight: bold"></td>';
-      }
-      
-      chessBoard += '</td>';
+    function drawBoard() {
+      var chessBoard = '<table align="center" style="border: 1px solid black" cellspacing="0">'
       
       // board table
       for (var row = 0; row < 8; row++) {
         chessBoard += '<tr>'
         for (var col = 0; col < 16; col++) {
-          var square = row * 16 + col;
+          var file, rank;
+          if (flip) {
+            file = 16 - 1 - col;
+            rank = 8 - 1 - row;
+          } else {
+            file = col;
+            rank = row;
+          }
           
-          // board ranks
-          if (col == 0) chessBoard += 
-            '<td width="15"' +
-            'style="border-right: 1px solid black;' +
-            'font-family: monospace; font-size: 18px; font-weight: bold">' + 
-            (8 - row ) + '</td>';
-          
-          // hack to avoid border overlap
-          if (col == 8) chessBoard += 
-            '<td style="border-left: 1px solid black"></td>';
+          var square = rank * 16 + file;
           
           if ((square & 0x88) == 0)
             chessBoard += 
               '<td align="center" id="' + square + 
-              '"bgcolor="' + ( ((col + row) % 2) ? DARK_SQUARE : LIGHT_SQUARE) + 
+              '" bgcolor="' + ( ((file + rank) % 2) ? DARK_SQUARE : LIGHT_SQUARE) +
               '" width="' + CELL_WIDTH + 'px" height="' + CELL_HEIGHT +  'px" ' +
-              'onclick="tapPiece(this.id)" ' + 
-              'ondragstart="dragPiece(event, this.id)" ' +
-              'ondragover="dragOver(event, this.id)"'+
-              'ondrop="dropPiece(event, this.id)"' +
+              ' onclick="tapPiece(this.id)" ' + 
+              ' ondragstart="dragPiece(event, this.id)" ' +
+              ' ondragover="dragOver(event, this.id)"'+
+              ' ondrop="dropPiece(event, this.id)"' +
               '></td>';
         }
 
         chessBoard += '</tr>';
       }
-      
-      chessBoard += '<tr><td></td>';
-      
-      // board files
-      let files = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
 
-      for (let index in files) {
-        chessBoard += 
-          '<td align="center" height="30" style="' + 
-          'border-top: 1px solid black;' +
-          'font-size: 18px; font-family: monospace; font-weight: bold">' + files[index] + '</td>';
-      }
-
-      chessBoard += '</tr></table>';
+      chessBoard += '</table>';
       document.getElementById('chessboard').innerHTML = chessBoard;
     }
 
@@ -1695,6 +1672,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     // GUI methods
     drawBoard: function() { return drawBoard(); },
     updateBoard: function() { return updateBoard(); },
+    flipBoard: function() { flip ^= 1; },
     movePiece: function(userSource, userTarget, promotedPiece) { movePiece(userSource, userTarget, promotedPiece); },
     
     // board methods
