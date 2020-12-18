@@ -61,6 +61,7 @@
       // drop piece handler
       function dropPiece(event, square) {
         userTarget = square;
+        let valid = validateMove(userSource, userTarget, 5);
         engine.movePiece(userSource, userTarget, 5);  // TODO take promoted from GUI  
         clickLock = 0;
         
@@ -68,6 +69,7 @@
           document.getElementById(square).style.backgroundColor = engine.SELECT_COLOR;
         
         event.preventDefault();
+        if (valid) setTimeout(function() { think() }, 1);
       }
       
       // click event handler
@@ -85,12 +87,25 @@
           clickLock ^= 1;
         } else if(clickLock) {      
           userTarget = clickSquare;
+          let valid = validateMove(userSource, userTarget, 5);
           engine.movePiece(userSource, userTarget, 5);  // TODO take promoted from GUI
           clickLock = 0;
           
           if (engine.getPiece(square))
             document.getElementById(square).style.backgroundColor = engine.SELECT_COLOR;
+
+          if (valid) setTimeout(function() { think() }, 1);
         }
+      }
+      
+      // validate move
+      function validateMove(userSource, userTarget, promotedPiece) {
+        let moveString = engine.squareToString(userSource) + 
+                         engine.squareToString(userTarget) +
+                         engine.promotedToString(promotedPiece); // TODO promoted source
+
+        let move = engine.isValid(moveString);
+        return move;
       }
       
       // start new game
@@ -100,6 +115,7 @@
       
       // take move back
       function undo() {
+        engine.takeBack();
         engine.takeBack();
         engine.drawBoard();
         engine.updateBoard();

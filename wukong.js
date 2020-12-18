@@ -185,10 +185,6 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
    ============================              
   \****************************/
   
-  // board interface
-  function getPiece(square) { return board[square]; }
-  function setPiece(piece, square) { board[square] = piece; }
-  
   // reset board
   function resetBoard() {
     // reset board position
@@ -1656,13 +1652,12 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
   
   function debug() {
     // parse position from FEN string
-    setBoard('k7/pppppppp/8/8/8/8/PPPPPPPP/KRR5 w K7 - 0 1 ');
+    //setBoard('k7/pppppppp/8/8/8/8/PPPPPPPP/KRR5 w K7 - 0 1 ');
     //setBoard('r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 10 ');
     //setBoard('r4rk1/1pp1qppp/p1np1n2/2b1p1B1/2B1P1b1/P1NP1N2/1PP1QPPP/R4RK1 w - - 0 10');
     //setBoard('rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPP1NnPP/RNBQK2R w KQ - 1 8');
     //setBoard('rnbqkbnr/pp4pp/2p5/3Npp2/2PpP3/3P1P2/PP4PP/R1BQKBNR b KQkq e3 0 6 ');
     //setBoard('rn2kb1r/pp5p/5n2/2p5/4pN2/111P4/PPP2PPP/R2Q1RK1 w kq - 0 15 ');
-    evaluate();
   }
   
   return {
@@ -1687,14 +1682,17 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     movePiece: function(userSource, userTarget, promotedPiece) { movePiece(userSource, userTarget, promotedPiece); },
     
     // board methods
+    squareToString: function(square) { return coordinates[square]; },
+    promotedToString: function(piece) { return promotedPieces[piece]; },
     printBoard: function() { printBoard(); },
     setBoard: function(fen) { setBoard(fen); },
     loadMoves: function(moves) { loadMoves(moves); },
-    getPiece: function(square) { return getPiece(square); },
-    setPiece: function(piece, square) { setPiece(piece, square); },
+    getPiece: function(square) { return board[square]; },
+    setPiece: function(piece, square) { board[square] = piece; },
     getSide: function() { return side; },
     
     // move manipulation
+    isValid: function(moveString) { return isValid(moveString); },
     getMoveSource: function(move) { return getMoveSource(move); },
     getMoveTarget: function(move) { return getMoveTarget(move); },
     getMovePromoted: function(move) { return getMovePromoted(move); },
