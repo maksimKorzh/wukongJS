@@ -21,9 +21,9 @@
     
     <!-- Controls -->
     <div align="center" style="margin-top: 10px; margin-left: 20px">
-      <button class="control" onclick="engine.setBoard(engine.START_FEN)">New</button>
-      <button class="control" onclick="engine.loadMoves(engine.search(5)); engine.updateBoard()">Move</button>
-      <button class="control" onclick="engine.takeBack(); engine.updateBoard();">Undo</button>
+      <button class="control" onclick="newGame();">New</button>
+      <button class="control" onclick="think();">Move</button>
+      <button class="control" onclick="undo();">Undo</button>
     </div>
 
     <!-- Chess board script -->
@@ -36,7 +36,7 @@
       console.log('  type "engine" for public API reference');
 
       // init engine
-      var engine = new Engine(); //engine.debug();
+      var engine = new Engine();
 
       /****************************\
        ============================
@@ -75,7 +75,7 @@
         engine.drawBoard();
         engine.updateBoard();
         
-        if (engine.getPiece(square))
+        if (engine.getPiece(square)) 
           document.getElementById(square).style.backgroundColor = engine.SELECT_COLOR;
         
         var clickSquare = parseInt(square, 10)
@@ -87,7 +87,37 @@
           userTarget = clickSquare;
           engine.movePiece(userSource, userTarget, 5);  // TODO take promoted from GUI
           clickLock = 0;
+          
+          if (engine.getPiece(square))
+            document.getElementById(square).style.backgroundColor = engine.SELECT_COLOR;
         }
+      }
+      
+      // start new game
+      function newGame() {
+        engine.setBoard(engine.START_FEN);
+      }
+      
+      // take move back
+      function undo() {
+        engine.takeBack();
+        engine.drawBoard();
+        engine.updateBoard();
+      }
+      
+      // engine move
+      function think() {
+        engine.drawBoard();
+        engine.updateBoard();
+
+        let bestMove = engine.search(5);
+        let sourceSquare = engine.getMoveSource(bestMove);
+        let targetSquare = engine.getMoveTarget(bestMove);
+        let promotedPiece = engine.getMovePromoted(bestMove);
+        engine.movePiece(sourceSquare, targetSquare, promotedPiece);
+        
+        if (engine.getPiece(targetSquare))
+          document.getElementById(targetSquare).style.backgroundColor = engine.SELECT_COLOR;
       }
     </script>
   </body>

@@ -914,24 +914,28 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
   
   const pstPawn = [
     // opening
-    0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o, 
-    5, 10, 10, 10, 10, 10, 10,  5,  o, o, o, o, o, o, o, o,
-    5, 10, 20, 20, 20, 20, 10,  5,  o, o, o, o, o, o, o, o,
-    5, 10, 20, 30, 30, 20, 10,  5,  o, o, o, o, o, o, o, o,
-    5, 10, 20, 30, 30, 20, 10,  5,  o, o, o, o, o, o, o, o,
-    5, 10, 20, 20, 20, 20, 10,  5,  o, o, o, o, o, o, o, o,
-    5, 10, 10, 10, 10, 10, 10,  5,  o, o, o, o, o, o, o, o,
-    0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o,
-    
-   // endgame
-   90, 80, 70, 60, 60, 70, 80, 90,  o, o, o, o, o, o, o, o, 
-   80, 70, 60, 50, 50, 60, 70, 80,  o, o, o, o, o, o, o, o,
-   70, 60, 50, 40, 40, 50, 60, 70,  o, o, o, o, o, o, o, o,
-   60, 50, 40, 30, 30, 40, 50, 60,  o, o, o, o, o, o, o, o,
-   50, 40, 30, 30, 30, 30, 40, 50,  o, o, o, o, o, o, o, o,
-   40, 30, 20, 10, 10, 20, 30, 40,  o, o, o, o, o, o, o, o,
-   -5, -5, -5, -5, -5, -5, -5, -5,  o, o, o, o, o, o, o, o,
-    0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o
+    [
+      0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o, 
+      5, 10, 10, 10, 10, 10, 10,  5,  o, o, o, o, o, o, o, o,
+      5, 10, 20, 20, 20, 20, 10,  5,  o, o, o, o, o, o, o, o,
+      5, 10, 20, 30, 30, 20, 10,  5,  o, o, o, o, o, o, o, o,
+      5, 10, 20, 30, 30, 20, 10,  5,  o, o, o, o, o, o, o, o,
+      5, 10, 20, 20, 20, 20, 10,  5,  o, o, o, o, o, o, o, o,
+      5, 10, 10, 10, 10, 10, 10,  5,  o, o, o, o, o, o, o, o,
+      0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o
+    ],
+   
+    // endgame
+    [
+     90, 80, 70, 60, 60, 70, 80, 90,  o, o, o, o, o, o, o, o, 
+     80, 70, 60, 50, 50, 60, 70, 80,  o, o, o, o, o, o, o, o,
+     70, 60, 50, 40, 40, 50, 60, 70,  o, o, o, o, o, o, o, o,
+     60, 50, 40, 30, 30, 40, 50, 60,  o, o, o, o, o, o, o, o,
+     50, 40, 30, 30, 30, 30, 40, 50,  o, o, o, o, o, o, o, o,
+     40, 30, 20, 10, 10, 20, 30, 40,  o, o, o, o, o, o, o, o,
+     -5, -5, -5, -5, -5, -5, -5, -5,  o, o, o, o, o, o, o, o,
+      0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o
+    ]
   ];
   
   const pstKnight = [
@@ -952,7 +956,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     5, 20, 30, 10, 10, 30, 20,  5,  o, o, o, o, o, o, o, o,
     5, 20, 30, 10, 10, 30, 20,  5,  o, o, o, o, o, o, o, o,
     5, 20, 30, 20, 20, 30, 20,  5,  o, o, o, o, o, o, o, o,
-    5, 20, 20, 20, 20, 20, 20,  5,  o, o, o, o, o, o, o, o,
+    5, 20, 20, 10, 10, 20, 20,  5,  o, o, o, o, o, o, o, o,
    -5, -5, -5, -5, -5, -5, -5, -5,  o, o, o, o, o, o, o, o
   ];
 
@@ -980,26 +984,31 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
   
   const pstKing = [
    // opening
-   -5, -5, -5, -5, -5, -5, -5, -5,  o, o, o, o, o, o, o, o, 
-   -5, -5, -5, -5, -5, -5, -5, -5,  o, o, o, o, o, o, o, o,
-   -5, -5, -5, -5, -5, -5, -5, -5,  o, o, o, o, o, o, o, o,
-   -5, -5, -5, -5, -5, -5, -5, -5,  o, o, o, o, o, o, o, o,
-   -5, -5, -5, -5, -5, -5, -5, -5,  o, o, o, o, o, o, o, o,
-   -5, -5, -5, -5, -5, -5, -5, -5,  o, o, o, o, o, o, o, o,
-   -5, -5, -5, -5, -5, -5, -5, -5,  o, o, o, o, o, o, o, o,
-   -5, -5, 30, -5, -5, -5, 20, -5,  o, o, o, o, o, o, o, o,
+   [
+     -5, -5, -5, -5, -5, -5, -5, -5,  o, o, o, o, o, o, o, o, 
+     -5, -5, -5, -5, -5, -5, -5, -5,  o, o, o, o, o, o, o, o,
+     -5, -5, -5, -5, -5, -5, -5, -5,  o, o, o, o, o, o, o, o,
+     -5, -5, -5, -5, -5, -5, -5, -5,  o, o, o, o, o, o, o, o,
+     -5, -5, -5, -5, -5, -5, -5, -5,  o, o, o, o, o, o, o, o,
+     -5, -5, -5, -5, -5, -5, -5, -5,  o, o, o, o, o, o, o, o,
+     -5, -5, -5, -5, -5, -5, -5, -5,  o, o, o, o, o, o, o, o,
+     -5, -5, 30, -5, -5, -5, 20, -5,  o, o, o, o, o, o, o, o
+   ],
    
    // endgame
-   -5, -5, -5, -5, -5, -5, -5, -5,  o, o, o, o, o, o, o, o, 
-   -5, 10, 10, 10, 10, 10, 10, -5,  o, o, o, o, o, o, o, o,
-   -5, 10, 20, 20, 20, 20, 10, -5,  o, o, o, o, o, o, o, o,
-   -5, 10, 20, 30, 30, 20, 10, -5,  o, o, o, o, o, o, o, o,
-   -5, 10, 20, 30, 30, 20, 10, -5,  o, o, o, o, o, o, o, o,
-   -5, 10, 20, 20, 20, 20, 10, -5,  o, o, o, o, o, o, o, o,
-   -5, 10, 10, 10, 10, 10, 10, -5,  o, o, o, o, o, o, o, o,
-   -5, -5, -5, -5, -5, -5, -5, -5,  o, o, o, o, o, o, o, o
+   [
+     -5, -5, -5, -5, -5, -5, -5, -5,  o, o, o, o, o, o, o, o, 
+     -5, 10, 10, 10, 10, 10, 10, -5,  o, o, o, o, o, o, o, o,
+     -5, 10, 20, 20, 20, 20, 10, -5,  o, o, o, o, o, o, o, o,
+     -5, 10, 20, 30, 30, 20, 10, -5,  o, o, o, o, o, o, o, o,
+     -5, 10, 20, 30, 30, 20, 10, -5,  o, o, o, o, o, o, o, o,
+     -5, 10, 20, 20, 20, 20, 10, -5,  o, o, o, o, o, o, o, o,
+     -5, 10, 10, 10, 10, 10, 10, -5,  o, o, o, o, o, o, o, o,
+     -5, -5, -5, -5, -5, -5, -5, -5,  o, o, o, o, o, o, o, o
+   ]
   ];
   
+  // mirror PST for black
   const mirrorSquare = [
     a1, b1, c1, d1, e1, f1, g1, h1,    o, o, o, o, o, o, o, o,
 	  a2, b2, c2, d2, e2, f2, g2, h2,    o, o, o, o, o, o, o, o,
@@ -1011,15 +1020,17 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
 	  a8, b8, c8, d8, e8, f8, g8, h8,    o, o, o, o, o, o, o, o
   ]
   
+  // get game phase
   function getGamePhase() {
     let phaseScore = 0;
     for (let piece = N; piece <= Q; piece++) phaseScore += pieceList[piece] * materialWeights[piece];
     for (let piece = n; piece <= q; piece++) phaseScore += pieceList[piece] * -materialWeights[piece];
-    
-    // "1" for opening, "0" for endgame
+
+    // "0" for opening, "1" for endgame
     return (phaseScore > 2000 ) ? 0: 1;
   }
   
+  // static evaluation
   function evaluate() {
     let score = 0;
     let phase = getGamePhase();
@@ -1033,22 +1044,22 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
         
         // positional score
         switch (piece) {
-          case P: score += pstPawn[phase * 128 + square]; break;
+          case P: score += pstPawn[phase][square]; break;
           case N: score += pstKnight[square]; break;
           case B: score += pstBishop[square]; break;
           case R: score += pstRook[square]; break;
           case Q: score += pstQueen[square]; break;
-          case K: score += pstKing[phase * 128 + square]; break;
-          case p: score -= pstPawn[mirrorSquare[phase * 128 + square]]; break;
+          case K: score += pstKing[phase][square]; break;
+          case p: score -= pstPawn[phase][mirrorSquare[square]]; break;
           case n: score -= pstKnight[mirrorSquare[square]]; break;
           case b: score -= pstBishop[mirrorSquare[square]]; break;
           case r: score -= pstRook[mirrorSquare[square]]; break;
           case q: score -= pstQueen[mirrorSquare[square]]; break;
-          case k: score -= pstKing[mirrorSquare[phase * 128 + square]]; break;
+          case k: score -= pstKing[phase][mirrorSquare[square]]; break;
         }
       }
     }
-    
+
     return (side == white) ? score: -score;
   }
 
@@ -1291,8 +1302,8 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
       console.log(info);
     }
 
-    let bestMove = (timing.stopped == 1) ? moveToString(lastBestMove): moveToString(pvTable[0]);
-    console.log('bestmove ' + bestMove);
+    let bestMove = (timing.stopped == 1) ? lastBestMove: pvTable[0];
+    console.log('bestmove ' + moveToString(bestMove));
     return bestMove;
   }
 
@@ -1397,7 +1408,10 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     initPieceList();
     
     // render board in browser
-    if (typeof(document) != 'undefined') updateBoard();
+    if (typeof(document) != 'undefined') {
+      drawBoard();
+      updateBoard();
+    }
   }
   
   // load move sequence
@@ -1529,7 +1543,8 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
         chessBoard += 
           '<td align="center" height="0" style="' + 
           'border-bottom: 1px solid black;' +
-          'font-size: 0px; font-weight: bold">1</td>';
+          'onclick="tapPiece(this.id);"' +
+          'font-size: 0px; font-weight: bold"></td>';
       }
       
       chessBoard += '</td>';
@@ -1600,7 +1615,10 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     
     // move piece in GUI
     function movePiece(userSource, userTarget, promotedPiece) {
-      let moveString = coordinates[userSource] + coordinates[userTarget] + promotedPieces[promotedPiece];
+      let moveString = coordinates[userSource] +
+                       coordinates[userTarget] +
+                       promotedPieces[promotedPiece];
+
       engine.loadMoves(moveString);
       drawBoard();
       updateBoard();
@@ -1638,7 +1656,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
   
   function debug() {
     // parse position from FEN string
-    setBoard('krr5/pppppppp/8/8/8/8/PPPPPPPP/KRR5 w KQkq - 0 1 ');
+    setBoard('k7/pppppppp/8/8/8/8/PPPPPPPP/KRR5 w K7 - 0 1 ');
     //setBoard('r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 10 ');
     //setBoard('r4rk1/1pp1qppp/p1np1n2/2b1p1B1/2B1P1b1/P1NP1N2/1PP1QPPP/R4RK1 w - - 0 10');
     //setBoard('rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPP1NnPP/RNBQK2R w KQ - 1 8');
@@ -1663,24 +1681,37 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     BLACK: black,
     START_FEN: startFen,
     
-    // engine methods [BROWSER MODE]
+    // GUI methods
     drawBoard: function() { return drawBoard(); },
     updateBoard: function() { return updateBoard(); },
+    movePiece: function(userSource, userTarget, promotedPiece) { movePiece(userSource, userTarget, promotedPiece); },
     
-    // engine methods [CONSOLE MODE]
+    // board methods
     printBoard: function() { printBoard(); },
     setBoard: function(fen) { setBoard(fen); },
     loadMoves: function(moves) { loadMoves(moves); },
-    getPiece: function(square) { getPiece(square); },
+    getPiece: function(square) { return getPiece(square); },
     setPiece: function(piece, square) { setPiece(piece, square); },
     getSide: function() { return side; },
-    takeBack: function() { if (backup.length) takeBack(); },
-    movePiece: function(userSource, userTarget, promotedPiece) { movePiece(userSource, userTarget, promotedPiece); },
-    perft: function(depth) { perftTest(depth); },
-    search: function(depth) { return searchPosition(depth) },
+    
+    // move manipulation
+    getMoveSource: function(move) { return getMoveSource(move); },
+    getMoveTarget: function(move) { return getMoveTarget(move); },
+    getMovePromoted: function(move) { return getMovePromoted(move); },
+    moveToString: function(move) { return moveToString(move); },
+    getMoveStack: function() { return JSON.parse(JSON.stringify(backup)); },
+    
+    // timing
     resetTimeControl: function() { resetTimeControl(); },
     setTimeControl: function(timeControl) { setTimeControl(timeControl); },
     getTimeControl: function() { return JSON.parse(JSON.stringify(timing))},
+    
+    // search
+    takeBack: function() { if (backup.length) takeBack(); },
+    perft: function(depth) { perftTest(depth); },
+    search: function(depth) { return searchPosition(depth) },
+    
+    // debugging [run any internal engine function]
     debug: function() { debug(); }
   }
 }
@@ -1697,8 +1728,6 @@ if (typeof(exports) != 'undefined') {
 
   // init engine
   var engine = new Engine();
-  //engine.debug();
-  //return;
 
   process.stdin.setEncoding('utf-8');
   console.log('\n  Wukong JS - UCI mode - v' + VERSION + '\n\n');
