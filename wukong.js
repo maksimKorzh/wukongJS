@@ -906,7 +906,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
    ============================              
   \****************************/
   
-  const materialWeights = [0, 100, 300, 350, 500, 1000, 10000, -100, -300, -350, -500, -1000, -10000];
+  const materialWeights = [0, 100, 300, 300, 500, 1000, 10000, -100, -300, -300, -500, -1000, -10000];
   
   const pstPawn = [
     // opening
@@ -957,25 +957,40 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
   ];
 
   const pstRook = [
-    0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o, 
-   30, 30, 30, 30, 30, 30, 30, 30,  o, o, o, o, o, o, o, o,
-   20, 20, 20, 20, 20, 20, 20, 20,  o, o, o, o, o, o, o, o,
-    0,  0,  0, 10, 10,  0,  0,  0,  o, o, o, o, o, o, o, o,
-    0,  0,  0, 10, 10,  0,  0,  0,  o, o, o, o, o, o, o, o,
-    0,  0,  0, 10, 10,  0,  0,  0,  o, o, o, o, o, o, o, o,
-    0,  0,  0, 10, 10,  0,  0,  0,  o, o, o, o, o, o, o, o,
-    0,  0,  0, 10, 10,  0,  0,  0,  o, o, o, o, o, o, o, o
+    // opening
+    [
+      0,  0,  0,  0,  0,  0,  0,  0,  o, o, o, o, o, o, o, o, 
+     70, 70, 70, 70, 70, 70, 70, 70,  o, o, o, o, o, o, o, o,
+     60, 60, 60, 60, 60, 60, 60, 60,  o, o, o, o, o, o, o, o,
+     50, 50, 50, 50, 50, 50, 50, 50,  o, o, o, o, o, o, o, o,
+     40, 40, 40, 40, 40, 40, 40, 40,  o, o, o, o, o, o, o, o,
+     30, 30, 30, 30, 30, 30, 30, 30,  o, o, o, o, o, o, o, o,
+      0,  0,  0, 20, 20,  0,  0,  0,  o, o, o, o, o, o, o, o,
+      0,  0,  0, 10, 10,  0,  0,  0,  o, o, o, o, o, o, o, o
+    ],
+    
+    // endgame
+    [
+      -5, -5, -5, -5, -5, -5, -5, -5,  o, o, o, o, o, o, o, o, 
+      -5, 10, 10, 10, 10, 10, 10, -5,  o, o, o, o, o, o, o, o,
+      -5, 10, 20, 20, 20, 20, 10, -5,  o, o, o, o, o, o, o, o,
+      -5, 10, 20, 30, 30, 20, 10, -5,  o, o, o, o, o, o, o, o,
+      -5, 10, 20, 30, 30, 20, 10, -5,  o, o, o, o, o, o, o, o,
+      -5, 10, 20, 20, 20, 20, 10, -5,  o, o, o, o, o, o, o, o,
+      -5, 10, 10, 10, 10, 10, 10, -5,  o, o, o, o, o, o, o, o,
+      -5, -5, -5, -5, -5, -5, -5, -5,  o, o, o, o, o, o, o, o
+    ]
   ];
   
   const pstQueen = [
-   -5, -5, -5, -5, -5, -5, -5, -5,  o, o, o, o, o, o, o, o, 
-   -5, 10, 10, 10, 10, 10, 10, -5,  o, o, o, o, o, o, o, o,
-   -5, 10, 20, 20, 20, 20, 10, -5,  o, o, o, o, o, o, o, o,
-   -5, 10, 20, 30, 30, 20, 10, -5,  o, o, o, o, o, o, o, o,
-   -5, 10, 20, 30, 30, 20, 10, -5,  o, o, o, o, o, o, o, o,
-   -5, 10, 20, 20, 20, 20, 10, -5,  o, o, o, o, o, o, o, o,
-   -5, 10, 10, 10, 10, 10, 10, -5,  o, o, o, o, o, o, o, o,
-   -5, -5, -5, -5, -5, -5, -5, -5,  o, o, o, o, o, o, o, o
+    -5, -5, -5, -5, -5, -5, -5, -5,  o, o, o, o, o, o, o, o, 
+    -5, 10, 10, 10, 10, 10, 10, -5,  o, o, o, o, o, o, o, o,
+    -5, 10, 20, 20, 20, 20, 10, -5,  o, o, o, o, o, o, o, o,
+    -5, 10, 20, 30, 30, 20, 10, -5,  o, o, o, o, o, o, o, o,
+    -5, 10, 20, 30, 30, 20, 10, -5,  o, o, o, o, o, o, o, o,
+    -5, 10, 20, 20, 20, 20, 10, -5,  o, o, o, o, o, o, o, o,
+    -5, 10, 10, 10, 10, 10, 10, -5,  o, o, o, o, o, o, o, o,
+    -5, -5, -5, -5, -5, -5, -5, -5,  o, o, o, o, o, o, o, o
   ];
   
   const pstKing = [
@@ -1043,13 +1058,13 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
           case P: score += pstPawn[phase][square]; break;
           case N: score += pstKnight[square]; break;
           case B: score += pstBishop[square]; break;
-          case R: score += pstRook[square]; break;
+          case R: score += pstRook[phase][square]; break;
           case Q: score += pstQueen[square]; break;
           case K: score += pstKing[phase][square]; break;
           case p: score -= pstPawn[phase][mirrorSquare[square]]; break;
           case n: score -= pstKnight[mirrorSquare[square]]; break;
           case b: score -= pstBishop[mirrorSquare[square]]; break;
-          case r: score -= pstRook[mirrorSquare[square]]; break;
+          case r: score -= pstRook[phase][mirrorSquare[square]]; break;
           case q: score -= pstQueen[mirrorSquare[square]]; break;
           case k: score -= pstKing[phase][mirrorSquare[square]]; break;
         }
