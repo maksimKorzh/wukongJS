@@ -1129,6 +1129,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     // reset nodes counter
     nodes = 0;
     timing.stopped = 0;
+    searchPly = 0;
     
     for (let index = 0; index < pvTable.length; index++) pvTable[index] = 0;
     for (let index = 0; index < pvLength.length; index++) pvLength[index] = 0;
@@ -1414,7 +1415,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
   function loadMoves(moves) {
     moves = moves.split(' ');
     
-    for (const index in moves) {
+    for (let index = 0; index < moves.length; index++) {
       let move = moves[index];
       let moveString = moves[index];
       let validMove = isValid(move);
@@ -1698,6 +1699,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     getMovePromoted: function(move) { return getMovePromoted(move); },
     moveToString: function(move) { return moveToString(move); },
     getMoveStack: function() { return JSON.parse(JSON.stringify(backup)); },
+    clearMoveStack: function() { backup = []; },
     
     // timing
     resetTimeControl: function() { resetTimeControl(); },
