@@ -1046,6 +1046,40 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
 	  a8, b8, c8, d8, e8, f8, g8, h8,    o, o, o, o, o, o, o, o
   ]
   
+  // insufficient material detection
+  function isMaterialDraw() {
+    if(pieceList[P] == 0 && pieceList[p] == 0) {
+      if (pieceList[R] == 0 && pieceList[r] == 0 && pieceList[Q] == 0 && pieceList[q] == 0) {
+        if (pieceList[B] == 0 && pieceList[b] == 0) {
+          if (pieceList[N] < 3 && pieceList[n] < 3)
+            return 1;
+      } else if (pieceList[N] == 0 && pieceList[n] == 0) {
+        if (Math.abs(pieceList[B] - pieceList[b]) < 2)
+          return 1;
+	    } else if ((pieceList[N] < 3 && pieceList[B] == 0) || (pieceList[B] == 1 && pieceList[N] == 0)) {
+        if ((pieceList[n] < 3 && pieceList[b] == 0) || (pieceList[b] == 1 && pieceList[n] == 0))
+          return 1;
+	    }
+	  } else if (pieceList[Q] == 0 && pieceList[q] == 0) {
+      if (pieceList[R] == 1 && pieceList[r] == 1) {
+        if ((pieceList[N] + pieceList[B]) < 2 && (pieceList[n] + pieceList[b]) < 2) return 1;
+      } else if (pieceList[R] == 1 && pieceList[r] == 0) {        
+        if ((pieceList[N] + pieceList[B] == 0) &&
+          (((pieceList[n] + pieceList[b]) == 1) || 
+           ((pieceList[n] + pieceList[b]) == 2)))
+          return 1;
+      } else if (pieceList[r] == 1 && pieceList[R] == 0) {
+          if ((pieceList[n] + pieceList[b] == 0) &&
+            (((pieceList[N] + pieceList[B]) == 1) ||
+             ((pieceList[N] + pieceList[B]) == 2)))
+            return 1;
+        }
+      }
+    }
+    
+    return 0;
+  }
+  
   // get game phase
   function getGamePhase() {
     let phaseScore = 0;
@@ -1058,6 +1092,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
   
   // static evaluation
   function evaluate() {
+    if (isMaterialDraw()) return 0;
     let score = 0;
     let phase = getGamePhase();
     
@@ -1085,7 +1120,8 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
         }
       }
     }
-
+    // 7k/8/8/8/8/8/8/KQ6 w - - 70 100
+    score = parseInt(score * (100 - fifty) / 100);
     return (side == white) ? score: -score;
   }
 
@@ -1741,6 +1777,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     isRepetition: function() { return isRepetition(); },
     generateLegalMoves: function() { return generateLegalMoves(); },
     inCheck: function() { return isSquareAttacked(kingSquare[side], side ^ 1); },
+    isMaterialDraw: function() { return isMaterialDraw(); },
     
     // debugging [run any internal engine function]
     debug: function() { debug(); }
