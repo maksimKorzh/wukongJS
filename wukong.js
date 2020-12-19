@@ -644,6 +644,21 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
       }
     }
   }
+  
+  // generate only legal moves
+  function generateLegalMoves() {
+    let legalMoves = [];
+    let moveList = [];
+    generateMoves(moveList);
+
+    for (let count = 0; count < moveList.length; count++) {
+      if (makeMove(moveList[count].move) == 0) continue;
+      legalMoves.push(moveList[count]);
+      takeBack();
+    }
+    
+    return legalMoves;
+  }
 
   // move piece on board
   function moveCurrentPiece(piece, sourceSquare, targetSquare) {
@@ -1669,6 +1684,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     //setBoard('rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPP1NnPP/RNBQK2R w KQ - 1 8');
     //setBoard('rnbqkbnr/pp4pp/2p5/3Npp2/2PpP3/3P1P2/PP4PP/R1BQKBNR b KQkq e3 0 6 ');
     //setBoard('rn2kb1r/pp5p/5n2/2p5/4pN2/111P4/PPP2PPP/R2Q1RK1 w kq - 0 15 ');
+    printMoveList(generateLegalMoves());
   }
   
   return {
@@ -1723,7 +1739,8 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     perft: function(depth) { perftTest(depth); },
     search: function(depth) { return searchPosition(depth) },
     isRepetition: function() { return isRepetition(); },
-    inCheck: function() { return isSquareAttacked(kingSquare[side], side ^ 1) },
+    generateLegalMoves: function() { return generateLegalMoves(); },
+    inCheck: function() { return isSquareAttacked(kingSquare[side], side ^ 1); },
     
     // debugging [run any internal engine function]
     debug: function() { debug(); }

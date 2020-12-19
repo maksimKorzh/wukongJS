@@ -217,8 +217,13 @@
           return;
         } else if (document.getElementById('score').innerHTML.includes('mate')) {
           document.getElementById('pv').innerHTML = 'Checkmate';
-        } 
-        
+        } else if (document.getElementById('score').innerHTML.includes('49000')) {
+            document.getElementById('score').innerHTML = 'mate in 1';
+            document.getElementById('depth').innerHTML = '0';
+        } else if (engine.generateLegalMoves().length == 0 && engine.inCheck() == 0) {
+          document.getElementById('pv').innerHTML = 'Stalemate';
+        }
+        // 7k/QQ6/8/8/8/8/8/7K w - - 0 0
         engine.movePiece(sourceSquare, targetSquare, promotedPiece);
 
         if (engine.getPiece(targetSquare))
