@@ -1,7 +1,13 @@
 <html>
   <head>
+    <!-- Encoding -->
     <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
     <meta content="utf-8" http-equiv="encoding">
+    
+    <!-- SEO -->
+    <meta name="description" content="javascript UCI chess engine - Wukong JS by Code Monkey King">
+    <meta name="keywords" content="UCI chess engine in javascript that runs in both browser and Arena GUI - Wukong JS by Code Monkey King">
+
     <title>Wukong JS</title>
     
     <style>
@@ -122,7 +128,7 @@
       }
       
       // click event handler
-      function tapPiece(square) {
+      function tapPiece(square) {console.log('this.id:', engine.squareToString(square))
         engine.drawBoard();
         engine.updateBoard();
         
@@ -218,7 +224,7 @@
         } else if (engine.isMaterialDraw()) {
           document.getElementById('pv').innerHTML = 'Draw by insufficient material';
           return;
-        } else if (document.getElementById('score').innerHTML.includes('mate')) {
+        } else if (engine.generateLegalMoves().length == 0 && engine.inCheck()) {
           document.getElementById('pv').innerHTML = 'Checkmate';
         } else if (document.getElementById('score').innerHTML.includes('49000')) {
             document.getElementById('score').innerHTML = 'mate in 1';
@@ -228,7 +234,7 @@
         }
 
         engine.movePiece(sourceSquare, targetSquare, promotedPiece);
-
+        
         if (engine.getPiece(targetSquare))
           document.getElementById(targetSquare).style.backgroundColor = engine.SELECT_COLOR;               
       }

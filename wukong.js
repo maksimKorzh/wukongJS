@@ -1666,8 +1666,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
             document.getElementById(square).innerHTML = 
               '<img style="width: ' + 
                (boardSize ? boardSize / 8: 400 / 8) + 
-              'px" draggable="true" id="' + 
-               board[square] + '" src ="Images/' + 
+              'px" draggable="true" src ="Images/' + 
               (board[square]) +'.gif">';
         }
       }
@@ -1900,7 +1899,7 @@ if (typeof(exports) != 'undefined') {
 }
 
 
-
-
+// TODO fix UI highlight bug, timing bug
+// mate score bug 7k/8/QQ6/8/8/8/8/7K w -- 0 0
 
 
