@@ -1833,12 +1833,11 @@ if (typeof(exports) != 'undefined') {
       timing.timeSet = 1;
       timing.time /= movestogo;
       timing.time = parseInt(timing.time);
-      timing.time -= 50;
-      
-      if (timing.time < 0) {
+
+      if (timing.time <= 0) { console.log('time < 0')
           timing.time = 0;
           inc -= 50;
-          if (inc < 0) inc = 1;
+          if (inc < 0) inc = 10;
       }
       
       timing.stopTime = startTime + timing.time + inc;        
