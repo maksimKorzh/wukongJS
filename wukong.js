@@ -884,6 +884,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
 
   // perft test
   function perftTest(depth) {
+    nodes = 0;
     console.log('   Performance test:\n');
     resultString = '';
     let startTime = new Date().getTime();
