@@ -226,11 +226,10 @@
           return;
         } else if (engine.generateLegalMoves().length == 0 && engine.inCheck()) {
           document.getElementById('pv').innerHTML = 'Checkmate';
-        } else if (document.getElementById('score').innerHTML.includes('49000')) {
-            document.getElementById('score').innerHTML = 'mate in 1';
-            document.getElementById('depth').innerHTML = '0';
+          return;
         } else if (engine.generateLegalMoves().length == 0 && engine.inCheck() == 0) {
           document.getElementById('pv').innerHTML = 'Stalemate';
+          return;
         }
 
         engine.movePiece(sourceSquare, targetSquare, promotedPiece);

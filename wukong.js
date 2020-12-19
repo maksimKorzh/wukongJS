@@ -1379,7 +1379,8 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
       console.log(info);
       
       if (typeof(document) != 'undefined') {
-        document.getElementById('score').innerHTML = guiScore;
+        if (guiScore == 49000) document.getElementById('score').innerHTML = 'mate in 1';
+        else document.getElementById('score').innerHTML = guiScore;
         document.getElementById('pv').innerHTML = info.split('pv ')[1];
         document.getElementById('depth').innerHTML = current_depth;
       }
@@ -1899,7 +1900,7 @@ if (typeof(exports) != 'undefined') {
 }
 
 
-// TODO fix UI highlight bug, timing bug
-// mate score bug 7k/8/QQ6/8/8/8/8/7K w -- 0 0
+// TODO timing bug
+// mate score bug 7k/8/QQ6/8/8/8/8/7K w - - 0 0
 
 
