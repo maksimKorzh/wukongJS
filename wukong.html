@@ -214,6 +214,8 @@
         let targetSquare = engine.getMoveTarget(bestMove);
         let promotedPiece = engine.getMovePromoted(bestMove);
         
+        engine.movePiece(sourceSquare, targetSquare, promotedPiece);
+        
         if (engine.isRepetition()) repetitions++;
         if (repetitions == 3) {
           document.getElementById('pv').innerHTML = 'Draw by 3 fold repetition';
@@ -228,11 +230,12 @@
           document.getElementById('pv').innerHTML = 'Checkmate';
           return;
         } else if (engine.generateLegalMoves().length == 0 && engine.inCheck() == 0) {
+          document.getElementById('score').innerHTML = '0';
           document.getElementById('pv').innerHTML = 'Stalemate';
           return;
         }
 
-        engine.movePiece(sourceSquare, targetSquare, promotedPiece);
+        
         
         if (engine.getPiece(targetSquare))
           document.getElementById(targetSquare).style.backgroundColor = engine.SELECT_COLOR;               
@@ -240,3 +243,5 @@
     </script>
   </body>
 <html>
+
+

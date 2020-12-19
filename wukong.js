@@ -1120,9 +1120,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
         }
       }
     }
-    // TODO remove
-    // 7k/8/8/8/8/8/8/KQ6 w - - 70 100
-    // position fen 7k/8/8/8/8/8/8/KQ6 w - - 70 100 moves b1b7 h8g8 a1b2 g8h8 b2c3 h8g8 c3d4 g8h8 b7c6
+
     score = parseInt(score * (100 - fifty) / 100);
     return (side == white) ? score: -score;
   }
@@ -1268,9 +1266,9 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     pvLength[searchPly] = searchPly;
     
     let score = 0;
-
+    //console.log(nodes & 2047)
+    if ((nodes & 2047) == 0) checkTime();
     if ((searchPly && isRepetition()) || fifty >= 100) return 0;
-    if ((nodes & 2047 ) == 0) checkTime();
     if (depth == 0) { nodes++; return quiescence(alpha, beta); }
     
     let legalMoves = 0;
@@ -1335,7 +1333,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     for (let current_depth = 1; current_depth <= depth; current_depth++) {
       lastBestMove = pvTable[0];
       score = negamax(-infinity, infinity, current_depth);
-      if (timing.stopped == 1) break;
+      if (timing.stopped == 1 || (new Date().getTime() > timing.stopTime)) break;
       
       let info = '';
       
@@ -1898,9 +1896,5 @@ if (typeof(exports) != 'undefined') {
     if (command.includes('go')) parseGo(command);
   })
 }
-
-
-// TODO timing bug
-// mate score bug 7k/8/QQ6/8/8/8/8/7K w - - 0 0
 
 
