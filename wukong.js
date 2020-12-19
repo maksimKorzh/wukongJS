@@ -1120,7 +1120,9 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
         }
       }
     }
+    // TODO remove
     // 7k/8/8/8/8/8/8/KQ6 w - - 70 100
+    // position fen 7k/8/8/8/8/8/8/KQ6 w - - 70 100 moves b1b7 h8g8 a1b2 g8h8 b2c3 h8g8 c3d4 g8h8 b7c6
     score = parseInt(score * (100 - fifty) / 100);
     return (side == white) ? score: -score;
   }
@@ -1597,7 +1599,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
    ============================              
   \****************************/
   
-  // browser mode [TODO: fix inbalanced tags in firefox]
+  // browser mode
   if (typeof(document) != 'undefined') { 
     // color theme
     var LIGHT_SQUARE = '#f0d9b5';
