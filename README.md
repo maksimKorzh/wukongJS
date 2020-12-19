@@ -129,6 +129,9 @@ https://maksimkorzh.github.io/wukongJS/wukong.html
 <strong>The easiest way to test API is to open browser developer tools and paste in commands</strong><br>
 <strong>Note that if you want to manipulate current engine (GUI version) than no need to create new engine instance</strong><br>
 <strong>Otherwise if you import script to empty HTML or testing via nodejs creating engine instance is obviously essential</strong><br><br>
+<strong>I didn't yet separate UCI interface from engine code so that engine could export it's instance for nodejs</strong><br>
+<strong>So either do it on your own or test api within engine file, e.g. delete or disable UCI code</strong><br><br>
+ 
 For particular examples of API usage see UCI implementation part in the bottom of the source file.<br>
 Also you can have a look at GUI implementation: https://github.com/maksimKorzh/wukongJS/blob/main/wukong.html<br>
 Note functions drawBoard() and updateBoard() won't work in nodejs.
