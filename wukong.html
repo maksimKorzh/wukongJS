@@ -6,22 +6,35 @@
     
     <style>
       button.control {
-        width: 80px;
+        width: 70px;
         height: 40px;
         font-family: monospace;
         font-size: 18px;
         font-weight: bold;
+        padding: 0px;
       }
       
       select.options {
+        width: 45px;
         height: 40px;
         font-family: monospace;
         font-size: 18px;
+        font-weight: bold;
+        padding: 0px;
       }
     </style>
   </head>
-  <body>
-    <h4 align="center" style="margin-top: 50px;">Wukong JS - UCI chess engine by Code Monkey King</h4>
+  <body style="font-family: monospace; font-size: 16px;">
+    <h4 align="center" style="margin-top: 15px;">Wukong JS 1.0</h4>
+    <div align="center" style="margin-bottom: 10px;">
+      <input id="fen"
+             type="text"
+             style="width: 368px; font-size: 18px; height: 40px;"
+             placeholder="FEN string"
+             value="r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 10"
+      />
+      <button style="font-size: 18px; height: 40px;" onclick="setFen();">Set</button>
+    </div>
     
     <!-- Chess board view -->
     <div id="chessboard"></div>
@@ -51,6 +64,12 @@
       </select>
     </div>
 
+    <div align="center" style="margin-top: 10px;">
+      Score: <span id="score" style="font-size: 18px; font-weight: bold; color: red; margin-right: 20px;">0</span>
+      Depth: <span id="depth" style="font-size: 18px; font-weight: bold;">10</span>
+      <div id="pv" style="font-size: 18px; font-weight: bold; font-family: monospace; margin-top: 5px;">...</div>
+    </div>
+
     <!-- Chess board script -->
     <script src="wukong.js"></script>
 
@@ -74,6 +93,9 @@
       // user input controls
       var clickLock = 0;
       var userSource, userTarget;
+      
+      // 3 fold repetitions
+      var repetitions = 0;
         
       // pick piece handler
       function dragPiece(event, square) { userSource = square; }
@@ -138,16 +160,23 @@
         return move;
       }
       
+      // set FEN
+      function setFen() {
+        let fen = document.getElementById('fen').value;
+        engine.setBoard(fen);
+        engine.drawBoard();
+        engine.updateBoard();
+      }
+      
       // start new game
       function newGame() {
         engine.setBoard(engine.START_FEN);
+        repetitions = 0;
       }
       
       // take move back
       function undo() {
-        
         engine.takeBack();
-        
         engine.drawBoard();
         engine.updateBoard();
       }
@@ -163,15 +192,37 @@
       function think() {
         engine.drawBoard();
         engine.updateBoard();
+        engine.resetTimeControl();
+        
+        let moveTime = parseInt(document.getElementById('movetime').value);
+        let timing = engine.getTimeControl();
+        let startTime = new Date().getTime();
+        
+        timing.timeSet = 1;
+        timing.time = moveTime * 1000;
+        timing.stopTime = startTime + timing.time
+        engine.setTimeControl(timing);
 
-        let bestMove = engine.search(5);
+        let bestMove = engine.search(64);
         let sourceSquare = engine.getMoveSource(bestMove);
         let targetSquare = engine.getMoveTarget(bestMove);
         let promotedPiece = engine.getMovePromoted(bestMove);
-        engine.movePiece(sourceSquare, targetSquare, promotedPiece);
         
+        if (engine.isRepetition()) repetitions++;
+        if (repetitions == 3) {
+          document.getElementById('pv').innerHTML = 'Draw by 3 fold repetition';
+          return;
+        } else if (engine.getFifty() >= 100) {
+          document.getElementById('pv').innerHTML = 'Draw by 50 rule move';
+          return;
+        } else if (document.getElementById('score').innerHTML.includes('mate')) {
+          document.getElementById('pv').innerHTML = 'Checkmate';
+        } 
+        
+        engine.movePiece(sourceSquare, targetSquare, promotedPiece);
+
         if (engine.getPiece(targetSquare))
-          document.getElementById(targetSquare).style.backgroundColor = engine.SELECT_COLOR;
+          document.getElementById(targetSquare).style.backgroundColor = engine.SELECT_COLOR;               
       }
     </script>
   </body>

@@ -1286,12 +1286,18 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
       
       let info = '';
       
+      if (typeof(document) != 'undefined')
+        var guiScore = 0;
+      
       if (score > -mateValue && score < -mateScore) {
         info = 'info score mate ' + (parseInt(-(score + mateValue) / 2 - 1)) + 
                ' depth ' + current_depth +
                ' nodes ' + nodes +
                ' time ' + (new Date().getTime() - start) +
                ' pv ';
+               
+        if (typeof(document) != 'undefined')
+          guiScore = 'mate in ' + Math.abs((parseInt(-(score + mateValue) / 2 - 1)))
 
       } else if (score > mateScore && score < mateValue) {
         info = 'info score mate ' + (parseInt((mateValue - score) / 2 + 1)) + 
@@ -1299,6 +1305,9 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
                ' nodes ' + nodes +
                ' time ' + (new Date().getTime() - start) +
                ' pv ';
+               
+        if (typeof(document) != 'undefined')
+          guiScore = 'mate in ' + Math.abs((parseInt((mateValue - score) / 2 + 1)))
       
       } else {
         info = 'info score cp ' + score + 
@@ -1306,12 +1315,21 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
                ' nodes ' + nodes +
                ' time ' + (new Date().getTime() - start) +
                ' pv ';
-
-        for (let count = 0; count < pvLength[0]; count++)
-          info += moveToString(pvTable[count]) + ' ';
+        
+        if (typeof(document) != 'undefined')
+          guiScore = -score;
       }
       
+      for (let count = 0; count < pvLength[0]; count++)
+        info += moveToString(pvTable[count]) + ' ';
+                
       console.log(info);
+      
+      if (typeof(document) != 'undefined') {
+        document.getElementById('score').innerHTML = guiScore;
+        document.getElementById('pv').innerHTML = info.split('pv ')[1];
+        document.getElementById('depth').innerHTML = current_depth;
+      }
     }
 
     let bestMove = (timing.stopped == 1) ? lastBestMove: pvTable[0];
@@ -1680,13 +1698,14 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     promotedToString: function(piece) { return promotedPieces[piece]; },
     printBoard: function() { printBoard(); },
     setBoard: function(fen) { setBoard(fen); },
-    loadMoves: function(moves) { loadMoves(moves); },
     getPiece: function(square) { return board[square]; },
     setPiece: function(piece, square) { board[square] = piece; },
     getSide: function() { return side; },
+    getFifty: function() { return fifty; },
     
     // move manipulation
     isValid: function(moveString) { return isValid(moveString); },
+    loadMoves: function(moves) { loadMoves(moves); },
     getMoveSource: function(move) { return getMoveSource(move); },
     getMoveTarget: function(move) { return getMoveTarget(move); },
     getMovePromoted: function(move) { return getMovePromoted(move); },
@@ -1703,6 +1722,8 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     takeBack: function() { if (backup.length) takeBack(); },
     perft: function(depth) { perftTest(depth); },
     search: function(depth) { return searchPosition(depth) },
+    isRepetition: function() { return isRepetition(); },
+    inCheck: function() { return isSquareAttacked(kingSquare[side], side ^ 1) },
     
     // debugging [run any internal engine function]
     debug: function() { debug(); }
@@ -1732,11 +1753,11 @@ if (typeof(exports) != 'undefined') {
     engine.resetTimeControl();
     timing = engine.getTimeControl();
 
-    var go = command.split(' ');
-    var depth = -1;
-    var movestogo = 30;
-    var movetime = -1;
-    var inc = 0;
+    let go = command.split(' ');
+    let depth = -1;
+    let movestogo = 30;
+    let movetime = -1;
+    let inc = 0;
 
     if (go[1] == 'wtime' && engine.getSide() == engine.WHITE ) { timing.time = parseInt(go[2]); }
     if (go[3] == 'btime' && engine.getSide() == engine.BLACK ) { timing.time = parseInt(go[4]); }
@@ -1751,7 +1772,7 @@ if (typeof(exports) != 'undefined') {
       movestogo = 1;
     }
     
-    var startTime = new Date().getTime();
+    let startTime = new Date().getTime();
     
     if(timing.time != -1) {
       timing.timeSet = 1;
