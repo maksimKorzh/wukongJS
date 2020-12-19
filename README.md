@@ -19,7 +19,7 @@ I will ask Gabor Szots from CCRL to test it when strength around 2000 ELO would 
 
 
 # Play online vs Wukong JS
-https://maksimkorzh.github.io/wukongJS/wukong.html
+[![IMAGE ALT TEXT HERE](https://github.com/maksimKorzh/wukongJS/blob/main/logo/LOGO.png)](https://maksimkorzh.github.io/wukongJS/wukong.html)
 
 # Play in UCI mode
 1. download latest nodejs: https://nodejs.org/en/
