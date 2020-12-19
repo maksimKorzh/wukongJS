@@ -121,11 +121,14 @@ https://maksimkorzh.github.io/wukongJS/wukong.html
  ```js
  var engine = new Engine();
  
- engine.SetBoard(engine.START_FEN)
+ engine.setBoard(engine.START_FEN)
  engine.printBoard();
  engine.perft(4)
  ```
 <br>
+<strong>The easiest way to test API is to open browser developer tools and paste in commands</strong>
+<strong>Note that if you want to manipulate current engine (GUI version) than no need to create new engine instance</strong>
+<strong>Otherwise if you import script to empty HTML or testing via nodejs creating engine instance is obviously essential</strong>
 For particular examples of API usage see UCI implementation part in the bottom of the source file.<br>
 Also you can have a look at GUI implementation: https://github.com/maksimKorzh/wukongJS/blob/main/wukong.html<br>
 Note functions drawBoard() and updateBoard() won't work in nodejs.
