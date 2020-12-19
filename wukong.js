@@ -1809,7 +1809,7 @@ if (typeof(exports) != 'undefined') {
 
     let go = command.split(' ');
     let depth = -1;
-    let movestogo = 30;
+    let movestogo = 40;
     let movetime = -1;
     let inc = 0;
 
