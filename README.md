@@ -13,6 +13,11 @@ for both front-end & back-end
 - mimic agressive tactical playing style of Fritz (5-12)
 - long term playground for relative strength improvement
 
+# Playing strength
+It's VERY WEAK for now, around 1400 ELO<br>
+I will ask Gabor Szots from CCRL to test it when strength around 2000 would be reached.
+
+
 # Play online vs Wukong JS
 https://maksimkorzh.github.io/wukongJS/wukong.html
 
@@ -115,7 +120,12 @@ https://maksimkorzh.github.io/wukongJS/wukong.html
  <br>
  ```js
  var engine = new Engine();
+ 
  engine.SetBoard(engine.START_FEN)
  engine.printBoard();
  engine.perft(4)
  ```
+<br>
+For particular examples of API usage see UCI implementation part in the bottom of the source file.<br>
+Also you can have a look at GUI implementation: https://github.com/maksimKorzh/wukongJS/blob/main/wukong.html<br>
+Note functions drawBoard() and updateBoard() won't work in nodejs.
