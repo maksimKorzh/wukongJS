@@ -1,4 +1,4 @@
-# init engine
+# Init engine
 ```js
 const { Engine } = require('./wukong.js');  
 const engine = new Engine();
@@ -18,7 +18,7 @@ console.log('type:', typeof(square), '\n');
 ```
 
 
-# convert square to string
+# Convert square to string
 ```js
 let coord = engine.squareToString(68);
 console.log('value:', coord);
@@ -33,7 +33,7 @@ console.log('type:', typeof(coord), '\n');
 */
 ```
 
-# get piece code
+# Get piece code
 ```js
 let piece = engine.PIECE['WHITE_KING'];
 console.log('value:', piece);
@@ -49,7 +49,7 @@ console.log('type:', typeof(piece), '\n');
 ```
 
 
-# convert promoted piece to string
+# Convert promoted piece to string
 ```js
 let promotedPiece = engine.promotedToString(engine.PIECE['WHITE_QUEEN']);
 console.log('value:', promotedPiece);
@@ -64,7 +64,7 @@ console.log('type:', typeof(promotedPiece), '\n');
 */
 ```
 
-# start new game
+# Start new game
 ```js
 engine.setBoard(engine.START_FEN)
 engine.printBoard();
@@ -93,7 +93,7 @@ engine.printBoard();
 */
 ```
 
-# set board position from FEN string
+# Set board position from FEN string
 ```js
 engine.setBoard('r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 10');
 engine.printBoard();
@@ -122,7 +122,7 @@ engine.printBoard();
 */
 ```
 
-#get piece at given board square
+# Get piece at given board square
 ```js
 let pieceAt = engine.getPiece(engine.SQUARE['E2']);
 console.log('value:', pieceAt);
@@ -137,7 +137,7 @@ console.log('type:', typeof(pieceAt), '\n');
 */
 ```
 
-# clear piece at given board square
+# Clear piece at given board square
 ```js
 engine.setPiece(engine.PIECE['NO_PIECE'], engine.SQUARE['E2']);
 engine.printBoard();
@@ -167,7 +167,7 @@ engine.printBoard();
 ```
 
 
-# set piece at given board square
+# Set piece at given board square
 ```js
 engine.setPiece(engine.PIECE['WHITE_BISHOP'], engine.SQUARE['A6']);
 engine.printBoard();
