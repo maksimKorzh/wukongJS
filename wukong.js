@@ -1615,6 +1615,9 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     // flip board
     var flip = 0;
     
+    // flip board
+    function flipBoard() { flip ^= 1; }
+    
     // render board in browser
     function drawBoard() {
       var chessBoard = '<table align="center" style="border: 1px solid black" cellspacing="0">'
@@ -1684,6 +1687,10 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     updateBoard();
   }
   
+  function guiError(func) {
+    console.log(func + ' is available only in browser');
+  }
+  
 
   /****************************\
    ============================
@@ -1704,13 +1711,13 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
   /****************************\
    ============================
    
-              TESTS
+            DEBUGGING
 
    ============================              
   \****************************/
   
+  // below you can test inner engine methods
   function debug() {
-    // parse position from FEN string
     //setBoard('k7/pppppppp/8/8/8/8/PPPPPPPP/KRR5 w K7 - 0 1 ');
     //setBoard('r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 10 ');
     //setBoard('r4rk1/1pp1qppp/p1np1n2/2b1p1B1/2B1P1b1/P1NP1N2/1PP1QPPP/R4RK1 w - - 0 10');
@@ -1729,19 +1736,51 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
      ============================              
     \****************************/
     
-    // engine constants reference
-    VERSION: version,
+    // GUI constants
     SELECT_COLOR: SELECT_COLOR,
-    WHITE: white,
-    BLACK: black,
+    
+    // Engine constants
+    VERSION: version,
     START_FEN: startFen,
     
-    // GUI methods
-    drawBoard: function() { return drawBoard(); },
-    updateBoard: function() { return updateBoard(); },
-    flipBoard: function() { flip ^= 1; },
-    movePiece: function(userSource, userTarget, promotedPiece) { movePiece(userSource, userTarget, promotedPiece); },
+    COLOR: {
+      WHITE: white,
+      BLACK: black,
+    },
     
+    PIECE: {
+      NO_PIECE: e,
+      WHITE_PAWN: P,
+      WHITE_KNIGHT: N,
+      WHITE_BISHOP: B,
+      WHITE_ROOK: R,
+      WHITE_QUEEN: Q,
+      WHITE_KING: K,
+      BLACK_PAWN: p,
+      BLACK_KNIGHT: n,
+      BLACK_BISHOP: b,
+      BLACK_ROOK: r,
+      BLACK_QUEEN: q,
+      BLACK_KING: k
+    },
+    
+    SQUARE: {
+      A8: a8, B8: b8, C8: c8, D8: d8, E8: e8, F8: f8, G8: g8, H8: h8,
+      A7: a7, B7: b7, C7: c7, D7: d7, E7: e7, F7: f7, G7: g7, H7: h7,
+      A6: a6, B6: b6, C6: c6, D6: d6, E6: e6, F6: f6, G6: g6, H6: h6,
+      A5: a5, B5: b5, C5: c5, D5: d5, E5: e5, F5: f5, G5: g5, H5: h5,
+      A4: a4, B4: b4, C4: c4, D4: d4, E4: e4, F4: f4, G4: g4, H4: h4,
+      A3: a3, B3: b3, C3: c3, D3: d3, E3: e3, F3: f3, G3: g3, H3: h3,
+      A2: a2, B2: b2, C2: c2, D2: d2, E2: e2, F2: f2, G2: g2, H2: h2,
+      A1: a1, B1: b1, C1: c1, D1: d1, E1: e1, F1: f1, G1: g1, H1: h1,
+    },
+    
+    // GUI methods
+    drawBoard: function() { try { return drawBoard(); } catch(e) { guiError('.drawBoard()'); } },
+    updateBoard: function() { try { return updateBoard(); } catch(e) { guiError('.updateBoard()'); } },
+    movePiece: function(userSource, userTarget, promotedPiece) { try { movePiece(userSource, userTarget, promotedPiece); } catch(e) { guiError('.movePiece()'); } },
+    flipBoard: function() { try { flipBoard(); } catch(e) { guiError('.flipBoard()'); } },
+
     // board methods
     squareToString: function(square) { return coordinates[square]; },
     promotedToString: function(piece) { return promotedPieces[piece]; },

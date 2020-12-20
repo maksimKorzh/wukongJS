@@ -24,8 +24,8 @@ I will ask Gabor Szots from CCRL to test it when strength around 2000 ELO would 
 # Play in UCI mode
 1. download latest nodejs: https://nodejs.org/en/
 2. download source code: https://github.com/maksimKorzh/wukongJS/archive/main.zip
-3. UCI mode in console: "full/path/to/nodejs full/path/to/wukong.js"
-4. UCI mode in Arena GUI: set engine path to "full/path/to/nodejs" & command line parameters to "full/path/to/wukong.js"
+3. UCI mode in console: "full/path/to/nodejs full/path/to/uci.js"
+4. UCI mode in Arena GUI: set engine path to "full/path/to/nodejs" & command line parameters to "full/path/to/uci.js"
 
 # Features
  - 0x88 board representation
@@ -43,95 +43,87 @@ I will ask Gabor Szots from CCRL to test it when strength around 2000 ELO would 
  - MVV_LVA/killer/history move ordering
  
  # Public API
- I really doubt that I would provide a real documentation one day<br>
- for it takes all the fun away from the development process, but at<br>
- very least I'm going to provide quick "how to" examples on public API<br>
- and apart from code snippets I would probably make a video tutorial series<br>
- for now I'm just providing the list of available functions (see them in the source as well):<br>
- <br>
  ```js
- 
- var Engine = function() {
- 
-   // engine code here
- 
-   return {
-  
-    /****************************\
-     ============================
-   
-              PUBLIC API
+  // GUI constants
+  SELECT_COLOR: SELECT_COLOR,
 
-     ============================              
-    \****************************/
-    
-    // engine constants reference
-    SELECT_COLOR: SELECT_COLOR,
+  // Engine constants
+  VERSION: version,
+  START_FEN: startFen,
+
+  COLOR: {
     WHITE: white,
     BLACK: black,
-    START_FEN: startFen,
-    
-    // GUI methods
-    drawBoard: function() { return drawBoard(); },
-    updateBoard: function() { return updateBoard(); },
-    flipBoard: function() { flip ^= 1; },
-    movePiece: function(userSource, userTarget, promotedPiece) { movePiece(userSource, userTarget, promotedPiece); },
-    
-    // board methods
-    squareToString: function(square) { return coordinates[square]; },
-    promotedToString: function(piece) { return promotedPieces[piece]; },
-    printBoard: function() { printBoard(); },
-    setBoard: function(fen) { setBoard(fen); },
-    getPiece: function(square) { return board[square]; },
-    setPiece: function(piece, square) { board[square] = piece; },
-    getSide: function() { return side; },
-    getFifty: function() { return fifty; },
-    
-    // move manipulation
-    isValid: function(moveString) { return isValid(moveString); },
-    loadMoves: function(moves) { loadMoves(moves); },
-    getMoveSource: function(move) { return getMoveSource(move); },
-    getMoveTarget: function(move) { return getMoveTarget(move); },
-    getMovePromoted: function(move) { return getMovePromoted(move); },
-    moveToString: function(move) { return moveToString(move); },
-    getMoveStack: function() { return JSON.parse(JSON.stringify(backup)); },
-    clearMoveStack: function() { backup = []; },
-    
-    // timing
-    resetTimeControl: function() { resetTimeControl(); },
-    setTimeControl: function(timeControl) { setTimeControl(timeControl); },
-    getTimeControl: function() { return JSON.parse(JSON.stringify(timing))},
-    
-    // search
-    takeBack: function() { if (backup.length) takeBack(); },
-    perft: function(depth) { perftTest(depth); },
-    search: function(depth) { return searchPosition(depth) },
-    isRepetition: function() { return isRepetition(); },
-    generateLegalMoves: function() { return generateLegalMoves(); },
-    inCheck: function() { return isSquareAttacked(kingSquare[side], side ^ 1); },
-    isMaterialDraw: function() { return isMaterialDraw(); },
-    
-    // debugging [run any internal engine function]
-    debug: function() { debug(); }
-  }
-}
+  },
+
+  PIECE: {
+    NO_PIECE: e,
+    WHITE_PAWN: P,
+    WHITE_KNIGHT: N,
+    WHITE_BISHOP: B,
+    WHITE_ROOK: R,
+    WHITE_QUEEN: Q,
+    WHITE_KING: K,
+    BLACK_PAWN: p,
+    BLACK_KNIGHT: n,
+    BLACK_BISHOP: b,
+    BLACK_ROOK: r,
+    BLACK_QUEEN: q,
+    BLACK_KING: k
+  },
+
+  SQUARE: {
+    A8: a8, B8: b8, C8: c8, D8: d8, E8: e8, F8: f8, G8: g8, H8: h8,
+    A7: a7, B7: b7, C7: c7, D7: d7, E7: e7, F7: f7, G7: g7, H7: h7,
+    A6: a6, B6: b6, C6: c6, D6: d6, E6: e6, F6: f6, G6: g6, H6: h6,
+    A5: a5, B5: b5, C5: c5, D5: d5, E5: e5, F5: f5, G5: g5, H5: h5,
+    A4: a4, B4: b4, C4: c4, D4: d4, E4: e4, F4: f4, G4: g4, H4: h4,
+    A3: a3, B3: b3, C3: c3, D3: d3, E3: e3, F3: f3, G3: g3, H3: h3,
+    A2: a2, B2: b2, C2: c2, D2: d2, E2: e2, F2: f2, G2: g2, H2: h2,
+    A1: a1, B1: b1, C1: c1, D1: d1, E1: e1, F1: f1, G1: g1, H1: h1,
+  },
+
+  // GUI methods
+  drawBoard: function() { try { return drawBoard(); } catch(e) { guiError('.drawBoard()'); } },
+  updateBoard: function() { try { return updateBoard(); } catch(e) { guiError('.updateBoard()'); } },
+  movePiece: function(userSource, userTarget, promotedPiece) { try { movePiece(userSource, userTarget, promotedPiece); } catch(e) { guiError('.movePiece()'); } },
+  flipBoard: function() { try { flipBoard(); } catch(e) { guiError('.flipBoard()'); } },
+
+  // board methods
+  squareToString: function(square) { return coordinates[square]; },
+  promotedToString: function(piece) { return promotedPieces[piece]; },
+  printBoard: function() { printBoard(); },
+  setBoard: function(fen) { setBoard(fen); },
+  getPiece: function(square) { return board[square]; },
+  setPiece: function(piece, square) { board[square] = piece; },
+  getSide: function() { return side; },
+  getFifty: function() { return fifty; },
+
+  // move manipulation
+  isValid: function(moveString) { return isValid(moveString); },
+  loadMoves: function(moves) { loadMoves(moves); },
+  getMoveSource: function(move) { return getMoveSource(move); },
+  getMoveTarget: function(move) { return getMoveTarget(move); },
+  getMovePromoted: function(move) { return getMovePromoted(move); },
+  moveToString: function(move) { return moveToString(move); },
+  getMoveStack: function() { return JSON.parse(JSON.stringify(backup)); },
+  clearMoveStack: function() { backup = []; },
+
+  // timing
+  resetTimeControl: function() { resetTimeControl(); },
+  setTimeControl: function(timeControl) { setTimeControl(timeControl); },
+  getTimeControl: function() { return JSON.parse(JSON.stringify(timing))},
+
+  // search
+  takeBack: function() { if (backup.length) takeBack(); },
+  perft: function(depth) { perftTest(depth); },
+  search: function(depth) { return searchPosition(depth) },
+  isRepetition: function() { return isRepetition(); },
+  generateLegalMoves: function() { return generateLegalMoves(); },
+  inCheck: function() { return isSquareAttacked(kingSquare[side], side ^ 1); },
+  isMaterialDraw: function() { return isMaterialDraw(); },
+
+  // debugging (run any internal engine function)
+  debug: function() { debug(); }
  ```
- Create engine instance:
- <br>
- ```js
- var engine = new Engine();
- 
- engine.setBoard(engine.START_FEN)
- engine.printBoard();
- engine.perft(4)
- ```
-<br>
-<strong>The easiest way to test API is to open browser developer tools and paste in commands</strong><br>
-<strong>Note that if you want to manipulate current engine (GUI version) than no need to create new engine instance</strong><br>
-<strong>Otherwise if you import script to empty HTML or testing via nodejs creating engine instance is obviously essential</strong><br><br>
-<strong>I didn't yet separate UCI interface from engine code so that engine could export it's instance for nodejs</strong><br>
-<strong>So either do it on your own or test api within engine file, e.g. delete or disable UCI code</strong><br><br>
- 
-For particular examples of API usage see UCI implementation part in the bottom of the source file.<br>
-Also you can have a look at GUI implementation: https://github.com/maksimKorzh/wukongJS/blob/main/wukong.html<br>
-Note functions drawBoard() and updateBoard() won't work in nodejs.
+ See  for examples

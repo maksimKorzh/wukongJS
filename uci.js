@@ -1,7 +1,7 @@
 /****************************\
  ============================
 
-          UCI MODE
+           UCI MODE
 
  ============================              
 \****************************/
@@ -26,10 +26,10 @@ function parseGo(command) {
   let movetime = -1;
   let inc = 0;
 
-  if (go[1] == 'wtime' && engine.getSide() == engine.WHITE ) { timing.time = parseInt(go[2]); }
-  if (go[3] == 'btime' && engine.getSide() == engine.BLACK ) { timing.time = parseInt(go[4]); }
-  if (go[5] == 'winc' && engine.getSide() == engine.WHITE) { inc = parseInt(go[6]); }
-  if (go[7] == 'binc' && engine.getSide() == engine.BLACK) { inc = parseInt(go[8]); }
+  if (go[1] == 'wtime' && engine.getSide() == engine.COLOR['WHITE'] ) { timing.time = parseInt(go[2]); }
+  if (go[3] == 'btime' && engine.getSide() == engine.COLOR['BLACK'] ) { timing.time = parseInt(go[4]); }
+  if (go[5] == 'winc' && engine.getSide() == engine.COLOR['WHITE']) { inc = parseInt(go[6]); }
+  if (go[7] == 'binc' && engine.getSide() == engine.COLOR['BLACK']) { inc = parseInt(go[8]); }
   if (go[9] == 'movestogo') { movestogo = parseInt(go[10]); }
   if (go[1] == 'movetime') { movetime = parseInt(go[2]); }
   if (go[1] == 'depth') { depth = parseInt(go[2]); }
@@ -46,7 +46,7 @@ function parseGo(command) {
     timing.time /= movestogo;
     timing.time = parseInt(timing.time);
 
-    if (timing.time <= 0) { console.log('time < 0')
+    if (timing.time <= 0) {
         timing.time = 0;
         inc -= 50;
         if (inc < 0) inc = 10;
