@@ -1267,17 +1267,31 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     pvLength[searchPly] = searchPly;
     
     let score = 0;
-    //console.log(nodes & 2047)
+
     if ((nodes & 2047) == 0) checkTime();
     if ((searchPly && isRepetition()) || fifty >= 100) return 0;
     if (depth == 0) { nodes++; return quiescence(alpha, beta); }
     
     let legalMoves = 0;
     let inCheck = isSquareAttacked(kingSquare[side], side ^ 1);
+    
+    // check extension
     if (inCheck) depth++;
 
     let moveList = [];
     generateMoves(moveList);
+    
+    // sort PV move
+    if (followPv) {
+      followPv = 0;
+      for (let count = 0; count < moveList.length; count++) {
+        if (moveList[count].move == pvTable[searchPly]) {
+          followPv = 1;
+          moveList[count].score = 20000;
+          break;
+        }
+      }
+    }
     
     for (let count = 0; count < moveList.length; count++) {
       sortMove(count, moveList);
@@ -1322,6 +1336,8 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     return alpha;
   }
   
+  var followPv;
+  
   // search position for the best move
   function searchPosition(depth) {
     let start = new Date().getTime();
@@ -1333,7 +1349,10 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     // iterative deepening
     for (let currentDepth = 1; currentDepth <= depth; currentDepth++) {
       lastBestMove = pvTable[0];
+      followPv = 1;
       score = negamax(-infinity, infinity, currentDepth);
+      
+      // stop searching if time is up
       if (timing.stopped == 1 || 
          ((new Date().getTime() > timing.stopTime) &&
           timing.time != -1)) break;
