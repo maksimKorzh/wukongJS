@@ -11,9 +11,6 @@
  ===============================================
 \************************************************/
 
-// chess engine version
-const VERSION = '1.0';
-
 // chess engine object
 var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
 
@@ -25,6 +22,9 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
    ============================              
   \****************************/
   
+  // chess engine version
+  const version = '1.0';
+
   // sides to move  
   const white = 0;
   const black = 1;
@@ -1331,10 +1331,12 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     clearSearch();
 
     // iterative deepening
-    for (let current_depth = 1; current_depth <= depth; current_depth++) {
+    for (let currentDepth = 1; currentDepth <= depth; currentDepth++) {
       lastBestMove = pvTable[0];
-      score = negamax(-infinity, infinity, current_depth);
-      if (timing.stopped == 1 || (new Date().getTime() > timing.stopTime)) break;
+      score = negamax(-infinity, infinity, currentDepth);
+      if (timing.stopped == 1 || 
+         ((new Date().getTime() > timing.stopTime) &&
+          timing.time != -1)) break;
       
       let info = '';
       
@@ -1343,7 +1345,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
       
       if (score > -mateValue && score < -mateScore) {
         info = 'info score mate ' + (parseInt(-(score + mateValue) / 2 - 1)) + 
-               ' depth ' + current_depth +
+               ' depth ' + currentDepth +
                ' nodes ' + nodes +
                ' time ' + (new Date().getTime() - start) +
                ' pv ';
@@ -1353,7 +1355,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
 
       } else if (score > mateScore && score < mateValue) {
         info = 'info score mate ' + (parseInt((mateValue - score) / 2 + 1)) + 
-               ' depth ' + current_depth +
+               ' depth ' + currentDepth +
                ' nodes ' + nodes +
                ' time ' + (new Date().getTime() - start) +
                ' pv ';
@@ -1363,7 +1365,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
       
       } else {
         info = 'info score cp ' + score + 
-               ' depth ' + current_depth +
+               ' depth ' + currentDepth +
                ' nodes ' + nodes +
                ' time ' + (new Date().getTime() - start) +
                ' pv ';
@@ -1381,7 +1383,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
         if (guiScore == 49000) document.getElementById('score').innerHTML = 'mate in 1';
         else document.getElementById('score').innerHTML = guiScore;
         document.getElementById('pv').innerHTML = info.split('pv ')[1];
-        document.getElementById('depth').innerHTML = current_depth;
+        document.getElementById('depth').innerHTML = currentDepth;
       }
     }
 
@@ -1489,12 +1491,6 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
 
     // init piece list
     initPieceList();
-    
-    // render board in browser
-    if (typeof(document) != 'undefined') {
-      drawBoard();
-      updateBoard();
-    }
   }
   
   // load move sequence
@@ -1721,7 +1717,6 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     //setBoard('rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPP1NnPP/RNBQK2R w KQ - 1 8');
     //setBoard('rnbqkbnr/pp4pp/2p5/3Npp2/2PpP3/3P1P2/PP4PP/R1BQKBNR b KQkq e3 0 6 ');
     //setBoard('rn2kb1r/pp5p/5n2/2p5/4pN2/111P4/PPP2PPP/R2Q1RK1 w kq - 0 15 ');
-    printMoveList(generateLegalMoves());
   }
   
   return {
@@ -1735,6 +1730,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     \****************************/
     
     // engine constants reference
+    VERSION: version,
     SELECT_COLOR: SELECT_COLOR,
     WHITE: white,
     BLACK: black,
@@ -1780,121 +1776,12 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     inCheck: function() { return isSquareAttacked(kingSquare[side], side ^ 1); },
     isMaterialDraw: function() { return isMaterialDraw(); },
     
-    // debugging [run any internal engine function]
+    // debugging (run any internal engine function)
     debug: function() { debug(); }
   }
 }
 
-if (typeof(exports) != 'undefined') {
-
-  /****************************\
-   ============================
-
-             UCI MODE
-
-   ============================              
-  \****************************/
-
-  // init engine
-  var engine = new Engine();
-
-  process.stdin.setEncoding('utf-8');
-  console.log('\n  Wukong JS - UCI mode - v' + VERSION + '\n\n');
-  
-  // parse UCI "go" command
-  function parseGo(command) {
-    if (command.includes('infinite')) return;
-
-    engine.resetTimeControl();
-    timing = engine.getTimeControl();
-
-    let go = command.split(' ');
-    let depth = -1;
-    let movestogo = 40;
-    let movetime = -1;
-    let inc = 0;
-
-    if (go[1] == 'wtime' && engine.getSide() == engine.WHITE ) { timing.time = parseInt(go[2]); }
-    if (go[3] == 'btime' && engine.getSide() == engine.BLACK ) { timing.time = parseInt(go[4]); }
-    if (go[5] == 'winc' && engine.getSide() == engine.WHITE) { inc = parseInt(go[6]); }
-    if (go[7] == 'binc' && engine.getSide() == engine.BLACK) { inc = parseInt(go[8]); }
-    if (go[9] == 'movestogo') { movestogo = parseInt(go[10]); }
-    if (go[1] == 'movetime') { movetime = parseInt(go[2]); }
-    if (go[1] == 'depth') { depth = parseInt(go[2]); }
-
-    if(movetime != -1) {
-      timing.time = movetime;
-      movestogo = 1;
-    }
-    
-    let startTime = new Date().getTime();
-    
-    if(timing.time != -1) {
-      timing.timeSet = 1;
-      timing.time /= movestogo;
-      timing.time = parseInt(timing.time);
-
-      if (timing.time <= 0) { console.log('time < 0')
-          timing.time = 0;
-          inc -= 50;
-          if (inc < 0) inc = 10;
-      }
-      
-      timing.stopTime = startTime + timing.time + inc;        
-    }
-
-    // "infinite" depth if it's not specified
-    if (depth == -1) depth = 64;
-
-    // set time control
-    engine.setTimeControl(timing);
-    console.log(
-      'time:', timing.time,
-      'inc', inc,
-      'start', startTime,
-      'stop', timing.stopTime,
-      'depth', depth,
-      'timeset', timing.timeSet
-    );
-
-    // search position
-    engine.search(depth);
-  }
-  
-  // parse UCI "position" command
-  function parsePosition(command) {
-      let position = command.split(' ');
-      
-      if (position[1].includes('startpos')) engine.setBoard(engine.START_FEN);
-      else if (position[1] == 'fen') engine.setBoard(command.split('position fen ')[1]);
-      
-      let moves = command.split('moves ')[1];
-      if (moves) { engine.loadMoves(moves); };
-      
-      engine.printBoard();
-  }
-
-  // create CLI interface
-  var readline = require('readline');
-  var uci = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout,
-    terminal: false
-  });
-  
-  // UCI loop
-  uci.on('line', function(command){
-    if (command == 'uci') {
-      console.log('id name WukongJS ' + VERSION);
-      console.log('id author Code Monkey King');
-    }
-
-    if (command == 'isready') console.log('readyok');
-    if (command == 'quit') process.exit();
-    if (command == 'ucinewgame') parsePosition("position startpos");
-    if (command.includes('position')) parsePosition(command);
-    if (command.includes('go')) parseGo(command);
-  })
-}
+// export as nodejs module
+if (typeof(exports) != 'undefined') exports.Engine = Engine;
 
 

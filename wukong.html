@@ -81,17 +81,17 @@
 
     <!-- User input handling -->
     <script>
-      // run in browser mode  
-      console.log('\n  Wukong JS - BROWSER MODE - v' + VERSION);
-      console.log('  type "engine" for public API reference');
-
       // init engine
       var engine = new Engine();
+      
+      // run in browser mode  
+      console.log('\n  Wukong JS - BROWSER MODE - v' + engine.VERSION);
+      console.log('  type "engine" for public API reference');
 
       /****************************\
        ============================
      
-              GUI EVENT BINDS
+               BROWSER MODE
 
        ============================              
       \****************************/
@@ -177,6 +177,8 @@
       // start new game
       function newGame() {
         engine.setBoard(engine.START_FEN);
+        engine.drawBoard();
+        engine.updateBoard();
         repetitions = 0;
       }
       
