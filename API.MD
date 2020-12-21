@@ -4,7 +4,7 @@ const { Engine } = require('./wukong.js');
 const engine = new Engine();
 ```
 
-# get square code
+# Get square index
 ```js
 let square = engine.SQUARE['E4'];
 console.log('value:', square);

@@ -15,7 +15,10 @@ for both front-end & back-end
 
 # Playing strength
 It's VERY WEAK for now, around 1400 ELO<br>
-I will ask Gabor Szots from CCRL to test it when strength around 2000 ELO would be reached.
+I will ask Gabor Szots from CCRL to test it when strength around 2000 ELO would be reached<br>
+I was focusing on interfaces and API implementation and  providing example code snippets<br>
+rather than on playing strength for now, but from now on I'll be improving the strength<br>
+
 
 
 # Play online vs Wukong JS
