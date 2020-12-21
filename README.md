@@ -148,3 +148,5 @@ I will ask Gabor Szots from CCRL to test it when strength around 2000 ELO would 
  ```
  See available API usage examples <a href="https://github.com/maksimKorzh/wukongJS/blob/main/API.MD">here</a>
  
+ # Contact me
+<a href="mailto:freesoft.for.people@gmail.com">freesoft.for.people@gmail.com</a>

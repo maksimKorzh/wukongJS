@@ -2,8 +2,10 @@
 ```js
 const { Engine } = require('./wukong.js');  
 const engine = new Engine();
+```
 
 # get square code
+```js
 let square = engine.SQUARE['E4'];
 console.log('value:', square);
 console.log('type:', typeof(square), '\n');
@@ -514,3 +516,7 @@ If you've found a function within the engine object that doesn't have<br>
 a public API reference you can either to add it on your own and make a PR<br>
 or you can use debug() function - just type whatever function call you want<br>
 within debug() function body and then run it via engine.debug()
+
+# Issues/feedbacks
+Feel free to open an issue either to request a feature, get help/support/solution<br>
+or if you just want to discuss something or leave a feedback.
