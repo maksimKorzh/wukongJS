@@ -437,7 +437,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
       else if (killerMoves[maxPly + searchPly] == move) moveScore = 8000;
       else moveScore = historyMoves[board[getMoveSource(move)] * 128 + getMoveTarget(move)];
     }
-    
+
     moveList.push({
       move: move,
       score: moveScore
@@ -649,6 +649,8 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
   function generateLegalMoves() {
     let legalMoves = [];
     let moveList = [];
+    
+    clearSearch();
     generateMoves(moveList);
 
     for (let count = 0; count < moveList.length; count++) {
@@ -1262,7 +1264,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     if((nodes & 2047 ) == 0) checkTime();
     if (searchPly > maxPly - 1) return evaluate();
 
-    var evaluation = evaluate();
+    let evaluation = evaluate();
     
     if (evaluation >= beta) return beta;
     if (evaluation > alpha) alpha = evaluation;
@@ -1815,6 +1817,9 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     movePiece: function(userSource, userTarget, promotedPiece) { try { movePiece(userSource, userTarget, promotedPiece); } catch(e) { guiError('.movePiece()'); } },
     flipBoard: function() { try { flipBoard(); } catch(e) { guiError('.flipBoard()'); } },
 
+    // perft
+    perft: function(depth) { perftTest(depth); },
+
     // board methods
     squareToString: function(square) { return coordinates[square]; },
     promotedToString: function(piece) { return promotedPieces[piece]; },
@@ -1827,27 +1832,28 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     
     // move manipulation
     isValid: function(moveString) { return isValid(moveString); },
+    moveToString: function(move) { return moveToString(move); },
     loadMoves: function(moves) { loadMoves(moves); },
     getMoveSource: function(move) { return getMoveSource(move); },
     getMoveTarget: function(move) { return getMoveTarget(move); },
     getMovePromoted: function(move) { return getMovePromoted(move); },
-    moveToString: function(move) { return moveToString(move); },
-    getMoveStack: function() { return JSON.parse(JSON.stringify(backup)); },
-    clearMoveStack: function() { backup = []; },
+    generateLegalMoves: function() { return generateLegalMoves(); },
+    printMoveList: function(moveList) { printMoveList(moveList); },
     
     // timing
     resetTimeControl: function() { resetTimeControl(); },
     setTimeControl: function(timeControl) { setTimeControl(timeControl); },
     getTimeControl: function() { return JSON.parse(JSON.stringify(timing))},
-    
-    // search
-    takeBack: function() { if (backup.length) takeBack(); },
-    perft: function(depth) { perftTest(depth); },
     search: function(depth) { return searchPosition(depth) },
-    isRepetition: function() { return isRepetition(); },
-    generateLegalMoves: function() { return generateLegalMoves(); },
-    inCheck: function() { return isSquareAttacked(kingSquare[side], side ^ 1); },
+    
+    // evaluation
+    evaluate: function() { return evaluate(); },
     isMaterialDraw: function() { return isMaterialDraw(); },
+
+    // misc
+    takeBack: function() { if (backup.length) takeBack(); },
+    isRepetition: function() { return isRepetition(); },
+    inCheck: function() { return isSquareAttacked(kingSquare[side], side ^ 1); },
     
     // debugging (run any internal engine function)
     debug: function() { debug(); }

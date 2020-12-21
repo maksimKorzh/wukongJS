@@ -94,6 +94,8 @@ I will ask Gabor Szots from CCRL to test it when strength around 2000 ELO would 
       movePiece: function(userSource, userTarget, promotedPiece) { try { movePiece(userSource, userTarget, promotedPiece); } catch(e) { guiError('.movePiece()'); } },
       flipBoard: function() { try { flipBoard(); } catch(e) { guiError('.flipBoard()'); } },
 
+      perft: function(depth) { perftTest(depth); },
+
       // board methods
       squareToString: function(square) { return coordinates[square]; },
       promotedToString: function(piece) { return promotedPieces[piece]; },
@@ -106,27 +108,27 @@ I will ask Gabor Szots from CCRL to test it when strength around 2000 ELO would 
 
       // move manipulation
       isValid: function(moveString) { return isValid(moveString); },
+      moveToString: function(move) { return moveToString(move); },
       loadMoves: function(moves) { loadMoves(moves); },
       getMoveSource: function(move) { return getMoveSource(move); },
       getMoveTarget: function(move) { return getMoveTarget(move); },
       getMovePromoted: function(move) { return getMovePromoted(move); },
-      moveToString: function(move) { return moveToString(move); },
-      getMoveStack: function() { return JSON.parse(JSON.stringify(backup)); },
-      clearMoveStack: function() { backup = []; },
 
       // timing
       resetTimeControl: function() { resetTimeControl(); },
       setTimeControl: function(timeControl) { setTimeControl(timeControl); },
       getTimeControl: function() { return JSON.parse(JSON.stringify(timing))},
-
-      // search
-      takeBack: function() { if (backup.length) takeBack(); },
-      perft: function(depth) { perftTest(depth); },
       search: function(depth) { return searchPosition(depth) },
+      
+      // evaluation
+      evaluate: function() { return evaluate(); },
+      isMaterialDraw: function() { return isMaterialDraw(); },
+      
+      // misc
+      takeBack: function() { if (backup.length) takeBack(); },
       isRepetition: function() { return isRepetition(); },
       generateLegalMoves: function() { return generateLegalMoves(); },
       inCheck: function() { return isSquareAttacked(kingSquare[side], side ^ 1); },
-      isMaterialDraw: function() { return isMaterialDraw(); },
 
       // debugging (run any internal engine function)
       debug: function() { debug(); }
