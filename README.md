@@ -108,7 +108,6 @@ rather than on playing strength for now, but from now on I'll be improving the s
       printBoard: function() { printBoard(); },
       setBoard: function(fen) { setBoard(fen); },
       getPiece: function(square) { return board[square]; },
-      setPiece: function(piece, square) { board[square] = piece; },
       getSide: function() { return side; },
       getFifty: function() { return fifty; },
 
@@ -126,11 +125,8 @@ rather than on playing strength for now, but from now on I'll be improving the s
       getTimeControl: function() { return JSON.parse(JSON.stringify(timing))},
       search: function(depth) { return searchPosition(depth) },
       
-      // evaluation
-      evaluate: function() { return evaluate(); },
-      isMaterialDraw: function() { return isMaterialDraw(); },
-      
       // misc
+      isMaterialDraw: function() { return isMaterialDraw(); },
       takeBack: function() { if (backup.length) takeBack(); },
       isRepetition: function() { return isRepetition(); },
       generateLegalMoves: function() { return generateLegalMoves(); },
