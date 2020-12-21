@@ -303,9 +303,9 @@ console.log(timing);
 timing.timeSet = 1;
 
 // search for 1 second
-timing.startTime = new Date().getTime();
+let startTime = new Date().getTime();
 timing.time = 1000;
-timing.stopTime = timing.startTime + timing.time;
+timing.stopTime = startTime + timing.time;
 
 console.log(timing)
 engine.setTimeControl(timing)
@@ -454,8 +454,8 @@ a public API reference you can either to add it on your own and make a PR<br>
 or you can use debug() function - just type whatever function call you want<br>
 within debug() function body and then run it via engine.debug()
 
-# Open issue
-<a href="https://github.com/maksimKorzh/wukongJS/issues">Ask for help</a>
+# Ask for help
+<a href="https://github.com/maksimKorzh/wukongJS/issues">Open issue</a>
 
 # Feedbacks
 <a href="mailto:freesoft.for.people@gmail.com">freesoft.for.people@gmail.com</a>
