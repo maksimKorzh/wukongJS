@@ -139,65 +139,6 @@ console.log('type:', typeof(pieceAt), '\n');
 */
 ```
 
-# Clear piece at given board square
-```js
-engine.setPiece(engine.PIECE['NO_PIECE'], engine.SQUARE['E2']);
-engine.printBoard();
-
-/*
-    Output:
-
-   8 ♜ . . . ♚ . . ♜ 
-   7 ♟ . ♟ ♟ ♛ ♟ ♝ . 
-   6 ♝ ♞ . . ♟ ♞ ♟ . 
-   5 . . . ♙ ♘ . . . 
-   4 . ♟ . . ♙ . . . 
-   3 . . ♘ . . ♕ . ♟ 
-   2 ♙ ♙ ♙ ♗ . ♙ ♙ ♙ 
-   1 ♖ . . . ♔ . . ♖ 
-     a b c d e f g h
-
-     Side:     white
-     Castling:  KQkq
-     Ep:          no
-
-     Key: 2073931705
- 50 rule:          0
-   moves:          10
-
-*/
-```
-
-
-# Set piece at given board square
-```js
-engine.setPiece(engine.PIECE['WHITE_BISHOP'], engine.SQUARE['A6']);
-engine.printBoard();
-
-/*
-    Output:
-
-   8 ♜ . . . ♚ . . ♜ 
-   7 ♟ . ♟ ♟ ♛ ♟ ♝ . 
-   6 ♗ ♞ . . ♟ ♞ ♟ . 
-   5 . . . ♙ ♘ . . . 
-   4 . ♟ . . ♙ . . . 
-   3 . . ♘ . . ♕ . ♟ 
-   2 ♙ ♙ ♙ ♗ . ♙ ♙ ♙ 
-   1 ♖ . . . ♔ . . ♖ 
-     a b c d e f g h
-
-     Side:     white
-     Castling:  KQkq
-     Ep:          no
-
-     Key: 2073931705
- 50 rule:          0
-   moves:          10
-
-*/
-```
-
 # Get current side to move
 ```js
 let side = engine.getSide()
