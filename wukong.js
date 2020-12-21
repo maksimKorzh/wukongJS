@@ -1158,6 +1158,9 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
   const mateValue = 49000;
   const mateScore = 48000;
   
+  // search variables
+  var followPv;
+  
   // PV table
   var pvTable = new Array(maxPly * maxPly);
   var pvLength = new Array(maxPly);
@@ -1218,7 +1221,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
   }
   
   // move ordering
-  function sortMove(currentCount, moveList) {
+  function sortMoves(currentCount, moveList) {
     for (let nextCount = currentCount + 1; nextCount < moveList.length; nextCount++) {
       if (moveList[currentCount].score < moveList[nextCount].score) {
         let tempMove = moveList[currentCount];
@@ -1229,8 +1232,31 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     }
   }
   
+  // sort PV move
+  function sortPvMove(moveList) {
+    if (followPv) {
+      followPv = 0;
+      for (let count = 0; count < moveList.length; count++) {
+        if (moveList[count].move == pvTable[searchPly]) {
+          followPv = 1;
+          moveList[count].score = 20000;
+          break;
+        }
+      }
+    }
+  }
+  
+  // store PV move
+  function storePvMove(move) {
+    pvTable[searchPly * 64 + searchPly] = move;
+    for (var nextPly = searchPly + 1; nextPly < pvLength[searchPly + 1]; nextPly++)
+      pvTable[searchPly * 64 + nextPly] = pvTable[(searchPly + 1) * 64 + nextPly];
+    pvLength[searchPly] = pvLength[searchPly + 1]
+  }
+  
   // quiescence search
   function quiescence(alpha, beta) {
+    pvLength[searchPly] = searchPly;
     nodes++;
     
     if((nodes & 2047 ) == 0) checkTime();
@@ -1244,8 +1270,11 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     var moveList = [];
     generateCaptures(moveList);
 
+    // sort PV move
+    sortPvMove(moveList);
+
     for (var count = 0; count < moveList.length; count++) { 
-      sortMove(count, moveList)
+      sortMoves(count, moveList)
       let move = moveList[count].move;
       
       if (makeMove(move) == 0) continue;
@@ -1254,7 +1283,9 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
       
       if (timing.stopped == 1) return 0;
       if (score > alpha) {
+        storePvMove(move);
         alpha = score;
+        
         if (score >= beta) return beta;
       }
     }
@@ -1282,19 +1313,10 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     generateMoves(moveList);
     
     // sort PV move
-    if (followPv) {
-      followPv = 0;
-      for (let count = 0; count < moveList.length; count++) {
-        if (moveList[count].move == pvTable[searchPly]) {
-          followPv = 1;
-          moveList[count].score = 20000;
-          break;
-        }
-      }
-    }
+    sortPvMove(moveList);
     
     for (let count = 0; count < moveList.length; count++) {
-      sortMove(count, moveList);
+      sortMoves(count, moveList);
       let move = moveList[count].move;
       if (makeMove(move) == 0) continue;
       legalMoves++;
@@ -1304,16 +1326,11 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
       if (timing.stopped == 1) return 0;
       if (score > alpha) {
         alpha = score;
+        storePvMove(move);
         
         // store history moves
         if (getMoveCapture(move) == 0)
           historyMoves[board[getMoveSource(move)] * 128 + getMoveTarget(move)] += depth;
-        
-        // store PV move
-        pvTable[searchPly * 64 + searchPly] = move;
-        for (var nextPly = searchPly + 1; nextPly < pvLength[searchPly + 1]; nextPly++)
-          pvTable[searchPly * 64 + nextPly] = pvTable[(searchPly + 1) * 64 + nextPly];
-        pvLength[searchPly] = pvLength[searchPly + 1]
         
         if (score >= beta) {
           // store killer moves
@@ -1335,8 +1352,6 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
 
     return alpha;
   }
-  
-  var followPv;
   
   // search position for the best move
   function searchPosition(depth) {
