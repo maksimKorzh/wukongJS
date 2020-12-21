@@ -1,7 +1,10 @@
 # Wukong JS
 Javascript chess engine with UCI support, own GUI and public API<br>
 so you can embed it into your own projects as a library<br>
-for both front-end & back-end 
+for both front-end & back-end
+
+# Latest release
+<a href="https://github.com/maksimKorzh/wukongJS/raw/main/releases/WukongJS_v1.0/WukongJS_v1.0.zip">Download</a>
 
 # Project goals
 - easy to understand source code
@@ -37,7 +40,7 @@ rather than on playing strength for now, but from now on I'll be improving the s
  - on the fly attacks
  - incremental updates of position on make move/take back
  - move stack for storing board state variables
- - Material & 100% original handcrafted PSTs to mimic style of Frtiz
+ - Material evaluation & 100% original handcrafted PSTs
  - opening/endgame PSTs for pawns, kings and rooks
  - insufficient material detection
  - 50 move rule penalty
