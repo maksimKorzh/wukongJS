@@ -517,6 +517,8 @@ a public API reference you can either to add it on your own and make a PR<br>
 or you can use debug() function - just type whatever function call you want<br>
 within debug() function body and then run it via engine.debug()
 
-# Issues/feedbacks
-Feel free to open an issue either to request a feature, get help/support/solution<br>
-or if you just want to discuss something or leave a feedback.
+# Open issue
+<a href="https://github.com/maksimKorzh/wukongJS/issues">Ask for help</a>
+
+# Feedbacks
+<a href="mailto:freesoft.for.people@gmail.com">freesoft.for.people@gmail.com</a>
