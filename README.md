@@ -4,7 +4,7 @@ so you can embed it into your own projects as a library<br>
 for both front-end & back-end
 
 # Latest release
-<a href="https://github.com/maksimKorzh/wukongJS/raw/main/releases/WukongJS_v1.0/WukongJS_v1.0.zip">Download</a>
+<a href="https://github.com/maksimKorzh/wukongJS/raw/main/releases/WukongJS_v1.0.zip">Download</a>
 
 # Project goals
 - easy to understand source code
