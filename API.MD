@@ -403,11 +403,8 @@ engine.search(6);
 */
 ```
 
-# Static evaluation
+# Insufficient material
 ```js
-// static evaluation of a position
-let staticEval = engine.evaluate();
-console.log('eval:', staticEval);
 
 // insufficient material (drawn position) flag
 console.log('material draw:', engine.isMaterialDraw());
@@ -415,7 +412,6 @@ console.log('material draw:', engine.isMaterialDraw());
 /*
     Output:
     
-    eval: 0
     material draw: 0
     
 */

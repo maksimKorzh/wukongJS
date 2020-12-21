@@ -1124,7 +1124,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
       }
     }
 
-    score = parseInt(score * (100 - fifty) / 100);
+    score = Math.round(score * (100 - fifty) / 100);
     return (side == white) ? score: -score;
   }
 
@@ -1826,7 +1826,6 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     printBoard: function() { printBoard(); },
     setBoard: function(fen) { setBoard(fen); },
     getPiece: function(square) { return board[square]; },
-    setPiece: function(piece, square) { board[square] = piece; },
     getSide: function() { return side; },
     getFifty: function() { return fifty; },
     
@@ -1845,15 +1844,13 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     setTimeControl: function(timeControl) { setTimeControl(timeControl); },
     getTimeControl: function() { return JSON.parse(JSON.stringify(timing))},
     search: function(depth) { return searchPosition(depth) },
-    
-    // evaluation
-    evaluate: function() { return evaluate(); },
-    isMaterialDraw: function() { return isMaterialDraw(); },
 
     // misc
+    isMaterialDraw: function() { return isMaterialDraw(); },
     takeBack: function() { if (backup.length) takeBack(); },
     isRepetition: function() { return isRepetition(); },
     inCheck: function() { return isSquareAttacked(kingSquare[side], side ^ 1); },
+    
     
     // debugging (run any internal engine function)
     debug: function() { debug(); }
