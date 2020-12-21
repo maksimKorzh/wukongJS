@@ -29,7 +29,7 @@ rather than on playing strength for now, but from now on I'll be improving the s
 
 # Play in UCI mode
 1. download latest nodejs: https://nodejs.org/en/
-2. download source code: https://github.com/maksimKorzh/wukongJS/archive/main.zip
+2. download source code: https://github.com/maksimKorzh/wukongJS/raw/main/releases/WukongJS_v1.0.zip
 3. UCI mode in console: "full/path/to/nodejs full/path/to/uci.js"
 4. UCI mode in Arena GUI: set engine path to "full/path/to/nodejs" & command line parameters to "full/path/to/uci.js"
 
