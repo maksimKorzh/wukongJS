@@ -799,8 +799,6 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     side ^= 1;
     hashKey ^= sideKey;
     
-    if (hashKey != generateHashKey()) console.log('hash error')
-    
     // return illegal move if king is left in check 
     if (isSquareAttacked((side == white) ? kingSquare[side ^ 1] : kingSquare[side ^ 1], side)) {
       takeBack();
@@ -860,7 +858,37 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     moveStack.pop();
   }
   
+  // make null move
+  function makeNullMove() {
+    // backup current board state
+    moveStack.push({
+        move: 0,
+        capturedPiece: 0,
+        side: side,
+        enpassant: enpassant,
+        castle: castle,
+        fifty: fifty,
+        hash: hashKey,
+      });     
+    
+    if (enpassant != noEnpassant) hashKey ^= pieceKeys[enpassant];
+    enpassant = noEnpassant;
+    fifty = 0;
+    side ^= 1;
+    hashKey ^= sideKey;
+  }
   
+  // take null move
+  function takeNullMove() {
+    side = moveStack[moveStack.length - 1].side;
+    enpassant = moveStack[moveStack.length - 1].enpassant;
+    castle = moveStack[moveStack.length - 1].castle;
+    fifty = moveStack[moveStack.length - 1].fifty;
+    hashKey = moveStack[moveStack.length - 1].hashKey;
+    moveStack.pop();
+  }
+
+
   /****************************\
    ============================
    
@@ -1315,33 +1343,13 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     if (inCheck) depth++;
     
     // null move pruning
-    if (searchPly && depth >=3 && inCheck == 0) {
-      /*moveStack.push({
-        move: 0,
-        capturedPiece: 0,
-        side: side,
-        enpassant: enpassant,
-        castle: castle,
-        fifty: fifty,
-        hash: hashKey,
-      });*/
+    if (searchPly && depth >= 3 && inCheck == 0) {
+      makeNullMove();
+      score = -negamax(-beta, -beta + 1, depth - 1 - 2);
+      takeNullMove();
       
-      var sCopy, eCopy, cCopy, fCopy, hashCopy;
-      sCopy = side; eCopy = enpassant, cCopy = castle, hashCopy = hashKey;
-      
-      // update enpassant square
-      //if (enpassant != noEnpassant) hashKey ^= pieceKeys[enpassant];
-      //enpassant = noEnpassant;
-      
-      side ^= 1;
-      hashKey ^= sideKey;
-      
-      
-      //score = -negamax(-beta, -beta + 1, depth - 1 - 2);
-      
-      side = sCopy; enPassant = eCopy, castle = cCopy, hashKey = hashCopy;
-      
-      //moveStack.pop();
+      if (timing.stopped == 1) return 0;
+      if (score >= beta) return beta;
     }
 
     let moveList = [];
