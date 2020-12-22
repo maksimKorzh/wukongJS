@@ -162,7 +162,7 @@
                          engine.squareToString(userTarget) +
                          engine.promotedToString(promotedPiece);
 
-        let move = engine.isValid(moveString);
+        let move = engine.moveFromString(moveString);
         return move;
       }
       

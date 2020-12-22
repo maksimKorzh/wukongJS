@@ -112,7 +112,7 @@ rather than on playing strength for now, but from now on I'll be improving the s
       getFifty: function() { return fifty; },
 
       // move manipulation
-      isValid: function(moveString) { return isValid(moveString); },
+      moveFromString: function(moveString) { return isValid(moveString); },
       moveToString: function(move) { return moveToString(move); },
       loadMoves: function(moves) { loadMoves(moves); },
       getMoveSource: function(move) { return getMoveSource(move); },

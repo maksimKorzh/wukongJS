@@ -171,7 +171,7 @@ console.log('type:', typeof(fifty))
 
 # Validate pseudo legal move
 ```js
-let validMove = engine.isValid('e2e4')
+let validMove = engine.moveFromString('e2e4')
 
 if (validMove) {
   console.log('value (pseudo legal):', validMove)
@@ -190,7 +190,7 @@ if (validMove) {
 
 # Convert move to string (UCI format)
 ```js
-let validMove = engine.isValid('e2e4')
+let validMove = engine.moveFromString('e2e4')
 if (validMove) {
   console.log('value (pseudo legal):', engine.moveToString(validMove))
   console.log('type:', typeof(engine.moveToString(validMove)))
@@ -238,7 +238,7 @@ engine.printBoard();
 
 # extract move source/target/promoted piece
 ```js
-let move = engine.isValid('e2e4');
+let move = engine.moveFromString('e2e4');
 console.log(engine.getMoveSource(move), engine.squareToString(engine.getMoveSource(move)));
 console.log(engine.getMoveTarget(move), engine.squareToString(engine.getMoveTarget(move)));
 console.log(engine.getMovePromoted(move), engine.promotedToString(engine.getMovePromoted(move)));

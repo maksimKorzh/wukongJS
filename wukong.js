@@ -236,7 +236,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
   }
   
   // validate move
-  function isValid(moveString) {
+  function moveFromString(moveString) {
     let moveList = [];
     generateMoves(moveList);
 
@@ -799,6 +799,8 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     side ^= 1;
     hashKey ^= sideKey;
     
+    if (hashKey != generateHashKey()) console.log('hash error')
+    
     // return illegal move if king is left in check 
     if (isSquareAttacked((side == white) ? kingSquare[side ^ 1] : kingSquare[side ^ 1], side)) {
       takeBack();
@@ -1313,8 +1315,33 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     if (inCheck) depth++;
     
     // null move pruning
-    if (searchPly && depth < 3 && inCheck == 0) {
-        
+    if (searchPly && depth >=3 && inCheck == 0) {
+      /*moveStack.push({
+        move: 0,
+        capturedPiece: 0,
+        side: side,
+        enpassant: enpassant,
+        castle: castle,
+        fifty: fifty,
+        hash: hashKey,
+      });*/
+      
+      var sCopy, eCopy, cCopy, fCopy, hashCopy;
+      sCopy = side; eCopy = enpassant, cCopy = castle, hashCopy = hashKey;
+      
+      // update enpassant square
+      //if (enpassant != noEnpassant) hashKey ^= pieceKeys[enpassant];
+      //enpassant = noEnpassant;
+      
+      side ^= 1;
+      hashKey ^= sideKey;
+      
+      
+      //score = -negamax(-beta, -beta + 1, depth - 1 - 2);
+      
+      side = sCopy; enPassant = eCopy, castle = cCopy, hashKey = hashCopy;
+      
+      //moveStack.pop();
     }
 
     let moveList = [];
@@ -1543,7 +1570,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     for (let index = 0; index < moves.length; index++) {
       let move = moves[index];
       let moveString = moves[index];
-      let validMove = isValid(move);
+      let validMove = moveFromString(move);
       if (validMove) makeMove(validMove);
     }
     
@@ -1837,7 +1864,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     getFifty: function() { return fifty; },
     
     // move manipulation
-    isValid: function(moveString) { return isValid(moveString); },
+    moveFromString: function(moveString) { return moveFromString(moveString); },
     moveToString: function(move) { return moveToString(move); },
     loadMoves: function(moves) { loadMoves(moves); },
     getMoveSource: function(move) { return getMoveSource(move); },
