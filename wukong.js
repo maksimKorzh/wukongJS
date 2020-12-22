@@ -862,14 +862,14 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
   function makeNullMove() {
     // backup current board state
     moveStack.push({
-        move: 0,
-        capturedPiece: 0,
-        side: side,
-        enpassant: enpassant,
-        castle: castle,
-        fifty: fifty,
-        hash: hashKey,
-      });     
+      move: 0,
+      capturedPiece: 0,
+      side: side,
+      enpassant: enpassant,
+      castle: castle,
+      fifty: fifty,
+      hash: hashKey,
+    });
     
     if (enpassant != noEnpassant) hashKey ^= pieceKeys[enpassant];
     enpassant = noEnpassant;
