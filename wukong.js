@@ -103,8 +103,8 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     pieces: new Array(13 * 10)
   };
   
-  // board state variables backup stack
-  var backup = [];
+  // board move stack
+  var moveStack = [];
   
   // plies
   var searchPly = 0;
@@ -202,7 +202,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     fifty = 0;
     hashKey = 0;
     kingSquare = [0, 0];
-    backup = [];
+    moveStack = [];
     
     // reset plies
     searchPly = 0;
@@ -713,8 +713,8 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     let promotedPiece = getMovePromoted(move);
     let capturedPiece = board[targetSquare];
     
-    // backup board state variables
-    backup.push({
+    // moveStack board state variables
+    moveStack.push({
       move: move,
       capturedPiece: 0,
       side: side,
@@ -733,7 +733,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     // handle capture
     if (getMoveCapture(move)) {
       if (capturedPiece) {
-        backup[backup.length - 1].capturedPiece = capturedPiece;
+        moveStack[moveStack.length - 1].capturedPiece = capturedPiece;
         hashKey ^= pieceKeys[capturedPiece * 128 + targetSquare];
         removePiece(capturedPiece, targetSquare); 
       }
@@ -813,8 +813,8 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     gamePly--;
     
     // parse move
-    let moveIndex = backup.length - 1;
-    let move = backup[moveIndex].move;    
+    let moveIndex = moveStack.length - 1;
+    let move = moveStack[moveIndex].move;    
     let sourceSquare = getMoveSource(move);
     let targetSquare = getMoveTarget(move);
     
@@ -823,8 +823,8 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     
     // restore captured piece
     if (getMoveCapture(move)) {
-      //board[targetSquare] = backup[moveIndex].capturedPiece;
-      addPiece(backup[moveIndex].capturedPiece, targetSquare);
+      //board[targetSquare] = moveStack[moveIndex].capturedPiece;
+      addPiece(moveStack[moveIndex].capturedPiece, targetSquare);
     }
     
     // handle special moves
@@ -847,15 +847,15 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     if (board[sourceSquare] == K || board[sourceSquare] == k) kingSquare[side ^ 1] = sourceSquare;
     
     // switch side to move
-    side = backup[moveIndex].side;
+    side = moveStack[moveIndex].side;
     
     // restore board state variables
-    enpassant = backup[moveIndex].enpassant;
-    castle = backup[moveIndex].castle;
-    hashKey = backup[moveIndex].hash;
-    fifty = backup[moveIndex].fifty;
+    enpassant = moveStack[moveIndex].enpassant;
+    castle = moveStack[moveIndex].castle;
+    hashKey = moveStack[moveIndex].hash;
+    fifty = moveStack[moveIndex].fifty;
 
-    backup.pop();
+    moveStack.pop();
   }
   
   
@@ -1274,7 +1274,8 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
 
     // sort PV move
     sortPvMove(moveList);
-
+    
+    // loop over moves
     for (var count = 0; count < moveList.length; count++) { 
       sortMoves(count, moveList)
       let move = moveList[count].move;
@@ -1310,6 +1311,11 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     
     // check extension
     if (inCheck) depth++;
+    
+    // null move pruning
+    if (searchPly && depth < 3 && inCheck == 0) {
+        
+    }
 
     let moveList = [];
     generateMoves(moveList);
@@ -1317,6 +1323,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     // sort PV move
     sortPvMove(moveList);
     
+    // loop over moves
     for (let count = 0; count < moveList.length; count++) {
       sortMoves(count, moveList);
       let move = moveList[count].move;
@@ -1847,7 +1854,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
 
     // misc
     isMaterialDraw: function() { return isMaterialDraw(); },
-    takeBack: function() { if (backup.length) takeBack(); },
+    takeBack: function() { if (moveStack.length) takeBack(); },
     isRepetition: function() { return isRepetition(); },
     inCheck: function() { return isSquareAttacked(kingSquare[side], side ^ 1); },
     
