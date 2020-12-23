@@ -880,6 +880,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
   
   // take null move
   function takeNullMove() {
+    // restore board state
     side = moveStack[moveStack.length - 1].side;
     enpassant = moveStack[moveStack.length - 1].enpassant;
     castle = moveStack[moveStack.length - 1].castle;
@@ -1343,7 +1344,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     if (inCheck) depth++;
     
     // null move pruning
-    if (searchPly && depth >= 3 && inCheck == 0) {
+    if (searchPly && depth >= 3 && inCheck == 0 && evaluate() >= beta) {
       makeNullMove();
       score = -negamax(-beta, -beta + 1, depth - 1 - 2);
       takeNullMove();
