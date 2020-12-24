@@ -1172,6 +1172,8 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
   const infinity = 50000;
   const mateValue = 49000;
   const mateScore = 48000;
+  const DO_NULL = 1;
+  const NO_NULL = 0;
   
   // search variables
   var followPv;
@@ -1314,6 +1316,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     pvLength[searchPly] = searchPly;
     
     let score = 0;
+    let pvNode = beta - alpha > 1;
 
     if ((nodes & 2047) == 0) checkTime();
     if ((searchPly && isRepetition()) || fifty >= 100) return 0;
@@ -1321,8 +1324,8 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     
     // mate distance pruning
     if (alpha < -mateValue) alpha = -mateValue;
-	if (beta > mateValue - 1) beta = mateValue - 1;
-	if (alpha >= beta) return alpha;
+    if (beta > mateValue - 1) beta = mateValue - 1;
+    if (alpha >= beta) return alpha;
     
     let legalMoves = 0;
     let inCheck = isSquareAttacked(kingSquare[side], side ^ 1);
@@ -1330,18 +1333,50 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     // check extension
     if (inCheck) depth++;
     
-    let staticEval = evaluate();
+    if (inCheck == 0 && pvNode == 0) {
+      // static evaluation for pruning purposes
+      let staticEval = evaluate();
     
-    // null move pruning
-    if (nullMove && searchPly && depth >= 3 && getGamePhase() != 1 && inCheck == 0 && staticEval >= beta) {
-      makeNullMove();
-      score = -negamax(-beta, -beta + 1, depth - 1 - 2, 0);
-      takeNullMove();
+	    // evalution pruning
+	    if (depth < 3 && Math.abs(beta - 1) > -mateValue + 100) {
+	      let evalMargin = 120 * depth;
+	      if (staticEval - evalMargin >= beta) return staticEval - evalMargin;
+	    }
+      
+      if (nullMove) {
+        // null move pruning
+        if ( searchPly && depth > 2 && getGamePhase() != 1 && staticEval >= beta) {
+          makeNullMove();
+          score = -negamax(-beta, -beta + 1, depth - 1 - 2, NO_NULL);
+          takeNullMove();
 
-      if (timing.stopped == 1) return 0;
-      if (score >= beta) return beta;
+          if (timing.stopped == 1) return 0;
+          if (score >= beta) return beta;
+        }
+        
+        // razoring
+        if (depth < 4) {
+          score = staticEval + 125;
+          let newScore;
+          
+          if (score < beta) {
+            if (depth == 1) {
+              newScore = quiescence(alpha, beta);
+              return (newScore > score) ? newScore : score;
+            }
+          }
+          
+          score += 175;
+          
+          if (score < beta && depth < 3) {
+            newScore = quiescence(alpha, beta);
+            if (newScore < beta) return (newScore > score) ? newScore : score;
+          }  
+        }
+      }
     }
 
+    let movesSearched = 0;
     let moveList = [];
     generateMoves(moveList);
     
@@ -1354,8 +1389,34 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
       let move = moveList[count].move;
       if (makeMove(move) == 0) continue;
       legalMoves++;
-      score = -negamax(-beta, -alpha, depth - 1, 1);
+      
+      if (movesSearched == 0) score = -negamax(-beta, -alpha, depth - 1, DO_NULL);
+      else {
+        // LMR
+        if(
+            pvNode == 0 &&
+            movesSearched > 3 &&
+            depth > 2 &&
+            inCheck == 0 &&
+            (getMoveSource(move) != getMoveSource(killerMoves[searchPly]) ||
+             getMoveTarget(move) != getMoveTarget(killerMoves[searchPly])) &&
+            (getMoveSource(move) != getMoveSource(killerMoves[maxPly + searchPly]) ||
+             getMoveTarget(move) != getMoveTarget(killerMoves[maxPly + searchPly])) &&
+            getMoveCapture(move) == 0 &&
+            getMovePromoted(move) == 0
+          ) {
+            score = -negamax(-alpha - 1, -alpha, depth - 2, DO_NULL);
+        } else score = alpha + 1;
+          
+        // PVS
+        if(score > alpha) {
+          score = -negamax(-alpha - 1, -alpha, depth - 1, DO_NULL);
+          if((score > alpha) && (score < beta)) score = -negamax(-beta, -alpha, depth - 1, DO_NULL);
+        }
+      }
+      
       takeBack();
+      movesSearched++;
       
       if (timing.stopped == 1) return 0;
       if (score > alpha) {
@@ -1399,7 +1460,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     for (let currentDepth = 1; currentDepth <= depth; currentDepth++) {
       lastBestMove = pvTable[0];
       followPv = 1;
-      score = negamax(-infinity, infinity, currentDepth, 1);
+      score = negamax(-infinity, infinity, currentDepth, DO_NULL);
       
       // stop searching if time is up
       if (timing.stopped == 1 || 
@@ -1419,7 +1480,9 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
                ' pv ';
                
         if (typeof(document) != 'undefined')
-          guiScore = 'mate in ' + Math.abs((parseInt(-(score + mateValue) / 2 - 1)))
+          guiScore = 'mate in ' + Math.abs((parseInt(-(score + mateValue) / 2 - 1)));
+        
+        break;
 
       } else if (score > mateScore && score < mateValue) {
         info = 'info score mate ' + (parseInt((mateValue - score) / 2 + 1)) + 
@@ -1429,7 +1492,9 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
                ' pv ';
                
         if (typeof(document) != 'undefined')
-          guiScore = 'mate in ' + Math.abs((parseInt((mateValue - score) / 2 + 1)))
+          guiScore = 'mate in ' + Math.abs((parseInt((mateValue - score) / 2 + 1)));
+        
+        break;
       
       } else {
         info = 'info score cp ' + score + 
