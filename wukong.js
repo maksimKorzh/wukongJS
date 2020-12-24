@@ -1310,7 +1310,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
   }
   
   // negamax search
-  function negamax(alpha, beta, depth) {
+  function negamax(alpha, beta, depth, nullMove) {
     pvLength[searchPly] = searchPly;
     
     let score = 0;
@@ -1319,18 +1319,25 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     if ((searchPly && isRepetition()) || fifty >= 100) return 0;
     if (depth == 0) { nodes++; return quiescence(alpha, beta); }
     
+    // mate distance pruning
+    if (alpha < -mateValue) alpha = -mateValue;
+	if (beta > mateValue - 1) beta = mateValue - 1;
+	if (alpha >= beta) return alpha;
+    
     let legalMoves = 0;
     let inCheck = isSquareAttacked(kingSquare[side], side ^ 1);
     
     // check extension
     if (inCheck) depth++;
     
+    let staticEval = evaluate();
+    
     // null move pruning
-    if (searchPly && depth >= 3 && inCheck == 0 && evaluate() >= beta) {
+    if (nullMove && searchPly && depth >= 3 && getGamePhase() != 1 && inCheck == 0 && staticEval >= beta) {
       makeNullMove();
-      score = -negamax(-beta, -beta + 1, depth - 1 - 2);
+      score = -negamax(-beta, -beta + 1, depth - 1 - 2, 0);
       takeNullMove();
-      
+
       if (timing.stopped == 1) return 0;
       if (score >= beta) return beta;
     }
@@ -1347,7 +1354,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
       let move = moveList[count].move;
       if (makeMove(move) == 0) continue;
       legalMoves++;
-      score = -negamax(-beta, -alpha, depth - 1);
+      score = -negamax(-beta, -alpha, depth - 1, 1);
       takeBack();
       
       if (timing.stopped == 1) return 0;
@@ -1392,7 +1399,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     for (let currentDepth = 1; currentDepth <= depth; currentDepth++) {
       lastBestMove = pvTable[0];
       followPv = 1;
-      score = negamax(-infinity, infinity, currentDepth);
+      score = negamax(-infinity, infinity, currentDepth, 1);
       
       // stop searching if time is up
       if (timing.stopped == 1 || 
