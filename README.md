@@ -1,3 +1,9 @@
+<p align="center">
+  <img src="logo/LOGO.png" height="220" width="220">
+</p>
+
+<h1 align="center">Wukong JS</h1>
+
 # Wukong JS
 Didactic javascript chess engine with UCI support, own GUI and public API
 
