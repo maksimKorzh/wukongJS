@@ -5,7 +5,8 @@
 <h1 align="center">Wukong JS</h1>
 <h3 align="center" style="font-size: 18px;">Didactic javascript chess engine with UCI support, own GUI and public API</h3>
 <p align="center">
-  <a class="btn btn-primary" href="https://github.com/maksimKorzh/wukongJS/raw/main/releases/WukongJS_v1.1.zip">Download</a> |
+  <a href="https://github.com/maksimKorzh/wukongJS/raw/main/releases">Old versions</a> |
+  <a href="https://github.com/maksimKorzh/wukongJS/raw/main/releases/WukongJS_v1.1.zip">Download</a> |
   <a class="btn btn-success" href="https://maksimkorzh.github.io/wukongJS/wukong.html">Play now!</a>
 </p>
 <hr>
@@ -13,17 +14,17 @@
 # Features
  - play full FIDE rules chess
  - load position from FEN string
- - self play
  - browser mode
  - UCI mode
- - public API 
- 
-# Play online vs Wukong JS
-[![IMAGE ALT TEXT HERE](https://github.com/maksimKorzh/wukongJS/blob/main/logo/LOGO.png)](https://maksimkorzh.github.io/wukongJS/wukong.html)
+ - public API
 
-# Play in UCI mode
-1. download latest nodejs: https://nodejs.org/en/
-2. download source code: https://github.com/maksimKorzh/wukongJS/raw/main/releases/WukongJS_v1.1.zip
+# Play offline
+1. <a href="https://github.com/maksimKorzh/wukongJS/raw/main/releases/WukongJS_v1.1.zip">Download</a> latest version
+2. Open file "wukong.html"
+
+# UCI mode
+1. Download latest nodejs: https://nodejs.org/en/
+2. Download source code: https://github.com/maksimKorzh/wukongJS/raw/main/releases/WukongJS_v1.1.zip
 3. UCI mode in console: "full/path/to/nodejs full/path/to/uci.js"
 4. UCI mode in Arena GUI: set engine path to "full/path/to/nodejs" & command line parameters to "full/path/to/uci.js"
 
