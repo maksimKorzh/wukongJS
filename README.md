@@ -3,66 +3,7 @@
 </p>
 
 <h1 align="center">Wukong JS</h1>
-<p align="center">Didactic javascript chess engine with UCI support, own GUI and public API</p>
-
-<h6 class="mt-2 font-weight-bold">Wukong JS 1.1 ~ 1600 ELO</h6>
-    
-    <!-- FEN -->
-    <div class="input-group mx-auto mt-3" style="width: 420px;">
-      <input id="fen"
-             type="text"
-             class="form-control"
-             placeholder="FEN string"
-             value="r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 10"
-      />
-      <div class="input-group-append mb-1">
-        <button onclick="setFen();" class="btn btn-outline-secondary text-dark bg-light ml-1">Set</button>
-      </div>
-    </div>
-    
-    <!-- Chess board view -->
-    <div id="chessboard"></div>
-    
-    <!-- Controls -->
-    <div class="btn-group mt-1" style="width: 420px;">
-      <select id="movetime" class="bg-light col-2 mr-1">
-        <option value="1">1s</option>
-        <option value="2">2s</option>
-        <option value="3">3s</option>
-        <option value="4">4s</option>
-        <option value="5">5s</option>
-        <option value="6">6s</option>
-        <option value="7">7s</option>
-        <option value="8">8s</option>
-        <option value="9">9s</option>
-        <option value="10">10s</option>
-      </select>
-      <button class="btn btn-outline-secondary text-dark bg-light font-weight-bold mr-1" onclick="newGame();">New</button>
-      <button class="btn btn-outline-secondary text-dark bg-light font-weight-bold mr-1" onclick="think();">Move</button>
-      <button class="btn btn-outline-secondary text-dark bg-light font-weight-bold mr-1" onclick="undo();">Undo</button>
-      <button class="btn btn-outline-secondary text-dark bg-light font-weight-bold" onclick="flip()">Flip</button>
-      <select id="promoted" class="bg-light col-2 ml-1">
-        <option value="5">♛</option>
-        <option value="4">♜</option>
-        <option value="3">♝</option>
-        <option value="2">♞</option>
-      </select>
-    </div>
-
-    <!-- Info -->
-    <div class="row mx-auto mt-2" style="width: 420px;">
-      <div class="col text-left">Score: <span id="score" class="font-weight-bold text-danger mr-2">0</span></div>
-      <div class="col text-center"><button class="btn btn-sm btn-outline-secondary" onclick="switchBackground(this)">Image off</button></div>
-      <div class="col text-right">Depth: <span id="depth" class="font-weight-bold ml-2">0</span></div>
-    </div>
-    <div id="pv" class="font-weight-bold mt-2 mb-2">...</div>
-    <small><a href="mailto:freesoft.for.people@gmail.com">freesoft.for.people@gmail.com</a></small>
-
-    <!-- Chess engine -->
-    <script src="wukong.js"></script>
-
-    <!-- User input handling -->
-    <script src="js/play.js"></script>
+<p align="center" style="font-size: 18px;">Didactic javascript chess engine with UCI support, own GUI and public API</p>
 
 # Latest release
 <a href="https://github.com/maksimKorzh/wukongJS/raw/main/releases/WukongJS_v1.1.zip">Download</a>
