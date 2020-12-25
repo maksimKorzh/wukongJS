@@ -5,12 +5,15 @@
 <h1 align="center">Wukong JS</h1>
 <h3 align="center" style="font-size: 18px;">Didactic javascript chess engine with UCI support, own GUI and public API</h3>
 <p align="center">
-  <a href="https://github.com/maksimKorzh/wukongJS/raw/main/releases/WukongJS_v1.1.zip">Download</a> |
-  <a href="https://maksimkorzh.github.io/wukongJS/wukong.html">Play now!</a>
+  <a class="btn btn-primary" href="https://github.com/maksimKorzh/wukongJS/raw/main/releases/WukongJS_v1.1.zip">Download</a> |
+  <a class="btn btn-success" href="https://maksimkorzh.github.io/wukongJS/wukong.html">Play now!</a>
 </p>
+<hr>
 
 # Features
- - full FIDE rules
+ - play full FIDE rules chess
+ - load position from FEN string
+ - self play
  - browser mode
  - UCI mode
  - public API 
@@ -37,9 +40,10 @@ rather than on playing strength for now, but from now on I'll be improving the s
  - on the fly attacks
  - incremental updates of position on make move/take back
  - move stack for storing board state variables
- - Simplified evaluation function <a href="">see details...</a>
+ - Simplified evaluation function <a href="https://www.chessprogramming.org/Simplified_Evaluation_Function">see details...</a>
  - insufficient material detection
- - 50 move rule penalty
+ - 50 move rule detection
+ - 3 fold repetition detection
  - stand pat quiescence
  - on the fly move sorting
  - MVV_LVA/killer/history/PV move ordering

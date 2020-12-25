@@ -1,0 +1,11 @@
+# What's new ?
+ - around 200 Elo points stronger than v1.0
+ - simplified evaluation
+ - PV move ordering
+ - Evaluation pruning
+ - NMP (Null move pruning)
+ - Razoring
+ - Futility pruning
+ - LMR (Late move reduction)
+ - PVS (Principal variation search)
+ - improved GUI (Bootstrap)
