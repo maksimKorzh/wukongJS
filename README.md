@@ -4,11 +4,15 @@
 
 <h1 align="center">Wukong JS</h1>
 <h3 align="center" style="font-size: 18px;">Didactic javascript chess engine with UCI support, own GUI and public API</h3>
-<a align="center" href="https://github.com/maksimKorzh/wukongJS/raw/main/releases/WukongJS_v1.1.zip">Download</a>
+<p align="center">
+  <a href="https://github.com/maksimKorzh/wukongJS/raw/main/releases/WukongJS_v1.1.zip">Download</a> |
+  <a href="https://maksimkorzh.github.io/wukongJS/wukong.html">Play now!</a>
+</p>
 
 # Features
- - <a href="https://maksimkorzh.github.io/wukongJS/wukong.html">play</a> in browser
- - play versus other engines via UCI
+ - full FIDE rules
+ - browser mode
+ - UCI mode
  - public API 
  
 # Play online vs Wukong JS
