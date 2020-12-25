@@ -8,6 +8,8 @@
   <a href="https://github.com/maksimKorzh/wukongJS/raw/main/releases">All versions</a> |
   <a href="https://github.com/maksimKorzh/wukongJS/raw/main/releases/WukongJS_v1.1.zip">Download</a> |
   <a class="btn btn-success" href="https://maksimkorzh.github.io/wukongJS/wukong.html">Play now!</a>
+</p>
+<p align="center">
   <small>Support: <a href="mailto:freesoft.for.people@gmail.com">freesoft.for.people@gmail.com</a></small>
 </p>
 <hr>
