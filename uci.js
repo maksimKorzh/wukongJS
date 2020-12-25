@@ -99,6 +99,7 @@ uci.on('line', function(command){
   if (command == 'uci') {
     console.log('id name WukongJS ' + engine.VERSION);
     console.log('id author Code Monkey King');
+    console.log('uciok');
   }
 
   if (command == 'isready') console.log('readyok');

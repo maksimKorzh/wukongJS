@@ -1317,6 +1317,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     
     let score = 0;
     let pvNode = beta - alpha > 1;
+    let futilityPruning = 0;
 
     if ((nodes & 2047) == 0) checkTime();
     if ((searchPly && isRepetition()) || fifty >= 100) return 0;
@@ -1374,6 +1375,12 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
           }  
         }
       }
+      
+      // futility condition
+      let futilityMargin = [0, 200, 300, 500];
+      if (depth < 4 && Math.abs(alpha) < 9000 && staticEval + futilityMargin[depth] <= alpha)
+        futilityPruning = 1;
+      
     }
 
     let movesSearched = 0;
@@ -1389,6 +1396,14 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
       let move = moveList[count].move;
       if (makeMove(move) == 0) continue;
       legalMoves++;
+      
+      // futility pruning
+      if (futilityPruning &&
+          movesSearched &&
+          getMoveCapture(move) == 0 &&
+          getMovePromoted(move) == 0 &&
+          isSquareAttacked(kingSquare[side], side ^ 1) == 0
+         ) { takeBack(); continue; }
       
       if (movesSearched == 0) score = -negamax(-beta, -alpha, depth - 1, DO_NULL);
       else {
