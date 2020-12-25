@@ -10,7 +10,7 @@
   <a class="btn btn-success" href="https://maksimkorzh.github.io/wukongJS/wukong.html">Play now!</a>
 </p>
 <p align="center">
-  <small>Support: <a href="mailto:freesoft.for.people@gmail.com">freesoft.for.people@gmail.com</a></small>
+  <small>freesoft.for.people@gmail.com</small>
 </p>
 <hr>
 
