@@ -3,16 +3,8 @@
 </p>
 
 <h1 align="center">Wukong JS</h1>
-<p align="center" style="font-size: 18px;">Didactic javascript chess engine with UCI support, own GUI and public API</p>
-
-# Latest release
-<a href="https://github.com/maksimKorzh/wukongJS/raw/main/releases/WukongJS_v1.1.zip">Download</a>
-
-# Playing strength
-It's VERY WEAK for now, around 1600 ELO<br>
-I will ask Gabor Szots from CCRL to test it when strength around 2000 ELO would be reached<br>
-I was focusing on interfaces and API implementation and  providing example code snippets<br>
-rather than on playing strength for now, but from now on I'll be improving the strength<br>
+<h3 align="center" style="font-size: 18px;">Didactic javascript chess engine with UCI support, own GUI and public API</h3>
+<a align="center" href="https://github.com/maksimKorzh/wukongJS/raw/main/releases/WukongJS_v1.1.zip">Download</a>
 
 # Features
  - <a href="https://maksimkorzh.github.io/wukongJS/wukong.html">play</a> in browser
@@ -27,6 +19,12 @@ rather than on playing strength for now, but from now on I'll be improving the s
 2. download source code: https://github.com/maksimKorzh/wukongJS/raw/main/releases/WukongJS_v1.1.zip
 3. UCI mode in console: "full/path/to/nodejs full/path/to/uci.js"
 4. UCI mode in Arena GUI: set engine path to "full/path/to/nodejs" & command line parameters to "full/path/to/uci.js"
+
+# Playing strength
+It's VERY WEAK for now, around 1600 ELO<br>
+I will ask Gabor Szots from CCRL to test it when strength around 2000 ELO would be reached<br>
+I was focusing on interfaces and API implementation and  providing example code snippets<br>
+rather than on playing strength for now, but from now on I'll be improving the strength<br>
 
 # Technical specification
  - 0x88 board representation
