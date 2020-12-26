@@ -1346,11 +1346,11 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
       // static evaluation for pruning purposes
       let staticEval = evaluate();
     
-	    // evalution pruning
-	    if (depth < 3 && Math.abs(beta - 1) > -mateValue + 100) {
-	      let evalMargin = 120 * depth;
-	      if (staticEval - evalMargin >= beta) return staticEval - evalMargin;
-	    }
+      // evalution pruning
+      if (depth < 3 && Math.abs(beta - 1) > -mateValue + 100) {
+        let evalMargin = 120 * depth;
+        if (staticEval - evalMargin >= beta) return staticEval - evalMargin;
+      }
       
       if (nullMove) {
         // null move pruning
@@ -1364,23 +1364,21 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
         }
         
         // razoring
-        if (depth < 4) {
-          score = staticEval + 125;
-          let newScore;
-          
-          if (score < beta) {
-            if (depth == 1) {
-              newScore = quiescence(alpha, beta);
-              return (newScore > score) ? newScore : score;
-            }
-          }
-          
-          score += 175;
-          
-          if (score < beta && depth < 3) {
+        score = staticEval + 125;
+        let newScore;
+        
+        if (score < beta) {
+          if (depth == 1) {
             newScore = quiescence(alpha, beta);
-            if (newScore < beta) return (newScore > score) ? newScore : score;
-          }  
+            return (newScore > score) ? newScore : score;
+          }
+        }
+        
+        score += 175;
+        
+        if (score < beta && depth < 4) {
+          newScore = quiescence(alpha, beta);
+          if (newScore < beta) return (newScore > score) ? newScore : score;
         }
       }
       
