@@ -1494,7 +1494,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
       if (typeof(document) != 'undefined')
         var guiScore = 0;
       
-      if (score > -mateValue && score < -mateScore) {
+      if (score >= -mateValue && score <= -mateScore) {console.log('black mates')
         info = 'info score mate ' + (parseInt(-(score + mateValue) / 2 - 1)) + 
                ' depth ' + currentDepth +
                ' nodes ' + nodes +
@@ -1503,10 +1503,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
                
         if (typeof(document) != 'undefined')
           guiScore = 'mate in ' + Math.abs((parseInt(-(score + mateValue) / 2 - 1)));
-        
-        break;
-
-      } else if (score > mateScore && score < mateValue) {
+      } else if (score >= mateScore && score <= mateValue) {
         info = 'info score mate ' + (parseInt((mateValue - score) / 2 + 1)) + 
                ' depth ' + currentDepth +
                ' nodes ' + nodes +
@@ -1538,7 +1535,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
         document.getElementById('depth').innerHTML = currentDepth;
       }
       
-      if (info.includes('mate')) break;
+      if (info.includes('mate') || info.includes('-49000')) break;
     }
 
     let bestMove = (timing.stopped == 1) ? lastBestMove: pvTable[0];
