@@ -921,7 +921,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     nodes = 0;
     console.log('   Performance test:\n');
     resultString = '';
-    let startTime = new Date().getTime();
+    let startTime = Date.now();
     
     let moveList = [];
     generateMoves(moveList);
@@ -943,7 +943,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     
     resultString += '\n   Depth: ' + depth;
     resultString += '\n   Nodes: ' + nodes;
-    resultString += '\n    Time: ' + (new Date().getTime() - startTime) + ' ms\n';
+    resultString += '\n    Time: ' + (Date.now() - startTime) + ' ms\n';
     console.log(resultString);
   }
 
@@ -1227,7 +1227,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
   
   // handle time control
   function checkTime() {
-    if(timing.timeSet == 1 && new Date().getTime() > timing.stopTime) timing.stopped = 1;
+    if(timing.timeSet == 1 && Date.now() > timing.stopTime) timing.stopped = 1;
   }
 
   // position repetition detection
@@ -1472,7 +1472,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
   
   // search position for the best move
   function searchPosition(depth) {
-    let start = new Date().getTime();
+    let start = Date.now();
     let score = 0;
     let lastBestMove = 0;
     
@@ -1486,7 +1486,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
       
       // stop searching if time is up
       if (timing.stopped == 1 || 
-         ((new Date().getTime() > timing.stopTime) &&
+         ((Date.now() > timing.stopTime) &&
           timing.time != -1)) break;
       
       let info = '';
@@ -1498,7 +1498,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
         info = 'info score mate ' + (parseInt(-(score + mateValue) / 2 - 1)) + 
                ' depth ' + currentDepth +
                ' nodes ' + nodes +
-               ' time ' + (new Date().getTime() - start) +
+               ' time ' + (Date.now() - start) +
                ' pv ';
                
         if (typeof(document) != 'undefined')
@@ -1507,7 +1507,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
         info = 'info score mate ' + (parseInt((mateValue - score) / 2 + 1)) + 
                ' depth ' + currentDepth +
                ' nodes ' + nodes +
-               ' time ' + (new Date().getTime() - start) +
+               ' time ' + (Date.now() - start) +
                ' pv ';
              
         if (typeof(document) != 'undefined')
@@ -1516,7 +1516,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
         info = 'info score cp ' + score + 
                ' depth ' + currentDepth +
                ' nodes ' + nodes +
-               ' time ' + (new Date().getTime() - start) +
+               ' time ' + (Date.now() - start) +
                ' pv ';
         
         if (typeof(document) != 'undefined')
@@ -1736,8 +1736,6 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
       for (var pieceNumber = 0; pieceNumber < pieceList[piece]; pieceNumber++)
         pieceListString += '    ' + unicodePieces[piece] + ': ' + 
                                     coordinates[pieceList.pieces[piece * 10 + pieceNumber]] + '\n';
-
-    console.log(pieceListString);
   }
 
   /****************************\

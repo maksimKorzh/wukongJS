@@ -107,6 +107,9 @@ uci.on('line', function(command){
   if (command == 'ucinewgame') parsePosition("position startpos");
   if (command.includes('position')) parsePosition(command);
   if (command.includes('go')) parseGo(command);
+  
+  // perft (non UCI command)
+  if (command.includes('perft')) engine.perft(command.split(' ')[1]);
 })
 
 
