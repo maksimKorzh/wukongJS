@@ -9,6 +9,12 @@
 // init engine
 var engine = new Engine();
 
+// update version in GUI
+document.title = 'WukongJS v ' + engine.VERSION;
+document.getElementById('engine-title').innerHTML = 
+  'Wukong JS ' + engine.VERSION +
+  ' ~ ' + engine.ELO + ' ELO';
+
 // run in browser mode  
 console.log('\n  Wukong JS - BROWSER MODE - v' + engine.VERSION);
 console.log('  type "engine" for public API reference');

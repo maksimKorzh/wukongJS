@@ -24,6 +24,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
   
   // chess engine version
   const version = '1.2a';
+  const elo = '1600';
 
   // sides to move  
   const white = 0;
@@ -1492,7 +1493,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
       
       if (typeof(document) != 'undefined')
         var guiScore = 0;
-      console.log('d', currentDepth, 's', score);
+      
       if (score > -mateValue && score < -mateScore) {
         info = 'info score mate ' + (parseInt(-(score + mateValue) / 2 - 1)) + 
                ' depth ' + currentDepth +
@@ -1511,12 +1512,9 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
                ' nodes ' + nodes +
                ' time ' + (new Date().getTime() - start) +
                ' pv ';
-               
+             
         if (typeof(document) != 'undefined')
           guiScore = 'mate in ' + Math.abs((parseInt((mateValue - score) / 2 + 1)));
-        
-        break;
-      
       } else {
         info = 'info score cp ' + score + 
                ' depth ' + currentDepth +
@@ -1539,11 +1537,15 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
         document.getElementById('pv').innerHTML = info.split('pv ')[1];
         document.getElementById('depth').innerHTML = currentDepth;
       }
+      
+      if (info.includes('mate')) break;
     }
 
     let bestMove = (timing.stopped == 1) ? lastBestMove: pvTable[0];
     console.log('bestmove ' + moveToString(bestMove));
     return bestMove;
+    
+    // 7k/8/8/QQ7/8/8/8/K7 w - - 0 0
   }
 
 
@@ -1895,6 +1897,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     
     // Engine constants
     VERSION: version,
+    ELO: elo,
     START_FEN: startFen,
     
     COLOR: {
