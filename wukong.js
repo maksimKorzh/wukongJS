@@ -23,7 +23,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
   \****************************/
   
   // chess engine version
-  const version = '1.1';
+  const version = '1.2a';
 
   // sides to move  
   const white = 0;
