@@ -163,7 +163,6 @@ function think() {
 
 // background image on/off
 function switchBackground(button) {
-  
   if (backgroundLock == 0) {
     document.body.style.backgroundImage = '';
     button.innerHTML = 'Image on';

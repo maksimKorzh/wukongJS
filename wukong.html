@@ -63,7 +63,7 @@
     <!-- Info -->
     <div class="row mx-auto mt-2" style="width: 420px;">
       <div class="col text-left">Score: <span id="score" class="font-weight-bold text-danger mr-2">0</span></div>
-      <div class="col text-center"><button class="btn btn-sm btn-outline-secondary" onclick="switchBackground(this)">Image off</button></div>
+      <div class="col text-center"><button id="backswitch" class="btn btn-sm btn-outline-secondary" onclick="switchBackground(this)">Image off</button></div>
       <div class="col text-right">Depth: <span id="depth" class="font-weight-bold ml-2">0</span></div>
     </div>
     <div id="pv" class="font-weight-bold mt-2 mb-2">...</div>
@@ -74,6 +74,22 @@
 
     <!-- User input handling -->
     <script src="js/play.js"></script>
+    
+    <!-- DevTools detection -->
+    <script src="js/isdevtoolopen.js"> </script>
+    
+    <!-- Remove background image when DevTools are open -->
+    <script type="module">
+	    if (window.devtools.isOpen == 0) {
+        document.body.style.backgroundImage = '';
+        button.innerHTML = 'Image on';
+        backgroundLock = 1;
+      } else if (window.devtools.isOpen == 1) {
+        document.body.style.backgroundImage = 'url(logo/wallpaper_wukong.jpg)';
+        button.innerHTML = 'Image off';
+        backgroundLock = 0;
+      }	    
+    </script>
   </body>
 <html>
 

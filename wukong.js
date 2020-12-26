@@ -1492,7 +1492,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
       
       if (typeof(document) != 'undefined')
         var guiScore = 0;
-      
+      console.log('d', currentDepth, 's', score);
       if (score > -mateValue && score < -mateScore) {
         info = 'info score mate ' + (parseInt(-(score + mateValue) / 2 - 1)) + 
                ' depth ' + currentDepth +
