@@ -3,7 +3,7 @@
 </p>
 
 <h1 align="center">Wukong JS</h1>
-<h3 align="center" style="font-size: 18px;">Didactic javascript chess engine by Code Monkey King</h3>
+<h3 align="center" style="font-size: 18px;">Didactic javascript chess engine<br> by<br> Code Monkey King</h3>
 <p align="center">
   <a href="https://github.com/maksimKorzh/wukongJS/raw/main/releases">All versions</a> |
   <a href="https://github.com/maksimKorzh/wukongJS/raw/main/releases/WukongJS_v1.1.zip">Download</a> |
