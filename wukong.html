@@ -11,8 +11,20 @@
     <!-- Bootstrap -->
     <link rel="stylesheet" href="css/bootstrap.min.css">
   </head>
-  <body style="font-family: monospace; font-size: 16px; background: url(logo/wallpaper_wukong.jpg)"
+  <body style="font-family:
+               monospace; font-size: 16px;
+               background: url(logo/wallpaper_wukong.jpg); background-repeat: no-repeat;
+               
+               background-position: center;"
+        
         class="img-fluid bg-cover text-center">
+
+    <div style="position: absolute;
+                left: 50%;
+                top: 50%;
+                transform: translate(-50%, -50%);
+                padding: 10px;"
+    >
 
     <h6 id="engine-title" class="mt-1 font-weight-bold"></h6>
     
@@ -66,7 +78,7 @@
     </div>
     <div id="pv" class="font-weight-bold mt-2 mb-2">...</div>
     <small><a href="mailto:freesoft.for.people@gmail.com">freesoft.for.people@gmail.com</a></small>
-
+    </div>
     <!-- Chess engine -->
     <script src="wukong.js"></script>
 
