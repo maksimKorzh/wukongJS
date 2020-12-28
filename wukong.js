@@ -1189,20 +1189,16 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     return gamePhaseScore;
   }
   
-  // get game phase
-  function getGamePhase(gamePhaseScore) {
-    // pick up game phase based on game phase score
-    if (gamePhaseScore > openingPhaseScore) return opening;
-    else if (gamePhaseScore < endgamePhaseScore) return endgame;
-    else return middlegame;
-  }
-  
   // static evaluation
   function evaluate() {
     if (isMaterialDraw()) return 0;
     
     let gamePhaseScore = getGamePhaseScore();
-    let gamePhase = getGamePhase(gamePhaseScore);
+    let gamePhase = -1;
+    
+    if (gamePhaseScore > openingPhaseScore) gamePhase = opening;
+    else if (gamePhaseScore < endgamePhaseScore) gamePhase = endgame;
+    else gamePhase = middlegame;
 
     let score = 0;
     var scoreOpening = 0;
