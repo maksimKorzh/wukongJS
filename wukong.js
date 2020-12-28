@@ -1181,10 +1181,8 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
   
   // get game phase
   function getGamePhaseScore() {
-    // return "endgame" if no queens on board
-    if (pieceList[Q] == 0 || pieceList[q] == 0) return 1;
-
     let gamePhaseScore = 0;
+
     for (let piece = N; piece <= Q; piece++) gamePhaseScore += pieceList[piece] * materialWeights[opening][piece];
     for (let piece = n; piece <= q; piece++) gamePhaseScore += pieceList[piece] * -materialWeights[opening][piece];
 
@@ -1291,7 +1289,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
         ) / openingPhaseScore;
     else if (gamePhase == opening) score = scoreOpening;
     else if (gamePhase == endgame) score = scoreEndgame;
-    
+
     score = Math.round(score * (100 - fifty) / 100);
     return (side == white) ? score: -score;
   }
@@ -1509,7 +1507,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
       
       if (nullMove) {
         // null move pruning
-        if ( searchPly && depth > 2 && getGamePhase(getGamePhaseScore()) != endgame && staticEval >= beta) {
+        if ( searchPly && depth > 2 /*&& getGamePhase(getGamePhaseScore()) != endgame*/ && staticEval >= beta) {
           makeNullMove();
           score = -negamax(-beta, -beta + 1, depth - 1 - 2, NO_NULL);
           takeNullMove();
@@ -1648,7 +1646,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
       if (typeof(document) != 'undefined')
         var guiScore = 0;
       
-      if (score >= -mateValue && score <= -mateScore) {console.log('black mates')
+      if (score >= -mateValue && score <= -mateScore) {
         info = 'info score mate ' + (parseInt(-(score + mateValue) / 2 - 1)) + 
                ' depth ' + currentDepth +
                ' nodes ' + nodes +
