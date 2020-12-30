@@ -8,7 +8,7 @@
 <h4 align="center">Code Monkey King</h4>
 <p align="center">
   <a href="https://github.com/maksimKorzh/wukongJS/raw/main/releases">All versions</a> |
-  <a href="https://github.com/maksimKorzh/wukongJS/raw/main/releases/WukongJS_v1.1.zip">Download</a> |
+  <a href="https://github.com/maksimKorzh/wukongJS/raw/main/releases/WukongJS_v1.2.zip">Download</a> |
   <a class="btn btn-success" href="https://maksimkorzh.github.io/wukongJS/wukong.html">Play now!</a>
 </p>
 <p align="center">
@@ -22,12 +22,12 @@
  - public API
 
 # Play offline
-1. <a href="https://github.com/maksimKorzh/wukongJS/raw/main/releases/WukongJS_v1.1.zip">Download</a> latest version
+1. <a href="https://github.com/maksimKorzh/wukongJS/raw/main/releases/WukongJS_v1.2.zip">Download</a> latest version
 2. Open file "wukong.html"
 
 # UCI mode
 1. Download latest nodejs: https://nodejs.org/en/
-2. Download source code: https://github.com/maksimKorzh/wukongJS/raw/main/releases/WukongJS_v1.1.zip
+2. Download source code: https://github.com/maksimKorzh/wukongJS/raw/main/releases/WukongJS_v1.2.zip
 3. UCI mode in console: "full/path/to/nodejs full/path/to/uci.js"
 4. UCI mode in Arena GUI: set engine path to "full/path/to/nodejs" & command line parameters to "full/path/to/uci.js"
 
