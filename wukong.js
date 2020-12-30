@@ -23,8 +23,8 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
   \****************************/
   
   // chess engine version
-  const version = '1.2a';
-  const elo = '1750';
+  const version = '1.2';
+  const elo = '1700';
 
   // sides to move  
   const white = 0;
@@ -959,12 +959,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
   /*
       Following material weights and PST values are provided by Ronald Friederich.
       The values presented here have been designed specifically to compensate for
-      the lack of any other chess knowledge, and not for being supplemented by it.
-      
-      I'm now working on obtaining my own set of values using the variation of so
-      called Texel's tuning - automated evaluation tuning technique design by
-      Peter Osterlund and derivated by Vladimir Medvedev who used static eval instead
-      of quiescence search to calculate parameter errors.
+      the lack of any other chess knowledge, and not for being supplemented by it.      
   */
   
   // material score
@@ -1503,7 +1498,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
       
       if (nullMove) {
         // null move pruning
-        if ( searchPly && depth > 2 /*&& getGamePhase(getGamePhaseScore()) != endgame*/ && staticEval >= beta) {
+        if ( searchPly && depth > 2 && staticEval >= beta) {
           makeNullMove();
           score = -negamax(-beta, -beta + 1, depth - 1 - 2, NO_NULL);
           takeNullMove();
