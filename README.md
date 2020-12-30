@@ -26,8 +26,8 @@
 2. Open file "wukong.html"
 
 # UCI mode
-1. Download latest nodejs: https://nodejs.org/en/
-2. Download source code: https://github.com/maksimKorzh/wukongJS/raw/main/releases/WukongJS_v1.2.zip
+1. Download latest <a href="https://nodejs.org/en/">nodejs</a>
+2. Download <a href="https://github.com/maksimKorzh/wukongJS/raw/main/releases/WukongJS_v1.2.zip">source code</a>
 3. UCI mode in console: "full/path/to/nodejs full/path/to/uci.js"
 4. UCI mode in Arena GUI: set engine path to "full/path/to/nodejs" & command line parameters to "full/path/to/uci.js"
 
