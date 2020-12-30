@@ -38,7 +38,7 @@
  - on the fly attacks
  - incremental updates of position on make move/take back
  - move stack for storing board state variables
- - Simplified evaluation function <a href="https://www.chessprogramming.org/Simplified_Evaluation_Function">see details...</a>
+ - tapared evaluation: material + PST only (tables by Ronald Friderich)
  - insufficient material detection
  - 50 move rule detection
  - 3 fold repetition detection
