@@ -38,7 +38,7 @@
  - on the fly attacks
  - incremental updates of position on make move/take back
  - move stack for storing board state variables
- - tapared evaluation: material + PST only (tables by Ronald Friderich)
+ - tapared evaluation: material + PST only (tables by Ronald Friederich)
  - insufficient material detection
  - 50 move rule detection
  - 3 fold repetition detection
