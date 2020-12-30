@@ -1150,19 +1150,19 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
       } else if (pieceList[N] == 0 && pieceList[n] == 0) {
         if (Math.abs(pieceList[B] - pieceList[b]) < 2)
           return 1;
-	    } else if ((pieceList[N] < 3 && pieceList[B] == 0) || (pieceList[B] == 1 && pieceList[N] == 0)) {
+      } else if ((pieceList[N] < 3 && pieceList[B] == 0) || (pieceList[B] == 1 && pieceList[N] == 0)) {
         if ((pieceList[n] < 3 && pieceList[b] == 0) || (pieceList[b] == 1 && pieceList[n] == 0))
           return 1;
-	    }
-	  } else if (pieceList[Q] == 0 && pieceList[q] == 0) {
-      if (pieceList[R] == 1 && pieceList[r] == 1) {
-        if ((pieceList[N] + pieceList[B]) < 2 && (pieceList[n] + pieceList[b]) < 2) return 1;
-      } else if (pieceList[R] == 1 && pieceList[r] == 0) {        
-        if ((pieceList[N] + pieceList[B] == 0) &&
-          (((pieceList[n] + pieceList[b]) == 1) || 
-           ((pieceList[n] + pieceList[b]) == 2)))
-          return 1;
-      } else if (pieceList[r] == 1 && pieceList[R] == 0) {
+        }
+      } else if (pieceList[Q] == 0 && pieceList[q] == 0) {
+        if (pieceList[R] == 1 && pieceList[r] == 1) {
+          if ((pieceList[N] + pieceList[B]) < 2 && (pieceList[n] + pieceList[b]) < 2) return 1;
+        } else if (pieceList[R] == 1 && pieceList[r] == 0) {        
+          if ((pieceList[N] + pieceList[B] == 0) &&
+            (((pieceList[n] + pieceList[b]) == 1) || 
+             ((pieceList[n] + pieceList[b]) == 2)))
+            return 1;
+        } else if (pieceList[r] == 1 && pieceList[R] == 0) {
           if ((pieceList[n] + pieceList[b] == 0) &&
             (((pieceList[N] + pieceList[B]) == 1) ||
              ((pieceList[N] + pieceList[B]) == 2)))
@@ -1672,10 +1672,9 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
       console.log(info);
       
       if (typeof(document) != 'undefined') {
-        if (guiScore == 49000) document.getElementById('score').innerHTML = 'mate in 1';
+        if (guiScore == 49000) guiScore = 'mate in 1';
         else document.getElementById('score').innerHTML = guiScore;
-        document.getElementById('pv').innerHTML = info.split('pv ')[1];
-        document.getElementById('depth').innerHTML = currentDepth;
+        document.getElementById('info').innerHTML = info.split('pv ')[1];
       }
       
       if (info.includes('mate') || info.includes('-49000')) break;
@@ -1684,8 +1683,6 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     let bestMove = (timing.stopped == 1) ? lastBestMove: pvTable[0];
     console.log('bestmove ' + moveToString(bestMove));
     return bestMove;
-    
-    // 7k/8/8/QQ7/8/8/8/K7 w - - 0 0
   }
 
 

@@ -4,3 +4,4 @@
  - added PST values by Ronald Friederich
  - fixed razoring
  - hiding background image on DevTools open event
+ - minor GUI updates

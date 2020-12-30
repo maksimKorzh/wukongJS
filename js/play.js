@@ -20,7 +20,6 @@ console.log('\n  Wukong JS - BROWSER MODE - v' + engine.VERSION);
 console.log('  type "engine" for public API reference');
 
 // user input controls
-var backgroundLock = 0;
 var clickLock = 0;
 var userSource, userTarget;
 
@@ -103,6 +102,8 @@ function newGame() {
   engine.setBoard(engine.START_FEN);
   engine.drawBoard();
   engine.updateBoard();
+  document.getElementById('score').innerHTML = '0';
+  document.getElementById('info').innerHTML = 'Press Ctrl-Shift-I to see how engine is calculating';
   repetitions = 0;
 }
 
@@ -144,20 +145,20 @@ function think() {
   
   if (engine.isRepetition()) repetitions++;
   if (repetitions == 3) {
-    document.getElementById('pv').innerHTML = 'Draw by 3 fold repetition';
+    document.getElementById('info').innerHTML = 'Draw by 3 fold repetition';
     return;
   } else if (engine.getFifty() >= 100) {
-    document.getElementById('pv').innerHTML = 'Draw by 50 rule move';
+    document.getElementById('info').innerHTML = 'Draw by 50 rule move';
     return;
   } else if (engine.isMaterialDraw()) {
-    document.getElementById('pv').innerHTML = 'Draw by insufficient material';
+    document.getElementById('info').innerHTML = 'Draw by insufficient material';
     return;
   } else if (engine.generateLegalMoves().length == 0 && engine.inCheck()) {
-    document.getElementById('pv').innerHTML = 'Checkmate';
+    document.getElementById('info').innerHTML = 'Checkmate';
     return;
   } else if (engine.generateLegalMoves().length == 0 && engine.inCheck() == 0) {
     document.getElementById('score').innerHTML = '0';
-    document.getElementById('pv').innerHTML = 'Stalemate';
+    document.getElementById('info').innerHTML = 'Stalemate';
     return;
   }
 
