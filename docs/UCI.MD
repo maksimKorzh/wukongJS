@@ -1,6 +1,6 @@
 <h1 align="center">Install Wukong JS into Arena GUI</h1>
 <p align="center">
-  <img src="docs/install_arena_uci.png">
+  <img src="install_arena_uci.png">
 </p>
 <hr>
 
