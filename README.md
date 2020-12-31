@@ -13,7 +13,7 @@
 </p>
 <hr>
 <p align="center">
-  <button><a href="https://github.com/maksimKorzh/wukongJS/blob/main/docs/CHANGELOG.MD">What's new?</a></button> |
+  <a href="https://github.com/maksimKorzh/wukongJS/blob/main/docs/CHANGELOG.MD">What's new?</a> |
   <a href="https://github.com/maksimKorzh/wukongJS/blob/main/docs/UCI.MD">Install as UCI</a> |
   <a href="https://github.com/maksimKorzh/wukongJS/blob/main/docs/API.MD">API docs</a> |
   <a href="https://github.com/maksimKorzh/wukongJS/blob/main/docs/SPECS.MD">Tech specs</a> |
@@ -23,7 +23,7 @@
 <p align="center">
   <small>freesoft.for.people@gmail.com</small>
 </p>
-<hr>
+
 
 
  
