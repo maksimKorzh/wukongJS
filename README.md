@@ -13,9 +13,9 @@
 </p>
 <hr>
 <p align="center">
-  <a href="https://github.com/maksimKorzh/wukongJS/blob/main/docs/CHANGELOG.MD">What's new? |</a>
-  <a href="https://github.com/maksimKorzh/wukongJS/blob/main/docs/UCI.MD">UCI install</a>
-  <a href="https://github.com/maksimKorzh/wukongJS/blob/main/docs/API.MD">API docs |</a>
+  <a href="https://github.com/maksimKorzh/wukongJS/blob/main/docs/CHANGELOG.MD">What's new?</a> |
+  <a href="https://github.com/maksimKorzh/wukongJS/blob/main/docs/UCI.MD">UCI install</a> |
+  <a href="https://github.com/maksimKorzh/wukongJS/blob/main/docs/API.MD">API docs</a> |
   <a href="https://github.com/maksimKorzh/wukongJS/blob/main/docs/SPECS.MD">Tech specs</a>
   
 </p>
@@ -23,15 +23,6 @@
   <small>freesoft.for.people@gmail.com</small>
 </p>
 <hr>
-
-# Features
- - browser mode
- - UCI mode
- - public API
-
-# Play offline
-1. <a href="https://github.com/maksimKorzh/wukongJS/raw/main/releases/WukongJS_v1.2.zip">Download</a> latest version
-2. Open file "wukong.html"
 
 
  
