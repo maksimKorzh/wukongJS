@@ -9,7 +9,7 @@
 <p align="center">
   <a href="https://github.com/maksimKorzh/wukongJS/raw/main/releases">Old versions</a> |
   <a href="https://github.com/maksimKorzh/wukongJS/raw/main/releases/WukongJS_v1.2.zip">Download</a> |
-  <a class="btn btn-success" href="https://maksimkorzh.github.io/wukongJS/wukong.html">Play now !</a>
+  <a class="btn btn-success" href="https://maksimkorzh.github.io/wukongJS/wukong.html">Play online</a>
 </p>
 <hr>
 <p align="center">
