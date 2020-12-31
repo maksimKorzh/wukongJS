@@ -140,9 +140,7 @@ function think() {
   let sourceSquare = engine.getMoveSource(bestMove);
   let targetSquare = engine.getMoveTarget(bestMove);
   let promotedPiece = engine.getMovePromoted(bestMove);
-  
-  engine.movePiece(sourceSquare, targetSquare, promotedPiece);
-  
+
   if (engine.isRepetition()) repetitions++;
   if (repetitions == 3) {
     document.getElementById('info').innerHTML = 'Draw by 3 fold repetition';
@@ -162,7 +160,7 @@ function think() {
     return;
   }
 
-  
+  engine.movePiece(sourceSquare, targetSquare, promotedPiece);
   
   if (engine.getPiece(targetSquare))
     document.getElementById(targetSquare).style.backgroundColor = engine.SELECT_COLOR;               
