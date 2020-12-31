@@ -11,6 +11,14 @@
   <a href="https://github.com/maksimKorzh/wukongJS/raw/main/releases/WukongJS_v1.2.zip">Download</a> |
   <a class="btn btn-success" href="https://maksimkorzh.github.io/wukongJS/wukong.html">Play now!</a>
 </p>
+<hr>
+<p align="center">
+  <a href="https://github.com/maksimKorzh/wukongJS/blob/main/docs/CHANGELOG.MD">What's new? |</a>
+  <a href="https://github.com/maksimKorzh/wukongJS/blob/main/docs/UCI.MD">UCI install</a>
+  <a href="https://github.com/maksimKorzh/wukongJS/blob/main/docs/API.MD">API docs |</a>
+  <a href="https://github.com/maksimKorzh/wukongJS/blob/main/docs/SPECS.MD">Tech specs</a>
+  
+</p>
 <p align="center">
   <small>freesoft.for.people@gmail.com</small>
 </p>
@@ -25,32 +33,7 @@
 1. <a href="https://github.com/maksimKorzh/wukongJS/raw/main/releases/WukongJS_v1.2.zip">Download</a> latest version
 2. Open file "wukong.html"
 
-# UCI mode
-1. Download latest <a href="https://nodejs.org/en/">nodejs</a>
-2. Download <a href="https://github.com/maksimKorzh/wukongJS/raw/main/releases">source code</a>
-3. UCI mode in console: "full/path/to/nodejs full/path/to/uci.js"
-4. UCI mode in Arena GUI: set engine path to "full/path/to/nodejs" & command line parameters to "full/path/to/uci.js"
 
-# Technical specification
- - 0x88 board representation
- - 32-bit Zobrizt hashing
- - piece lists
- - on the fly attacks
- - incremental updates of position on make move/take back
- - move stack for storing board state variables
- - tapared evaluation: material + PST only (tables by Ronald Friederich)
- - insufficient material detection
- - 50 move rule detection
- - 3 fold repetition detection
- - stand pat quiescence
- - on the fly move sorting
- - MVV_LVA/killer/history/PV move ordering
- - Evaluation pruning
- - NMP (Null move pruning)
- - Razoring
- - Futility pruning
- - LMR (Late move reduction)
- - PVS (Principal variation search)
  
 
 
