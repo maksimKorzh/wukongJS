@@ -13,7 +13,7 @@
 </p>
 <hr>
 <p align="center">
-  <a href="https://github.com/maksimKorzh/wukongJS/blob/main/docs/CHANGELOG.MD">What's new?</a> |
+  <a href="https://github.com/maksimKorzh/wukongJS/blob/main/docs/ABOUT.MD">About</a> |
   <a href="https://github.com/maksimKorzh/wukongJS/blob/main/docs/UCI.MD">Install as UCI</a> |
   <a href="https://github.com/maksimKorzh/wukongJS/blob/main/docs/API.MD">API docs</a> |
   <a href="https://github.com/maksimKorzh/wukongJS/blob/main/docs/SPECS.MD">Tech specs</a> |
