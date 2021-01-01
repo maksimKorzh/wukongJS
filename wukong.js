@@ -957,9 +957,8 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
   \****************************/
   
   /*
-      Following material weights and PST values are provided by Ronald Friederich.
-      The values presented here have been designed specifically to compensate for
-      the lack of any other chess knowledge, and not for being supplemented by it.      
+      Following material weights and PST values are taken from
+         https://hxim.github.io/Stockfish-Evaluation-Guide/
   */
   
   // material score
@@ -978,6 +977,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
 
   // piece-square tables
   const pst = [
+    // opening PST scores
     [
       //pawn
       [
@@ -1052,7 +1052,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
       ],
     ],
     
-    // Endgame positional piece scores //
+    // Endgame PST scores
     [
       //pawn
       [
@@ -1274,10 +1274,10 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
 
     // interpolate score in the middlegame
     if (gamePhase == middlegame)
-        score = (
-            scoreOpening * gamePhaseScore +
-            scoreEndgame * (openingPhaseScore - gamePhaseScore)
-        ) / openingPhaseScore;
+      score = (
+          scoreOpening * gamePhaseScore +
+          scoreEndgame * (openingPhaseScore - gamePhaseScore)
+      ) / openingPhaseScore;
     else if (gamePhase == opening) score = scoreOpening;
     else if (gamePhase == endgame) score = scoreEndgame;
     
