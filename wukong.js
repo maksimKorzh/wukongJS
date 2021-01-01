@@ -378,7 +378,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
   
   // pawn & castling mappings
   var specialMoves = {
-    side: [
+    color: [
       {
         offset: [-17, -15],
         pawn: P,
@@ -452,23 +452,23 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
         let sourceSquare = pieceList.pieces[piece * 10 + pieceIndex];
         
         // pawns
-        if (board[sourceSquare] == specialMoves.side[side].pawn) {
-          let targetSquare = sourceSquare + specialMoves.side[side].target;
+        if (board[sourceSquare] == specialMoves.color[side].pawn) {
+          let targetSquare = sourceSquare + specialMoves.color[side].target;
           
           // quiet moves
           if ((targetSquare & 0x88) == 0 && board[targetSquare] == e) {   
-            if (sourceSquare >= specialMoves.side[side].rank7[0] &&
-                sourceSquare <= specialMoves.side[side].rank7[1]) {
+            if (sourceSquare >= specialMoves.color[side].rank7[0] &&
+                sourceSquare <= specialMoves.color[side].rank7[1]) {
               for (let promotedIndex = 0; promotedIndex < 4; promotedIndex++) {
-                let promotedPiece = specialMoves.side[side].promoted[promotedIndex];
+                let promotedPiece = specialMoves.color[side].promoted[promotedIndex];
                 addMove(moveList, encodeMove(sourceSquare, targetSquare, promotedPiece, 0, 0, 0, 0));
               }
             } else {
               addMove(moveList, encodeMove(sourceSquare, targetSquare, 0, 0, 0, 0, 0));
-              let doubleTarget = sourceSquare + specialMoves.side[side].doubleTarget;
+              let doubleTarget = sourceSquare + specialMoves.color[side].doubleTarget;
               
-              if ((sourceSquare >= specialMoves.side[side].rank2[0] &&
-                   sourceSquare <= specialMoves.side[side].rank2[1]) &&
+              if ((sourceSquare >= specialMoves.color[side].rank2[0] &&
+                   sourceSquare <= specialMoves.color[side].rank2[1]) &&
                    board[doubleTarget] == e)
                 addMove(moveList, encodeMove(sourceSquare, doubleTarget, 0, 0, 1, 0, 0));
             }
@@ -476,22 +476,22 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
           
           // captures
           for (let index = 0; index < 2; index++) {
-            let pawn_offset = specialMoves.side[side].offset[index];
+            let pawn_offset = specialMoves.color[side].offset[index];
             let targetSquare = sourceSquare + pawn_offset;
             
             if ((targetSquare & 0x88) == 0) {
-              if ((sourceSquare >= specialMoves.side[side].rank7[0] &&
-                   sourceSquare <= specialMoves.side[side].rank7[1]) &&
-                  (board[targetSquare] >= specialMoves.side[side].capture[0] &&
-                   board[targetSquare] <= specialMoves.side[side].capture[1])
+              if ((sourceSquare >= specialMoves.color[side].rank7[0] &&
+                   sourceSquare <= specialMoves.color[side].rank7[1]) &&
+                  (board[targetSquare] >= specialMoves.color[side].capture[0] &&
+                   board[targetSquare] <= specialMoves.color[side].capture[1])
                  ) {
                 for (let promotedIndex = 0; promotedIndex < 4; promotedIndex++) {
-                  let promotedPiece = specialMoves.side[side].promoted[promotedIndex];
+                  let promotedPiece = specialMoves.color[side].promoted[promotedIndex];
                   addMove(moveList, encodeMove(sourceSquare, targetSquare, promotedPiece, 1, 0, 0, 0));
                 }
               } else {
-                if (board[targetSquare] >= specialMoves.side[side].capture[0] &&
-                    board[targetSquare] <= specialMoves.side[side].capture[1])
+                if (board[targetSquare] >= specialMoves.color[side].capture[0] &&
+                    board[targetSquare] <= specialMoves.color[side].capture[1])
                   addMove(moveList, encodeMove(sourceSquare, targetSquare, 0, 1, 0, 0, 0));
                 if (targetSquare == enpassant)
                   addMove(moveList, encodeMove(sourceSquare, targetSquare, 0, 1, 0, 1, 0));
@@ -501,25 +501,25 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
         }
 
         // castling
-        else if (board[sourceSquare] == specialMoves.side[side].king) {
+        else if (board[sourceSquare] == specialMoves.color[side].king) {
           // king side
-          if (castle & specialMoves.side[side].castling[0]) {
-            if (board[specialMoves.side[side].empty[0]] == e &&
-                board[specialMoves.side[side].empty[1]] == e) {
-              if (isSquareAttacked(specialMoves.side[side].attacked[1], specialMoves.side[side].by[side]) == 0 &&
-                  isSquareAttacked(specialMoves.side[side].attacked[0], specialMoves.side[side].by[side]) == 0)
-                  addMove(moveList, encodeMove(specialMoves.side[side].castle[0], specialMoves.side[side].castle[1], 0, 0, 0, 0, 1));
+          if (castle & specialMoves.color[side].castling[0]) {
+            if (board[specialMoves.color[side].empty[0]] == e &&
+                board[specialMoves.color[side].empty[1]] == e) {
+              if (isSquareAttacked(specialMoves.color[side].attacked[1], specialMoves.color[side].by[side]) == 0 &&
+                  isSquareAttacked(specialMoves.color[side].attacked[0], specialMoves.color[side].by[side]) == 0)
+                  addMove(moveList, encodeMove(specialMoves.color[side].castle[0], specialMoves.color[side].castle[1], 0, 0, 0, 0, 1));
             }
           }
           
           // queen side
-          if (castle & specialMoves.side[side].castling[1]) {
-            if (board[specialMoves.side[side].empty[2]] == e &&
-                board[specialMoves.side[side].empty[3]] == e &&
-                board[specialMoves.side[side].empty[4]] == e) {
-              if (isSquareAttacked(specialMoves.side[side].attacked[2], specialMoves.side[side].by[side]) == 0 &&
-                  isSquareAttacked(specialMoves.side[side].attacked[0], specialMoves.side[side].by[side]) == 0)
-                  addMove(moveList, encodeMove(specialMoves.side[side].castle[0], specialMoves.side[side].castle[2], 0, 0, 0, 0, 1));
+          if (castle & specialMoves.color[side].castling[1]) {
+            if (board[specialMoves.color[side].empty[2]] == e &&
+                board[specialMoves.color[side].empty[3]] == e &&
+                board[specialMoves.color[side].empty[4]] == e) {
+              if (isSquareAttacked(specialMoves.color[side].attacked[2], specialMoves.color[side].by[side]) == 0 &&
+                  isSquareAttacked(specialMoves.color[side].attacked[0], specialMoves.color[side].by[side]) == 0)
+                  addMove(moveList, encodeMove(specialMoves.color[side].castle[0], specialMoves.color[side].castle[2], 0, 0, 0, 0, 1));
             }
           }
         }
@@ -576,25 +576,25 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
         let sourceSquare = pieceList.pieces[piece * 10 + pieceIndex];
         
         // pawns
-        if (board[sourceSquare] == specialMoves.side[side].pawn) {
-          let targetSquare = sourceSquare + specialMoves.side[side].target;
+        if (board[sourceSquare] == specialMoves.color[side].pawn) {
+          let targetSquare = sourceSquare + specialMoves.color[side].target;
           for (let index = 0; index < 2; index++) {
-            let pawn_offset = specialMoves.side[side].offset[index];
+            let pawn_offset = specialMoves.color[side].offset[index];
             let targetSquare = sourceSquare + pawn_offset;
             
             if ((targetSquare & 0x88) == 0) {
-              if ((sourceSquare >= specialMoves.side[side].rank7[0] &&
-                   sourceSquare <= specialMoves.side[side].rank7[1]) &&
-                  (board[targetSquare] >= specialMoves.side[side].capture[0] &&
-                   board[targetSquare] <= specialMoves.side[side].capture[1])
+              if ((sourceSquare >= specialMoves.color[side].rank7[0] &&
+                   sourceSquare <= specialMoves.color[side].rank7[1]) &&
+                  (board[targetSquare] >= specialMoves.color[side].capture[0] &&
+                   board[targetSquare] <= specialMoves.color[side].capture[1])
                  ) {
                 for (let promotedIndex = 0; promotedIndex < 4; promotedIndex++) {
-                  let promotedPiece = specialMoves.side[side].promoted[promotedIndex];
+                  let promotedPiece = specialMoves.color[side].promoted[promotedIndex];
                   addMove(moveList, encodeMove(sourceSquare, targetSquare, promotedPiece, 1, 0, 0, 0));
                 }
               } else {
-                if (board[targetSquare] >= specialMoves.side[side].capture[0] &&
-                    board[targetSquare] <= specialMoves.side[side].capture[1])
+                if (board[targetSquare] >= specialMoves.color[side].capture[0] &&
+                    board[targetSquare] <= specialMoves.color[side].capture[1])
                   addMove(moveList, encodeMove(sourceSquare, targetSquare, 0, 1, 0, 0, 0));
                 if (targetSquare == enpassant)
                   addMove(moveList, encodeMove(sourceSquare, targetSquare, 0, 1, 0, 1, 0));
@@ -1182,6 +1182,20 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     for (let piece = n; piece <= q; piece++) gamePhaseScore += pieceList[piece] * -materialWeights[opening][piece];
 
     return gamePhaseScore;
+  }
+  
+  // count doubled pawns
+  function countDoubledPawns(square) {
+    if (board[square] != P) return 0;
+    //if (board[square + specialMoves.color[side].target] != specialMoves.color[side].pawn)
+    console.log('side', side, 'target', specialMoves.color[side].target, 'pawn', specialMoves.color[side].pawn);
+    return 1
+  }
+  
+  // evaluate pawns
+  function evaluatePawns() {
+    // doubled
+  
   }
   
   // static evaluation
@@ -2014,7 +2028,8 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     //setBoard('r4rk1/1pp1qppp/p1np1n2/2b1p1B1/2B1P1b1/P1NP1N2/1PP1QPPP/R4RK1 w - - 0 10');
     //setBoard('rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPP1NnPP/RNBQK2R w KQ - 1 8');
     //setBoard('rnbqkbnr/pp4pp/2p5/3Npp2/2PpP3/3P1P2/PP4PP/R1BQKBNR b KQkq e3 0 6 ');
-    //setBoard('rn2kb1r/pp5p/5n2/2p5/4pN2/111P4/PPP2PPP/R2Q1RK1 w kq - 0 15 ');  
+    //setBoard('rn2kb1r/pp5p/5n2/2p5/4pN2/111P4/PPP2PPP/R2Q1RK1 w kq - 0 15 ');
+    countDoubledPawns(e2); 
   }
   
   return {
