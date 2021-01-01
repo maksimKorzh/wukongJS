@@ -961,6 +961,9 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
          https://hxim.github.io/Stockfish-Evaluation-Guide/
   */
   
+  // bonuses & penalties
+  const doublePawnPenalty = [11, 56];
+  
   // material score
   const materialWeights = [
     // opening material score
@@ -1185,17 +1188,11 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
   }
   
   // count doubled pawns
-  function countDoubledPawns(square) {
-    if (board[square] != P) return 0;
-    //if (board[square + specialMoves.color[side].target] != specialMoves.color[side].pawn)
-    console.log('side', side, 'target', specialMoves.color[side].target, 'pawn', specialMoves.color[side].pawn);
+  function isDoublePawn(square) {
+    if (board[square - specialMoves.color[side].target] != specialMoves.color[side].pawn) return 0;
+    if (board[square + 1 - specialMoves.color[side].target] == specialMoves.color[side].pawn) return 0;
+    if (board[square - 1 - specialMoves.color[side].target] == specialMoves.color[side].pawn) return 0;
     return 1
-  }
-  
-  // evaluate pawns
-  function evaluatePawns() {
-    // doubled
-  
   }
   
   // static evaluation
@@ -1213,6 +1210,8 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     var scoreOpening = 0;
     var scoreEndgame = 0;
     
+    let doublePawns = 0;
+    
     for (let piece = P; piece <= k; piece++) {
       for (pieceIndex = 0; pieceIndex < pieceList[piece]; pieceIndex++) {
         let square = pieceList.pieces[piece * 10 + pieceIndex];
@@ -1226,6 +1225,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
           case P:
             scoreOpening += pst[opening][PAWN][square];
             scoreEndgame += pst[endgame][PAWN][square];
+            doublePawns += isDoublePawn(square);
             break;
 
           case N:
@@ -1256,6 +1256,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
           case p:
             scoreOpening -= pst[opening][PAWN][mirrorSquare[square]];
             scoreEndgame -= pst[endgame][PAWN][mirrorSquare[square]];
+            doublePawns += isDoublePawn(square);
             break;
 
           case n:
@@ -1285,6 +1286,10 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
         }
       }
     }
+    
+    // pawn evaluation
+    scoreOpening -= doublePawns * doublePawnPenalty[opening];
+    scoreEndgame -= doublePawns * doublePawnPenalty[endgame];
 
     // interpolate score in the middlegame
     if (gamePhase == middlegame)
@@ -1295,7 +1300,9 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     else if (gamePhase == opening) score = scoreOpening;
     else if (gamePhase == endgame) score = scoreEndgame;
     
-    score = Math.round(score * (100 - fifty) / 100);
+    //console.log('doubled:', doublePawns);
+    
+    score = (score * (100 - fifty) / 100) << 0;
     return (side == white) ? score: -score;
   }
 
@@ -2029,7 +2036,9 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     //setBoard('rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPP1NnPP/RNBQK2R w KQ - 1 8');
     //setBoard('rnbqkbnr/pp4pp/2p5/3Npp2/2PpP3/3P1P2/PP4PP/R1BQKBNR b KQkq e3 0 6 ');
     //setBoard('rn2kb1r/pp5p/5n2/2p5/4pN2/111P4/PPP2PPP/R2Q1RK1 w kq - 0 15 ');
-    countDoubledPawns(e2); 
+    setBoard('8/4p3/4p3/4p3/8/8/8/8 b - - 0 0');
+    updateBoard();
+    evaluate();
   }
   
   return {
