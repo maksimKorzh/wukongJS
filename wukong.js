@@ -971,8 +971,8 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     [0, 206, 854, 915, 1380, 2682, 0, -206, -854, -915, -1380, -2682, 0]
   ];
 
-  const openingPhaseScore = 6192;
-  const endgamePhaseScore = 518;
+  const openingPhaseScore = 15258;
+  const endgamePhaseScore = 3915;
   const opening = 0, endgame = 1, middlegame = 2;
   const PAWN = 0, KNIGHT = 1, BISHOP = 2, ROOK = 3, QUEEN = 4, KING = 5;
 
@@ -1273,15 +1273,14 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     }
 
     // interpolate score in the middlegame
-    /*if (gamePhase == middlegame)
+    if (gamePhase == middlegame)
         score = (
             scoreOpening * gamePhaseScore +
             scoreEndgame * (openingPhaseScore - gamePhaseScore)
         ) / openingPhaseScore;
     else if (gamePhase == opening) score = scoreOpening;
-    else if (gamePhase == endgame) score = scoreEndgame;*/
+    else if (gamePhase == endgame) score = scoreEndgame;
     
-    score = scoreOpening;
     score = Math.round(score * (100 - fifty) / 100);
     return (side == white) ? score: -score;
   }
