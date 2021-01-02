@@ -1218,7 +1218,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
   
   // connected pawns detection
   function isConnectedPawn(square) {
-    if (isSupportedPawn(square) || isPhalanxPawn(square)) {console.log(coordinates[square]); return 1;}
+    if (isSupportedPawn(square) || isPhalanxPawn(square)) return 1;
     return 0;
   }
   
