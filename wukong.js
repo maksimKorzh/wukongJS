@@ -1256,7 +1256,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
       if (board[square - specialMoves.color[side].target] != specialMoves.color[side].pawn) return 0;
       if (board[square + 1 - specialMoves.color[side].target] == specialMoves.color[side].pawn) return 0;
       if (board[square - 1 - specialMoves.color[side].target] == specialMoves.color[side].pawn) return 0;
-      console.log(coordinates[square])
+      //console.log(coordinates[square])
       return 1
     //}
     
@@ -1409,7 +1409,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     /*console.log('double:', doublePawns);
     console.log('isolated:', isolatedPawns);
     console.log('bonus:', connectedPawnsBonus);*/
-    console.log('score', scoreOpening)
+    //console.log('score', scoreOpening)
     
     score = (score * (100 - fifty) / 100) << 0;
     return (side == white) ? score: -score;
