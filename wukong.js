@@ -961,8 +961,13 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
          https://hxim.github.io/Stockfish-Evaluation-Guide/
   */
   
+  // files mask
+  var isolatedPawnMask;
+  
   // bonuses & penalties
   const doublePawnPenalty = [11, 56];
+  const isolatedPawnPenalty = [5, 15];
+  const backwardPawnPenalty = [9, 24];
   
   // material score
   const materialWeights = [
@@ -1187,12 +1192,56 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     return gamePhaseScore;
   }
   
-  // count doubled pawns
+  // doubled pawns detection
   function isDoublePawn(square) {
+    if (board[square] == specialMoves.color[side].pawn) {
     if (board[square - specialMoves.color[side].target] != specialMoves.color[side].pawn) return 0;
     if (board[square + 1 - specialMoves.color[side].target] == specialMoves.color[side].pawn) return 0;
     if (board[square - 1 - specialMoves.color[side].target] == specialMoves.color[side].pawn) return 0;
+    //console.log('doubled', coordinates[square]);
     return 1
+    }
+    
+    return 0;
+  }
+
+  // isolated pawns detection
+  function isIsolatedPawn(square) {
+    if (board[square] == specialMoves.color[side].pawn) {
+      if (isolatedPawnMask[side][(square & 7) + 1] == specialMoves.color[side].pawn) return 0;
+      if (isolatedPawnMask[side][(square & 7) - 1] == specialMoves.color[side].pawn) return 0;
+      //console.log('isolated', coordinates[square]);
+      return 1;
+    }
+    
+    return 0;
+  }
+  
+  // backward pawns detection
+  function isBackwardPawn(square) {
+    if (board[square] == specialMoves.color[side].pawn) {
+      if (side == white) {
+        for (let rank = square >> 4; rank < 8; rank++) {
+          if (board[rank * 16 + ((square + 1) & 7)] == specialMoves.color[side].pawn) return 0;
+          if (board[rank * 16 + ((square - 1) & 7)] == specialMoves.color[side].pawn) return 0;
+        }
+      } else {
+        for (let rank = square >> 4; rank >= 0; rank--) {
+          if (board[rank * 16 + ((square + 1) & 7)] == specialMoves.color[side].pawn) return 0;
+          if (board[rank * 16 + ((square - 1) & 7)] == specialMoves.color[side].pawn) return 0;
+        }
+      }
+
+      if (
+        board[square + 1 + specialMoves.color[side].doubleTarget] == specialMoves.color[side ^ 1].pawn ||
+        board[square - 1 + specialMoves.color[side].doubleTarget] == specialMoves.color[side ^ 1].pawn ||
+        board[square + specialMoves.color[side].target] == specialMoves.color[side ^ 1].pawn
+      ) return 1;
+      
+      return 0;
+    }
+    
+    return 0;
   }
   
   // static evaluation
@@ -1209,9 +1258,27 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     let score = 0;
     var scoreOpening = 0;
     var scoreEndgame = 0;
+
+    isolatedPawnMask = [
+      [0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0]
+    ];
     
     let doublePawns = 0;
+    let isolatedPawns = 0;
+    let backwardPawns = 0;
     
+    // init white isolated file mask
+    for (let pieceIndex = 0; pieceIndex < pieceList[specialMoves.color[side].pawn]; pieceIndex++)
+      isolatedPawnMask[side][pieceList.pieces[specialMoves.color[side].pawn * 10 + pieceIndex] & 7] =
+        specialMoves.color[side].pawn;
+    
+    // init black isolated file mask
+    for (let pieceIndex = 0; pieceIndex < pieceList[specialMoves.color[side ^ 1].pawn]; pieceIndex++)
+      isolatedPawnMask[side ^ 1][pieceList.pieces[specialMoves.color[side ^ 1].pawn * 10 + pieceIndex] & 7] = 
+        specialMoves.color[side ^ 1].pawn;
+    
+    // evaluate pieces
     for (let piece = P; piece <= k; piece++) {
       for (pieceIndex = 0; pieceIndex < pieceList[piece]; pieceIndex++) {
         let square = pieceList.pieces[piece * 10 + pieceIndex];
@@ -1226,6 +1293,8 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
             scoreOpening += pst[opening][PAWN][square];
             scoreEndgame += pst[endgame][PAWN][square];
             doublePawns += isDoublePawn(square);
+            isolatedPawns += isIsolatedPawn(square);
+            backwardPawns += isBackwardPawn(square);
             break;
 
           case N:
@@ -1257,6 +1326,8 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
             scoreOpening -= pst[opening][PAWN][mirrorSquare[square]];
             scoreEndgame -= pst[endgame][PAWN][mirrorSquare[square]];
             doublePawns += isDoublePawn(square);
+            isolatedPawns += isIsolatedPawn(square);
+            backwardPawns += isBackwardPawn(square);
             break;
 
           case n:
@@ -1287,9 +1358,18 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
       }
     }
     
-    // pawn evaluation
+    // pawn structure evaluation
+    if (isolatedPawns) {
+      scoreOpening -= isolatedPawns * isolatedPawnPenalty[opening];
+      scoreEndgame -= isolatedPawns * isolatedPawnPenalty[endgame];
+    } else if (backwardPawns) {
+      scoreOpening -= backwardPawns * backwardPawnPenalty[opening];
+      scoreEndgame -= backwardPawns * backwardPawnPenalty[endgame];
+    }
+    
     scoreOpening -= doublePawns * doublePawnPenalty[opening];
     scoreEndgame -= doublePawns * doublePawnPenalty[endgame];
+    
 
     // interpolate score in the middlegame
     if (gamePhase == middlegame)
@@ -1300,7 +1380,9 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     else if (gamePhase == opening) score = scoreOpening;
     else if (gamePhase == endgame) score = scoreEndgame;
     
-    //console.log('doubled:', doublePawns);
+    /*console.log('double:', doublePawns);
+    console.log('isolated:', isolatedPawns);
+    console.log('backward:', backwardPawns);*/
     
     score = (score * (100 - fifty) / 100) << 0;
     return (side == white) ? score: -score;
@@ -2036,7 +2118,9 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     //setBoard('rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPP1NnPP/RNBQK2R w KQ - 1 8');
     //setBoard('rnbqkbnr/pp4pp/2p5/3Npp2/2PpP3/3P1P2/PP4PP/R1BQKBNR b KQkq e3 0 6 ');
     //setBoard('rn2kb1r/pp5p/5n2/2p5/4pN2/111P4/PPP2PPP/R2Q1RK1 w kq - 0 15 ');
-    setBoard('8/4p3/4p3/4p3/8/8/8/8 b - - 0 0');
+    //setBoard('8/1p3p2/ppp2p2/8/5P2/PPP2P2/1P6/8 b - - 4 1 ');
+    //setBoard('8/p1p1p1pp/8/8/8/8/PP1P1P1P/8 b - - 4 1 ');
+    setBoard('8/8/2p3p1/1p1p2p1/1P1P2P1/2P3P1/8/8 w - - 4 1 ');
     updateBoard();
     evaluate();
   }
