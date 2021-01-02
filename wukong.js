@@ -1192,14 +1192,44 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     return gamePhaseScore;
   }
   
+  // supported pawn detection
+  function isSupportedPawn(square) {
+    if (board[square] == specialMoves.color[side].pawn) {
+      if (board[square + 1 - specialMoves.color[side].target] == specialMoves.color[side].pawn) return 1;
+      if (board[square - 1 - specialMoves.color[side].target] == specialMoves.color[side].pawn) return 1;
+      
+      return 0;
+    }
+    
+    return 0;
+  }
+  
+  // phalanx pawn detection
+  function isPhalanxPawn(square) {
+    if (board[square] == specialMoves.color[side].pawn) {
+      if (board[square + 1] == specialMoves.color[side].pawn) return 1;
+      if (board[square - 1] == specialMoves.color[side].pawn) return 1;
+      
+      return 0;
+    }
+    
+    return 0;
+  }
+  
+  // connected pawns detection
+  function isConnectedPawn(square) {
+    if (isSupportedPawn(square) || isPhalanxPawn(square)) {console.log(coordinates[square]); return 1;}
+    return 0;
+  }
+  
   // doubled pawns detection
   function isDoublePawn(square) {
     if (board[square] == specialMoves.color[side].pawn) {
-    if (board[square - specialMoves.color[side].target] != specialMoves.color[side].pawn) return 0;
-    if (board[square + 1 - specialMoves.color[side].target] == specialMoves.color[side].pawn) return 0;
-    if (board[square - 1 - specialMoves.color[side].target] == specialMoves.color[side].pawn) return 0;
-    //console.log('doubled', coordinates[square]);
-    return 1
+      if (board[square - specialMoves.color[side].target] != specialMoves.color[side].pawn) return 0;
+      if (board[square + 1 - specialMoves.color[side].target] == specialMoves.color[side].pawn) return 0;
+      if (board[square - 1 - specialMoves.color[side].target] == specialMoves.color[side].pawn) return 0;
+      
+      return 1
     }
     
     return 0;
@@ -1295,6 +1325,8 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
             doublePawns += isDoublePawn(square);
             isolatedPawns += isIsolatedPawn(square);
             backwardPawns += isBackwardPawn(square);
+            
+            isConnectedPawn(square);
             break;
 
           case N:
@@ -1328,6 +1360,8 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
             doublePawns += isDoublePawn(square);
             isolatedPawns += isIsolatedPawn(square);
             backwardPawns += isBackwardPawn(square);
+            
+            isConnectedPawn(square);
             break;
 
           case n:
@@ -2120,7 +2154,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     //setBoard('rn2kb1r/pp5p/5n2/2p5/4pN2/111P4/PPP2PPP/R2Q1RK1 w kq - 0 15 ');
     //setBoard('8/1p3p2/ppp2p2/8/5P2/PPP2P2/1P6/8 b - - 4 1 ');
     //setBoard('8/p1p1p1pp/8/8/8/8/PP1P1P1P/8 b - - 4 1 ');
-    setBoard('8/8/2p3p1/1p1p2p1/1P1P2P1/2P3P1/8/8 w - - 4 1 ');
+    setBoard('8/8/2pp2p1/1p1p2p1/1P1P2P1/2PP2P1/8/8 b - - 4 1 ');
     updateBoard();
     evaluate();
   }
