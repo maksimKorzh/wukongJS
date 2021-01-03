@@ -1280,7 +1280,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     else if (gamePhase == opening) score = scoreOpening;
     else if (gamePhase == endgame) score = scoreEndgame;
     
-    score = score << 0;
+    score = (score * (100 - fifty) / 100) << 0;
     return (side == white) ? score: -score;
   }
   
