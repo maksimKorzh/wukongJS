@@ -958,8 +958,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
   
   /*
       Following material weights and PST values are provided by Ronald Friederich.
-      The values presented here have been designed specifically to compensate for
-      the lack of any other chess knowledge, and not for being supplemented by it.      
+            http://talkchess.com/forum3/viewtopic.php?f=2&t=68311&start=10
   */
   
   // material score
@@ -1280,7 +1279,8 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
         ) / openingPhaseScore;
     else if (gamePhase == opening) score = scoreOpening;
     else if (gamePhase == endgame) score = scoreEndgame;
-
+    
+    score = score << 0;
     return (side == white) ? score: -score;
   }
   
@@ -1507,7 +1507,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
         }
         
         // razoring
-        score = staticEval + 125;
+        score = staticEval + 82; // + 1 pawn value
         let newScore;
         
         if (score < beta) {
@@ -1517,7 +1517,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
           }
         }
         
-        score += 175;
+        score += 123; // + 1.5 pawn value
         
         if (score < beta && depth < 4) {
           newScore = quiescence(alpha, beta);
@@ -1526,10 +1526,9 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
       }
       
       // futility condition
-      let futilityMargin = [0, 200, 300, 500];
-      if (depth < 4 && Math.abs(alpha) < 9000 && staticEval + futilityMargin[depth] <= alpha)
+      let futilityMargin = [0, 164, 337, 477];  // 2 pawns, 1 knight, 1 rook value
+      if (depth < 4 && Math.abs(alpha) < mateScore && staticEval + futilityMargin[depth] <= alpha)
         futilityPruning = 1;
-      
     }
 
     let movesSearched = 0;
