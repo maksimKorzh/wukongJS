@@ -957,8 +957,9 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
   \****************************/
   
   /*
-      Following material weights and PST values are provided by Ronald Friederich.
-            http://talkchess.com/forum3/viewtopic.php?f=2&t=68311&start=10
+      Following material weights and PST values are kindly provided
+          by Ronald Friederich as used as the ONLY evaluation
+            in his chess engine PeSTO 2.210 - 3098 Elo CCRL
   */
   
   // material score
@@ -1491,7 +1492,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     
       // evalution pruning
       if (depth < 3 && Math.abs(beta - 1) > -mateValue + 100) {
-        let evalMargin = 120 * depth;
+        let evalMargin = materialWeights[P] * depth;
         if (staticEval - evalMargin >= beta) return staticEval - evalMargin;
       }
       
@@ -1507,7 +1508,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
         }
         
         // razoring
-        score = staticEval + 82; // + 1 pawn value
+        score = staticEval + materialWeights[P];
         let newScore;
         
         if (score < beta) {
@@ -1517,7 +1518,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
           }
         }
         
-        score += 123; // + 1.5 pawn value
+        score += materialWeights[P] + materialWeights[P] * 0.5;
         
         if (score < beta && depth < 4) {
           newScore = quiescence(alpha, beta);
@@ -1526,7 +1527,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
       }
       
       // futility condition
-      let futilityMargin = [0, 164, 332, 462];  // 2 pawns, 1 knight, 1 rook value
+      let futilityMargin = [0, materialWeights[P], materialWeights[N], materialWeights[R]];
       if (depth < 4 && Math.abs(alpha) < mateScore && staticEval + futilityMargin[depth] <= alpha)
         futilityPruning = 1;
     }
