@@ -9,12 +9,29 @@ import json
 
 # evaluation tuner
 class EvalTuner():
+    board = chess.Board()
+    
+    mvv_lva = [
+        0,   0,   0,   0,   0,   0,   0,  0,   0,   0,   0,   0,   0,
+        0, 105, 205, 305, 405, 505, 605,  105, 205, 305, 405, 505, 605,
+        0, 104, 204, 304, 404, 504, 604,  104, 204, 304, 404, 504, 604,
+        0, 103, 203, 303, 403, 503, 603,  103, 203, 303, 403, 503, 603,
+        0, 102, 202, 302, 402, 502, 602,  102, 202, 302, 402, 502, 602,
+        0, 101, 201, 301, 401, 501, 601,  101, 201, 301, 401, 501, 601,
+        0, 100, 200, 300, 400, 500, 600,  100, 200, 300, 400, 500, 600,
+
+        0, 105, 205, 305, 405, 505, 605,  105, 205, 305, 405, 505, 605,
+        0, 104, 204, 304, 404, 504, 604,  104, 204, 304, 404, 504, 604,
+        0, 103, 203, 303, 403, 503, 603,  103, 203, 303, 403, 503, 603,
+        0, 102, 202, 302, 402, 502, 602,  102, 202, 302, 402, 502, 602,
+        0, 101, 201, 301, 401, 501, 601,  101, 201, 301, 401, 501, 601,
+        0, 100, 200, 300, 400, 500, 600,  100, 200, 300, 400, 500, 600
+    ];
+    
     # init
     def __init__(self):
         with open('initial_weights.json') as f:
             self.weights = json.loads(f.read())
-        
-        self.board = chess.Board()
 
     # get game phase score
     def get_phase_score(self):
@@ -29,16 +46,18 @@ class EvalTuner():
     
     # static evaluation
     def evaluate(self):
-        print(self.board)
         game_phase_score = self.get_phase_score()
         game_phase = -1;
         
         opening = self.weights['opening']
         middlegame = self.weights['middlegame']
         endgame = self.weights['endgame']
+        
+        opening_phase = self.weights['opening_phase']
+        endgame_phase = self.weights['endgame_phase']
 
-        if game_phase_score > self.weights['opening_phase']: game_phase = opening
-        elif game_phase_score < self.weights['endgame_phase']: game_phase = endgame
+        if game_phase_score > opening_phase: game_phase = opening
+        elif game_phase_score < endgame_phase: game_phase = endgame
         else: game_phase = middlegame
 
         score = 0;
@@ -66,23 +85,62 @@ class EvalTuner():
                     score_endgame -= self.weights['pst'][opening][piece_type][square]
 
                 
-        '''
-        // interpolate score in the middlegame
-        if (gamePhase == middlegame)
+        if game_phase == middlegame:
             score = (
-                scoreOpening * gamePhaseScore +
-                scoreEndgame * (openingPhaseScore - gamePhaseScore)
-            ) / openingPhaseScore;
-        else if (gamePhase == opening) score = scoreOpening;
-        else if (gamePhase == endgame) score = scoreEndgame;
+                score_opening * game_phase_score +
+                score_endgame * (opening_phase - game_phase_score)
+            ) / opening_phase;
 
-        score = (score * (100 - fifty) / 100) << 0;
-        return (side == white) ? score: -score;
-        '''
-        print(score_opening, score_endgame)
+        elif game_phase == opening: score = score_opening;
+        elif game_phase == endgame: score = score_endgame;
+        
+        score = int(score)
+
+        if self.board.turn: return score
+        else: return -score
+    
+    def quiescence(self, alpha, beta):
+        stand_pat = self.evaluate();
+        
+        if stand_pat >= beta: return beta;
+        if alpha < stand_pat: alpha = stand_pat;
+
+        legal_moves = self.board.legal_moves
+        
+        
+        move_list = []
+        
+        for move in legal_moves:
+            if self.board.is_capture(move):
+                move_list.append({
+                    'move': move,
+                    'score': self.mvv_lva[
+                                 self.board.piece_at(move.from_square).piece_type * 13 +
+                                 self.board.piece_at(move.to_square).piece_type
+                             ]
+                })
+        
+        move_list = sorted(move_list, key=lambda k: k['score'], reverse=True) 
+
+        for move in move_list:
+            self.board.push(move['move'])
+            score = -self.quiescence(-beta, -alpha)
+            self.board.pop()
+            
+            if score >= beta: return beta
+            if score > alpha: alpha = score;
+        
+        return alpha;
 
 # main driver
 if __name__ == '__main__':
     tuner = EvalTuner()
-    tuner.evaluate()
+    tuner.board.set_fen('r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 10 ')
+    print('score:', tuner.quiescence(-50000, 50000))
+
+
+
+
+
+
 
