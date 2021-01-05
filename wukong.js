@@ -1492,7 +1492,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     
       // evalution pruning
       if (depth < 3 && Math.abs(beta - 1) > -mateValue + 100) {
-        let evalMargin = materialWeights[P] * depth;
+        let evalMargin = materialWeights[opening][P] * depth;
         if (staticEval - evalMargin >= beta) return staticEval - evalMargin;
       }
       
@@ -1508,7 +1508,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
         }
         
         // razoring
-        score = staticEval + materialWeights[P];
+        score = staticEval + materialWeights[opening][P];
         let newScore;
         
         if (score < beta) {
@@ -1518,7 +1518,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
           }
         }
         
-        score += materialWeights[P] + materialWeights[P] * 0.5;
+        score += materialWeights[P] + materialWeights[opening][P] * 0.5;
         
         if (score < beta && depth < 4) {
           newScore = quiescence(alpha, beta);
@@ -1527,7 +1527,10 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
       }
       
       // futility condition
-      let futilityMargin = [0, materialWeights[P], materialWeights[N], materialWeights[R]];
+      let futilityMargin = [
+        0, materialWeights[opening][P], materialWeights[opening][N], materialWeights[opening][R]
+      ];
+      
       if (depth < 4 && Math.abs(alpha) < mateScore && staticEval + futilityMargin[depth] <= alpha)
         futilityPruning = 1;
     }
