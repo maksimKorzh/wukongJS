@@ -962,6 +962,11 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
             in his chess engine PeSTO 2.210 - 3098 Elo CCRL
   */
   
+  const openingPhaseScore = 6198;
+  const endgamePhaseScore = 502;
+  const opening = 0, endgame = 1, middlegame = 2;
+  const PAWN = 0, KNIGHT = 1, BISHOP = 2, ROOK = 3, QUEEN = 4, KING = 5;
+  
   // material score
   const materialWeights = [
     // opening material score
@@ -970,11 +975,6 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     // endgame material score
     [0, 97, 302, 305, 535,  978, 12000, -94, -281, -297, -512,  -936, -12000]
   ];
-
-  const openingPhaseScore = 6198;
-  const endgamePhaseScore = 502;
-  const opening = 0, endgame = 1, middlegame = 2;
-  const PAWN = 0, KNIGHT = 1, BISHOP = 2, ROOK = 3, QUEEN = 4, KING = 5;
 
   // piece-square tables
   const pst = [
@@ -2012,7 +2012,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
   // below you can test inner engine methods
   function debug() {
     //setBoard('kqb5/pppppppp/8/8/8/8/PPPPPPPP/KQR5 w K7 - 0 1 ');
-    //setBoard('r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 10 ');
+    setBoard('r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 10 ');
     //setBoard('r4rk1/1pp1qppp/p1np1n2/2b1p1B1/2B1P1b1/P1NP1N2/1PP1QPPP/R4RK1 w - - 0 10');
     //setBoard('rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPP1NnPP/RNBQK2R w KQ - 1 8');
     //setBoard('rnbqkbnr/pp4pp/2p5/3Npp2/2PpP3/3P1P2/PP4PP/R1BQKBNR b KQkq e3 0 6 ');
@@ -2024,7 +2024,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     //setBoard('8/4P3/2pp2p1/pp1p2p1/1P1P2PP/2PP2P1/4p3/8 w - - 4 1 ');
     //setBoard('8/p2p2pp/3p2p1/8/8/3P2P1/P2P2PP/8 w - - 0 0 ')
     //setBoard('8/8/4p3/3p1p2/3P1P2/4P3/8/8 w -- 0 0 ');
-    setBoard('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1 ');
+    //setBoard('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1 ');
     updateBoard();
     console.log('score:', evaluate());
   }
