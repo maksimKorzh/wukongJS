@@ -1,0 +1,71 @@
+[Event "Computer chess game"]
+[Site "maksim-Inspiron-3582"]
+[Date "2020.12.18"]
+[Round "?"]
+[White "TSCP"]
+[Black "WukongJS"]
+[Result "0-1"]
+[BlackElo "2000"]
+[ECO "A25"]
+[Opening "English"]
+[Time "20:51:16"]
+[Variation "Closed, 3.g3 Nf6"]
+[WhiteElo "1723"]
+[TimeControl "120+1"]
+[Termination "normal"]
+[PlyCount "68"]
+[WhiteType "program"]
+[BlackType "program"]
+
+1. c4 e5 {(e7-e5 Nb1-c3 Nb8-c6 Ng1-f3 Bf8-c5 e2-e4) -0.00/6 4} 2. g3 Nf6
+{(Ng8-f6 Nb1-c3 Bf8-c5 Ng1-f3 Nb8-c6 Bf1-g2) +0.20/6 4} 3. Nc3 {(b1c3 b8c6
+e2e4 f8b4 g1e2 e8g8 d2d3) -0.51/7 4} Nc6 {(Nb8-c6 Bf1-g2 Bf8-c5 e2-e4 O-O
+Ng1-f3) +0.25/6 4} 4. e4 {(g1f3 f8b4 c3d5 e5e4 d5b4 c6b4) -0.72/6 3} Bc5
+{(Bf8-c5 Bf1-g2 d7-d6 Qd1-e2 O-O Ng1-f3) +0.20/6 4} 5. d3 {(d2d3 e8g8 c1g5
+d7d6 g1f3 c8e6 g5f6 d8f6) -0.77/6 3} O-O {(O-O Bc1-e3 Qd8-e7 Ng1-f3 Rf8-e8)
++0.40/5 4} 6. Bg5 {(c1g5 d7d6 c3d5 c5b4 d5b4 c6b4 g1f3) -0.52/6 3} d6
+{(d7-d6 Ng1-f3 h7-h6 Bg5xf6 Qd8xf6 Bf1-g2) +0.25/6 4} 7. Nf3 {(f1g2 c5b4
+g1e2 b4c3 e2c3 c8e6 g5f6 d8f6) -0.53/5 3} h6 {(h7-h6 Bg5-e3 Bc5xe3 f2xe3
+Bc8-e6) +0.30/5 4} 8. Bxf6 {(g5f6 d8f6 f1g2 c8e6 e1g1 c6d4) -0.27/6 3} gxf6
+{(g7xf6 Bf1-g2 Bc8-g4 O-O Nc6-d4 Nc3-d5) +0.10/6 4} 9. h3 {(f3h4 c6d4 d1d2
+h6h5 e1c1) +0.36/5 3} Nd4 {(Nc6-d4 Bf1-g2 Bc8-e6 Qd1-d2 h6-h5) +0.20/5 4}
+10. Bg2 {(f1g2 c8e6 d1d2 h6h5 e1c1 c7c6) +0.52/6 3} f5 {(f6-f5 Qd1-d2
+Nd4xf3+ Bg2xf3 Qd8-f6 Nc3-d5) -0.00/5 3} 11. Nxd4 {(d1d2 c7c6 e1c1 d8f6
+f3d4 c5d4) +0.56/6 3} exd4 {(e5xd4 Nc3-e2 Qd8-f6 e4xf5 Qf6xf5 O-O) +0.30/6
+3} 12. Ne2 {(c3e2 f5e4 g2e4 a7a5 a2a3 f8e8 f2f4) +0.33/7 3} Qf6 {(Qd8-f6
+O-O Bc8-e6 Qd1-c2 f5xe4 d3xe4) +0.30/6 3} 13. Qa4 {(d1a4 f5e4 g2e4 f8d8
+a4b3 c7c6) +0.40/6 3} fxe4 {(f5xe4 Bg2xe4 Rf8-d8 Qa4-b3 c7-c6) +0.70/5 3}
+14. Bxe4 {(g2e4 c8f5 f2f3 f5e4 f3e4 f8e8) +0.32/6 3} c6 {(c7-c6 Ne2-f4
+Rf8-e8 O-O-O Re8-e5) +0.60/5 3} 15. b4 {(b2b4 c5b6 b4b5 c6c5 f2f4) +0.62/5
+3} Bb6 {(Bc5-b6 Ne2-f4 Rf8-e8 O-O-O Re8-e5) +0.50/5 3} 16. b5 {(b4b5 c6c5
+e2f4 f8e8 e1c1 f6e7) +0.54/6 2} Bf5 {(Bc8-f5 f2-f3 Bf5xe4 f3xe4 Qf6-f3
+Ke1-d2) +0.60/6 3} 17. Bxf5 {(e4f5 f6f5 b5c6 f5f3 e1c1 b7c6 h1e1) +0.32/7
+2} Qxf5 {(Qf6xf5 Ra1-d1 Qf5-f3 Rh1-h2 a7-a6 b5xc6) +0.70/6 3} 18. Qb3
+{(b5c6 f5f3 e1g1 b7c6 e2f4 a8e8) +0.17/6 2} Qf3 {(Qf5-f3 Rh1-h2 Rf8-e8
+Qb3-c2 Re8-e5) +1.05/5 3} 19. Rh2 {(h1h2 f8e8 b3d1 d6d5 b5c6 b7c6 a1c1 d5c4
+c1c4) -0.18/7 2} cxb5 {(c6xb5 c4xb5 Rf8-e8 Qb3-c2 Re8-e5) +1.05/5 3} 20.
+cxb5 {(c4b5 f8e8 b3d1 a8c8 a2a4 d6d5) -0.06/6 2} Rfe8 {(Rf8-e8 Qb3-d1
+Re8-e5 Qd1-d2 Re5xb5) +1.25/5 3} 21. Qd1 {(b3d1 e8e3 d1d2 e3d3 d2h6 d6d5)
+-0.57/6 2} Re3 {(Re8-e3 f2xe3 Bb6-a5+ Ne2-c3 Ba5xc3+ Rh2-d2 Bc3xd2+)
++1.55/5 3} 22. Rc1 {(a1c1 e3d3 d1c2 d6d5 e2f4 a8e8) -1.83/6 2} Rxd3
+{(Re3xd3 Qd1-c2 Ra8-e8 Rc1-d1 Rd3-c3) +2.45/5 2} 23. Qa4 {(d1a4 d6d5 c1c2
+a8e8 h3h4 d3c3) -2.02/6 2} Re8 {(Ra8-e8 Rc1-c2 d6-d5 Qa4-b4 Re8-e4) +3.05/5
+2} 24. Rc2 {(c1c2 d3a3 a4c4 d4d3 c2d2 e8e2 d2e2 f3e2) -4.71/6 2} Ra3
+{(Rd3-a3 Qa4-c4 d4-d3 Rc2-d2 Re8xe2+) +5.25/5 2} 25. Qc4 {(a4c4 d4d3 e1f1
+d6d5 c4c8 e8c8 c2c8) -6.19/6 2} d5 {(d6-d5 Qc4-c8 Bb6-a5+ Ke1-f1 Re8xc8
+Rc2xc8+) +7.50/5 2} 26. Qc8 {(c4c8 e8c8 c2c8 g8g7 e2c1 b6a5 e1f1 f3f5 c8c5
+a3g3 c5d5 f5d5 f2g3 d5b5) -6.50/7 2} Rxc8 {(Re8xc8 Rc2xc8+ Kg8-g7 Rc8-c2
+Qf3-d3 Rc2-b2 Kg7-g8) +7.65/6 2} 27. Rxc8+ {(c2c8 g8g7 e1f1 d4d3 e2g1 f3d1
+f1g2 a3a2 g1f3 b6f2) -8.16/7 2} Kg7 {(Kg8-g7 Ne2-f4 Ra3xa2 Rc8-b8 Ra2-a1+
+Ke1-d2 Ra1-a2+) +8.45/5 2} 28. Nxd4 {(e1f1 d4d3 e2g1 f3d1 f1g2 a3a2 g1f3
+b6f2) -8.16/6 2} Bxd4 {(Bb6xd4 Rc8-c7 Ra3xa2 Rc7xb7 Bd4xf2+) +9.65/5 2} 29.
+Rc2 {(c8c2 f3e4 e1d1 e4d3 d1e1 d3c2 b5b6 a3a2 b6a7 d4a7) -13.64/6 2} Qe4+
+{(Qf3-e4+ Ke1-d1 Qe4-d3+ Rc2-d2 Qd3-f1+ Kd1-c2 Ra3xa2+ Kc2-b3 Ra2xd2)
++15.00/5 2} 30. Kd1 {(e1d1 e4d3 d1e1 d3c2 h3h4 a3a2 g3g4 d4f2) -14.62/5 2}
+Qd3+ {(Qe4-d3+ Kd1-e1 Qd3xc2 h3-h4 Ra3xa2 Rh2-h3) +16.05/5 2} 31. Ke1
+{(d1e1 d3c2 e1f1 c2b1 f1g2 a3a2 h2h1 b1b5) -15.34/5 2} Qxc2 {(Qd3xc2 h3-h4
+Qc2-b1+ Ke1-e2 Ra3xa2+ Ke2-f3 Qb1xb5) +16.25/5 2} 32. Kf1 {(e1f1 a3f3 f1e1
+d4f2 h2f2 c2f2 e1d1 f3g3) -17.03/6 2} Rxa2 {(Ra3xa2 h3-h4 Qc2-d3+ Kf1-g1
+Qd3xg3+ Rh2-g2 Bd4xf2+) +17.05/5 2} 33. h4 {(h3h4 c2e4 g3g4 a2a1) -99.96/5
+0} Qe4 {+M2/5 2} 34. Kg1 {(f1g1 a2a1) -99.98/3 0} Ra1# {+M1/5 2} 0-1
+

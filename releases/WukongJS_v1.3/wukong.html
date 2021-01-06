@@ -1,0 +1,110 @@
+<html>
+  <head>
+    <!-- Encoding -->
+    <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+    <meta content="utf-8" http-equiv="encoding">
+    
+    <!-- SEO -->
+    <meta name="description" content="javascript UCI chess engine - Wukong JS by Code Monkey King">
+    <meta name="keywords" content="UCI chess engine in javascript that runs in both browser and Arena GUI - Wukong JS by Code Monkey King">
+    
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+  </head>
+  <body style="font-family:
+               monospace; font-size: 16px;
+               background: url(logo/wallpaper_wukong.jpg); background-repeat: no-repeat;
+               background-attachment: fixed;
+               background-position: center;
+               background-size: cover;
+               "
+        
+        class="img-fluid bg-cover text-center">
+
+    <div style="position: absolute;
+                left: 50%;
+                top: 50%;
+                transform: translate(-50%, -50%);
+                "
+    >
+
+    <h6 id="engine-title" class="font-weight-bold"></h6>
+    
+    <!-- FEN -->
+    <div class="input-group mx-auto mt-3" style="width: 420px;">
+      <input id="fen"
+             type="text"
+             class="form-control"
+             placeholder="FEN string"
+             value="r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 10"
+      />
+      <div class="input-group-append mb-1">
+        <button onclick="setFen();" class="btn btn-outline-secondary text-dark bg-light ml-1">Set</button>
+      </div>
+    </div>
+    
+    <!-- Chess board view -->
+    <div id="chessboard"></div>
+    
+    <!-- Controls -->
+    <div class="btn-group mt-1" style="width: 420px;">
+      <select id="movetime" class="bg-light col-2 mr-1">
+        <option value="1">1s</option>
+        <option value="2">2s</option>
+        <option value="3">3s</option>
+        <option value="4">4s</option>
+        <option value="5">5s</option>
+        <option value="6">6s</option>
+        <option value="7">7s</option>
+        <option value="8">8s</option>
+        <option value="9">9s</option>
+        <option value="10">10s</option>
+      </select>
+      <button class="btn btn-outline-secondary text-dark bg-light font-weight-bold mr-1" onclick="newGame();">New</button>
+      <button class="btn btn-outline-secondary text-dark bg-light font-weight-bold mr-1" onclick="think();">Move</button>
+      <button class="btn btn-outline-secondary text-dark bg-light font-weight-bold mr-1" onclick="undo();">Undo</button>
+      <button class="btn btn-outline-secondary text-dark bg-light font-weight-bold" onclick="flip()">Flip</button>
+      <select id="promoted" class="bg-light col-2 ml-1">
+        <option value="5">♛</option>
+        <option value="4">♜</option>
+        <option value="3">♝</option>
+        <option value="2">♞</option>
+      </select>
+    </div>
+
+    <!-- Info -->    
+    <div class="mt-2">Score: <span id="score" class="font-weight-bold text-danger">0</span></div>
+    <div id="info" class="font-weight-bold mt-2 mb-2">Press Ctrl-Shift-I to see how engine is calculating</div>
+
+    <!-- Chess engine -->
+    <script src="wukong.js"></script>
+
+    <!-- User input handling -->
+    <script src="js/play.js"></script>
+    
+    <!-- DevTools detection -->
+    <script src="js/isdevtoolopen.js"> </script>
+    
+    <!-- Remove background image when DevTools are open -->
+    <script type="module">
+      // on update page when devtools are opened
+	  if (window.devtools.isOpen == 1) {
+        document.body.style.backgroundImage = '';
+        document.getElementById('info').innerHTML = '...';
+      }
+      
+      // on devtools open/close
+	    window.addEventListener('devtoolschange', event => {
+	      if (window.devtools.isOpen == 0) {
+          document.body.style.backgroundImage = '';
+          document.getElementById('info').innerHTML = '...';
+        } else if (window.devtools.isOpen == 1) {
+          document.body.style.backgroundImage = 'url(logo/wallpaper_wukong.jpg)';
+          document.getElementById('info').innerHTML = 'Press Ctrl-Shift-I to see how engine is calculating';
+        }
+      });	    
+    </script>
+  </body>
+<html>
+
+

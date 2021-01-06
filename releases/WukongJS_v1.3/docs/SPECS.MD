@@ -1,18 +1,12 @@
-# Board representation
+# Technical specification
  - 0x88 board representation
  - 32-bit Zobrizt hashing
  - piece lists
-
-# Move generator
  - on the fly attacks
  - incremental updates of position on make move/take back
  - move stack for storing board state variables
-
-# Evaluation
  - tapared evaluation: material + PST only (tables by Ronald Friederich)
  - insufficient material detection
-
-# Search
  - 50 move rule detection
  - 3 fold repetition detection
  - stand pat quiescence
@@ -24,7 +18,3 @@
  - Futility pruning
  - LMR (Late move reduction)
  - PVS (Principal variation search)
- 
- # Interfaces
- - UCI protocol
- - Web browser
