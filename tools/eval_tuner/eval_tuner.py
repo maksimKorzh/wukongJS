@@ -224,15 +224,15 @@ class EvalTuner():
     # write weights to file
     def store_weights(self):        
         with open('new_weights.txt', 'w') as f:
-            f.write('const openingPhaseScore = %s;\n' % self.opening_phase)
-            f.write('const endgamePhaseScore = %s;\n\n' % self.endgame_phase)
-            f.write('// material score\nconst materialWeights = [\n  // opening material score\n')
-            f.write('  %s,\n\n' % self.material_weights[self.opening])
-            f.write('  // endgame material score\n')
-            f.write('  %s\n\n};\n\n' % self.material_weights[self.endgame])
-            f.write('// piece-square tables\n')
-            f.write('const pst = [\n')
-            f.write('  // opening phase scores\n  [\n')
+            f.write('  const openingPhaseScore = %s;\n' % self.opening_phase)
+            f.write('  const endgamePhaseScore = %s;\n\n' % self.endgame_phase)
+            f.write('  // material score\n  const materialWeights = [\n    // opening material score\n')
+            f.write('    %s,\n\n' % self.material_weights[self.opening])
+            f.write('    // endgame material score\n')
+            f.write('    %s\n\n  };\n\n' % self.material_weights[self.endgame])
+            f.write('  // piece-square tables\n')
+            f.write('  const pst = [\n')
+            f.write('    // opening phase scores\n    [\n')
             
             for phase in range(2):
                 for piece in [
@@ -246,25 +246,25 @@ class EvalTuner():
                     piece_type = list(piece.values())[0]
                     piece_name = list(piece.keys())[0]                   
                     
-                    f.write('    // %s\n    [\n' % piece_name)
+                    f.write('      // %s\n      [\n' % piece_name)
                     for row in range(8):
                         for col in range(8):
                             square = row * 8 + col
                             
-                            if col == 0: f.write('      ')
+                            if col == 0: f.write('        ')
                             if square != 63: f.write('%s,%s' % (self.pst[phase][piece_type][square],
                                                      ' ' * (4 - len(str(self.pst[phase][piece_type][square])))))
                             
-                            elif piece_name != 'king': f.write('%s,   o, o, o, o, o, o, o, o\n   ],\n' % (self.pst[phase][piece_type][square]))
-                            else: f.write('%s,   o, o, o, o, o, o, o, o\n    ]' % (self.pst[phase][piece_type][square]))
+                            elif piece_name != 'king': f.write('%s,   o, o, o, o, o, o, o, o\n      ],\n' % (self.pst[phase][piece_type][square]))
+                            else: f.write('%s,   o, o, o, o, o, o, o, o\n      ]' % (self.pst[phase][piece_type][square]))
                         
                         if row != 7: f.write('o, o, o, o, o, o, o, o,\n')
                         else: f.write('\n')
  
                     if phase == 0 and piece_name == 'king':
-                        f.write('  ],\n\n  [\n')
+                        f.write('    ],\n\n    // endgame phase score\n    [\n')
             
-            f.write('];\n')            
+            f.write('  ];\n')            
 
     # evaulation tuner
     def tune(self):
