@@ -7,12 +7,12 @@
 import chess
 import chess.pgn
 import json
+import datetime
 
 # evaluation tuner
 class EvalTuner():
     # chess board instance
     board = chess.Board()
-    board.push(chess.Move.from_uci('e2e4'))
     
     # capture ordering
     mvv_lva = [
@@ -228,12 +228,12 @@ class EvalTuner():
         self.map_params()
         
     # write weights to file
-    def store_weights(self):        
+    def store_weights(self, filename):        
         # reset zero material score
         self.material_weights[self.opening][0] = 0;
         self.material_weights[self.endgame][0] = 0;
         
-        with open('new_weights.txt', 'w') as f:
+        with open(filename, 'w') as f:
             f.write('  const openingPhaseScore = %s;\n' % self.opening_phase)
             f.write('  const endgamePhaseScore = %s;\n\n' % self.endgame_phase)
             f.write('  // material score\n  const materialWeights = [\n    // opening material score\n')
@@ -283,30 +283,35 @@ class EvalTuner():
 
     # evaulation tuner
     def tune(self):
-        adjust_value = 50
-        best_params = self.eval_params['weights']
+        adjust_value = 1
+        best_params = self.extract_weights()
         best_error = self.mean_square_error()
         improved = True
         
         while improved:
             improved = False    
             for index in range(len(best_params)):
+                # skip black piece weights
+                if (index >= 6 and index <= 13) or (index >= 403 and index <= 411): continue
+            
                 new_params = json.loads(json.dumps(best_params))
                 new_params[index] += adjust_value
+                self.update_weights(new_params)
                 new_error = self.mean_square_error()
 
                 print('Tuning param %s out of %s, mean square error %s' % 
-                         (index, len(best_params), new_error))
+                     (index, len(best_params), new_error))
                 
                 if new_error < best_error:
                     best_error = new_error
                     best_params = json.loads(json.dumps(new_params))
                     improved = 1
                     print('found better params +')
-                    self.update_eval_params(best_params)
+                    self.store_weights('tuning_weights.txt')
                 
                 else:
                     new_params[index] -= adjust_value * 2
+                    self.update_weights(new_params)
                     new_error = self.mean_square_error()
                     
                     if new_error < best_error:
@@ -314,9 +319,13 @@ class EvalTuner():
                         best_params = json.loads(json.dumps(new_params))
                         improved = 1
                         print('found better params -')
-                        self.update_eval_params(best_params)
-                        
-        self.update_eval_params(best_params)
+                        self.store_weights('tuning_weights.txt')
+            
+            self.store_weights('session_weights_' + str(datetime.datetime.today().strftime('%Y-%m-%d-%H-%M')) + '.txt')
+            print('Writing current session weights...')
+
+        print('Writing final weights...')
+        self.store_weights('final_weights.txt')
 
 # main driver
 if __name__ == '__main__':
