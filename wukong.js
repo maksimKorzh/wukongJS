@@ -23,7 +23,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
   \****************************/
   
   // chess engine version
-  const version = '1.3a';
+  const version = '1.3';
   const elo = '1720';
 
   // sides to move  
@@ -1518,7 +1518,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
           }
         }
         
-        score += materialWeights[P] + materialWeights[opening][P] * 0.5;
+        score += materialWeights[opening][P] + materialWeights[opening][P] * 0.5;
         
         if (score < beta && depth < 4) {
           newScore = quiescence(alpha, beta);
