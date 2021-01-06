@@ -191,16 +191,20 @@ class EvalTuner():
             next_game = chess.pgn.read_game(fr)
             count = 1
             
-            while next_game:
-                # skip games with lower than 2700 Elo                
+            while next_game:              
                 print('extracting positions from game %s out of %s total games' % (count, 384052))
 
                 board = next_game.board()
                 positions = []                
                 
+                move_num = 0
+                
                 for move in next_game.mainline_moves():
                     board.push(move)
-                    if self.evaluate() == self.quiescence(-50000, 50000):
+                    move_num += 1
+                    
+                    if board.is_checkmate(): print('mate'): continue
+                    if (self.evaluate() == self.quiescence(-50000, 50000)) and move_num > 5:
                         try: positions.append(board.fen() + ' [' + self.result[next_game.headers['Result']] + ']')
                         except: pass
 
