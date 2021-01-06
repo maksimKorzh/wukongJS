@@ -8,6 +8,7 @@ import chess
 import chess.pgn
 import json
 import datetime
+import random
 
 # evaluation tuner
 class EvalTuner():
@@ -34,9 +35,9 @@ class EvalTuner():
     
     # game result mapping
     result = {
-        '1-0': 1.0,
-        '1/2-1/2': 0.5,
-        '0-1': 0.0
+        '1-0': '1.0',
+        '1/2-1/2': '0.5',
+        '0-1': '0.0'
     }
     
     # init
@@ -184,6 +185,34 @@ class EvalTuner():
         
         return alpha;
     
+    # generate training dataset
+    def generate_dataset(self):
+        with open('/home/maksim/Downloads/gm2600.pgn') as fr:
+            next_game = chess.pgn.read_game(fr)
+            count = 1
+            
+            while next_game:
+                # skip games with lower than 2700 Elo                
+                print('extracting positions from game %s out of %s total games' % (count, 384052))
+
+                board = next_game.board()
+                positions = []                
+                
+                for move in next_game.mainline_moves():
+                    board.push(move)
+                    if self.evaluate() == self.quiescence(-50000, 50000):
+                        try: positions.append(board.fen() + ' [' + self.result[next_game.headers['Result']] + ']')
+                        except: pass
+
+                next_game = chess.pgn.read_game(fr)
+                random.shuffle(positions)
+                
+                with open('positions.txt', 'a') as fw:
+                    for position in positions:
+                        fw.write(position + '\n')
+
+                count += 1
+    
     # get mean square error
     def mean_square_error(self):
         number_of_positions = 1000
@@ -233,7 +262,7 @@ class EvalTuner():
         self.material_weights[self.opening][0] = 0;
         self.material_weights[self.endgame][0] = 0;
         
-        with open(filename, 'w') as f:
+        with open('./temp_weights/' + filename, 'w') as f:
             f.write('  const openingPhaseScore = %s;\n' % self.opening_phase)
             f.write('  const endgamePhaseScore = %s;\n\n' % self.endgame_phase)
             f.write('  // material score\n  const materialWeights = [\n    // opening material score\n')
@@ -330,7 +359,9 @@ class EvalTuner():
 # main driver
 if __name__ == '__main__':
     tuner = EvalTuner()
-    tuner.tune()
+    tuner.generate_dataset()
+    #tuner.tune()
+    
 
 
 

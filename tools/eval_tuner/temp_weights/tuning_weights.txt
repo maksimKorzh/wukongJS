@@ -1,10 +1,10 @@
-  const openingPhaseScore = 5601;
+  const openingPhaseScore = 5599;
   const endgamePhaseScore = 600;
 
   // material score
   const materialWeights = [
     // opening material score
-    [0, 100, 300, 301, 501, 901, 20000, -100, -300, -300, -500, -900, -20000],
+    [0, 99, 299, 300, 500, 899, 20000, -100, -300, -300, -500, -900, -20000],
 
     // endgame material score
     [0, 100, 300, 300, 500, 900, 20000, -100, -300, -300, -500, -900, -20000]
@@ -18,8 +18,8 @@
       // pawn
       [
            0,   0,   0,   0,   0,   0,   0,   0,   o, o, o, o, o, o, o, o,
-          50,  50,  50,  49,  50,  50,  50,  50,   o, o, o, o, o, o, o, o,
-          -1,  19,  19,  39,  41,  21,  20,   1,   o, o, o, o, o, o, o, o,
+          50,  50,  50,  50,  50,  50,  50,  50,   o, o, o, o, o, o, o, o,
+           0,  20,  20,  40,  40,  20,  20,   0,   o, o, o, o, o, o, o, o,
            0,  10,  10,  30,  30,  10,  10,   0,   o, o, o, o, o, o, o, o,
            0,   5,   5,  20,  20,   5,   5,   0,   o, o, o, o, o, o, o, o,
            0,   0, -10,   0,   0, -10,   0,   0,   o, o, o, o, o, o, o, o,
