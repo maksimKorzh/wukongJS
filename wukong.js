@@ -962,10 +962,10 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
             in his chess engine PeSTO 2.210 - 3098 Elo CCRL
   */
   
-  const openingPhaseScore = 6192;
-  const endgamePhaseScore = 518;
   const opening = 0, endgame = 1, middlegame = 2;
   const PAWN = 0, KNIGHT = 1, BISHOP = 2, ROOK = 3, QUEEN = 4, KING = 5;
+  const openingPhaseScore = 6192;
+  const endgamePhaseScore = 518;
   
   // material score
   const materialWeights = [
