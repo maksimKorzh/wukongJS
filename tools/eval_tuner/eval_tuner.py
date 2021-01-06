@@ -5,12 +5,15 @@
 
 # packeges
 import chess
+import chess.pgn
 import json
 
 # evaluation tuner
 class EvalTuner():
+    # chess board instance
     board = chess.Board()
     
+    # capture ordering
     mvv_lva = [
         0,   0,   0,   0,   0,   0,   0,  0,   0,   0,   0,   0,   0,
         0, 105, 205, 305, 405, 505, 605,  105, 205, 305, 405, 505, 605,
@@ -27,6 +30,13 @@ class EvalTuner():
         0, 101, 201, 301, 401, 501, 601,  101, 201, 301, 401, 501, 601,
         0, 100, 200, 300, 400, 500, 600,  100, 200, 300, 400, 500, 600
     ];
+    
+    # game result mapping
+    result = {
+        '1-0': 1.0,
+        '1/2-1/2': 0.5,
+        '0-1': 0.0
+    }
     
     # init
     def __init__(self):
@@ -99,6 +109,7 @@ class EvalTuner():
         if self.board.turn: return score
         else: return -score
     
+    # quiescence search
     def quiescence(self, alpha, beta):
         stand_pat = self.evaluate();
         
@@ -131,13 +142,83 @@ class EvalTuner():
             if score > alpha: alpha = score;
         
         return alpha;
+    
+    # evaluation parameters extractor
+    def extract_eval_params(self):
+        eval_params = []
+        
+        eval_params.append(self.weights['opening_phase'])
+        eval_params.append(self.weights['endgame_phase'])
+        
+        for phase in self.weights['material']:
+            for weight in phase:
+                eval_params.append(weight)
+
+        for phase in self.weights['pst']:
+            for pst in phase:
+                for square in pst:
+                    eval_params.append(square)
+        
+        return eval_params
+    
+    # evaluation parameters updater
+    def update_eval_params(self, eval_params):
+        with open('new_weights.txt', 'w') as f:
+            f.write('// game phase score opening / endgame\n')
+            f.write(str(eval_params[0]) + '\n')
+            f.write(str(eval_params[1]) + '\n\n')
+            
+            index = 2
+            
+            f.write('// material weights opening / endgame\n')
+            for weight in range(13): f.write(str(eval_params[index]) + ', '); index += 1
+            f.write('\n')
+            for weight in range(13): f.write(str(eval_params[index]) + ', '); index += 1
+            f.write('\n\n')
+            
+            for phase in ['opening', 'endgame']:
+                for piece in ['pawn', 'knight', 'bishop', 'rook', 'queen', 'king']:
+                    f.write('// ' + piece + ' ' + phase + '\n')
+                    for weight in range(8):
+                        for weight in range(8):
+                            f.write(str(eval_params[index]) + ', ');
+                            index += 1
+                        
+                        f.write('\n')
+                     
+                    f.write('\n')
+                 
+                f.write('\n')
+    
+    # evaulation tuner
+    def tune(self):
+        count = 0
+        number_of_games = 1
+        
+        with open('/home/maksim/Downloads/positions.txt', encoding='iso-8859-1') as f:
+            fens = f.read().split('\n')
+            
+            for fen in fens:
+                print(fen)
+            '''
+            self.board.push(move)
+            result = self.result[result_raw]
+            score = self.quiescence(-50000, 50000)
+            sigmoid = 1 / (1 + pow(10, -0.20 * score / 400))
+            average_error += 1 / number_of_positions * pow(result - sigmoid, 2)
+            print(average_error)
+            '''
+            
+            
+        print(count)
+            
 
 # main driver
 if __name__ == '__main__':
     tuner = EvalTuner()
-    tuner.board.set_fen('r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 10 ')
-    print('score:', tuner.quiescence(-50000, 50000))
-
+    params = tuner.extract_eval_params()
+    #tuner.update_eval_params(params)
+    tuner.tune()
 
 
 
