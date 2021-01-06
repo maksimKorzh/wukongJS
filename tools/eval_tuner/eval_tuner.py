@@ -43,42 +43,45 @@ class EvalTuner():
     def __init__(self):
         with open('initial_weights.json') as f:
             self.eval_params = json.loads(f.read())
+            self.map_params()
+    
+    # map evaluation parameters to handy shortcuts
+    def map_params(self):
+        # map game phases
+        self.opening = self.eval_params['opening']
+        self.middlegame = self.eval_params['middlegame']
+        self.endgame = self.eval_params['endgame']
+        
+        # map game phase score margins
+        self.opening_phase = self.eval_params['weights'][0][0]
+        self.endgame_phase = self.eval_params['weights'][1][0]
+        
+        # map material weights
+        self.material_weights = [
+            self.eval_params['weights'][0][0:13],
+            self.eval_params['weights'][1][0:13]
+        ]
+        
+        # map piece square tables
+        self.pst = [
+            [
+                self.eval_params['weights'][0][13:77],
+                self.eval_params['weights'][0][77:141],
+                self.eval_params['weights'][0][141:205],
+                self.eval_params['weights'][0][205:269],
+                self.eval_params['weights'][0][269:333],
+                self.eval_params['weights'][0][333:397],
+            ],
             
-            # map game phases
-            self.opening = self.eval_params['opening']
-            self.middlegame = self.eval_params['middlegame']
-            self.endgame = self.eval_params['endgame']
-            
-            # map game phase score margins
-            self.opening_phase = self.eval_params['weights'][0][0]
-            self.endgame_phase = self.eval_params['weights'][1][0]
-            
-            # map material weights
-            self.material_weights = [
-                self.eval_params['weights'][0][0:13],
-                self.eval_params['weights'][1][0:13]
+            [
+                self.eval_params['weights'][1][13:77],
+                self.eval_params['weights'][1][77:141],
+                self.eval_params['weights'][1][141:205],
+                self.eval_params['weights'][1][205:269],
+                self.eval_params['weights'][1][269:333],
+                self.eval_params['weights'][1][333:397],
             ]
-            
-            # map piece square tables
-            self.pst = [
-                [
-                    self.eval_params['weights'][0][13:77],
-                    self.eval_params['weights'][0][77:141],
-                    self.eval_params['weights'][0][141:205],
-                    self.eval_params['weights'][0][205:269],
-                    self.eval_params['weights'][0][269:333],
-                    self.eval_params['weights'][0][333:397],
-                ],
-                
-                [
-                    self.eval_params['weights'][1][13:77],
-                    self.eval_params['weights'][1][77:141],
-                    self.eval_params['weights'][1][141:205],
-                    self.eval_params['weights'][1][205:269],
-                    self.eval_params['weights'][1][269:333],
-                    self.eval_params['weights'][1][333:397],
-                ]
-            ]
+        ]
 
     # get game phase score
     def get_phase_score(self):
@@ -208,28 +211,35 @@ class EvalTuner():
         for phase in range(2):
             for weight in self.eval_params['weights'][phase]:
                 weights.append(weight)
-        
+
         return weights
     
     # update evaluation parameters with tuned weights
     def update_weights(self, weights):
         # update opening phase weights
-        for index in range(len(weights[0:int(len(weights) / 2)])):
+        for index in range(int(len(weights) / 2)):
             self.eval_params['weights'][0][index] = weights[index]
     
         # update endgame phase weights
-        for index in range(len(weights[int(len(weights) / 2):])):
-            self.eval_params['weights'][0][index] = weights[index]
+        for index in range(int(len(weights) / 2), len(weights)):
+            self.eval_params['weights'][1][index - int(len(weights) / 2)] = weights[index]
 
+        # update pointers
+        self.map_params()
+        
     # write weights to file
     def store_weights(self):        
+        # reset zero material score
+        self.material_weights[self.opening][0] = 0;
+        self.material_weights[self.endgame][0] = 0;
+        
         with open('new_weights.txt', 'w') as f:
             f.write('  const openingPhaseScore = %s;\n' % self.opening_phase)
             f.write('  const endgamePhaseScore = %s;\n\n' % self.endgame_phase)
             f.write('  // material score\n  const materialWeights = [\n    // opening material score\n')
             f.write('    %s,\n\n' % self.material_weights[self.opening])
             f.write('    // endgame material score\n')
-            f.write('    %s\n\n  };\n\n' % self.material_weights[self.endgame])
+            f.write('    %s\n\n  ];\n\n' % self.material_weights[self.endgame])
             f.write('  // piece-square tables\n')
             f.write('  const pst = [\n')
             f.write('    // opening phase scores\n    [\n')
@@ -252,19 +262,24 @@ class EvalTuner():
                             square = row * 8 + col
                             
                             if col == 0: f.write('        ')
-                            if square != 63: f.write('%s,%s' % (self.pst[phase][piece_type][square],
-                                                     ' ' * (4 - len(str(self.pst[phase][piece_type][square])))))
+                            if square != 63: f.write('%s%s,' % (' ' * (4 - len(str(self.pst[phase][piece_type][square]))),
+                                                                       self.pst[phase][piece_type][square]))
                             
-                            elif piece_name != 'king': f.write('%s,   o, o, o, o, o, o, o, o\n      ],\n' % (self.pst[phase][piece_type][square]))
-                            else: f.write('%s,   o, o, o, o, o, o, o, o\n      ]' % (self.pst[phase][piece_type][square]))
+                            elif piece_name != 'king': f.write('%s%s,   o, o, o, o, o, o, o, o\n      ],\n'
+                                % (' ' * (4 - len(str(self.pst[phase][piece_type][square]))),
+                                self.pst[phase][piece_type][square]))
+
+                            else: f.write('%s%s,   o, o, o, o, o, o, o, o\n      ]'
+                                % (' ' * (4 - len(str(self.pst[phase][piece_type][square]))),
+                                   self.pst[phase][piece_type][square]))
                         
-                        if row != 7: f.write('o, o, o, o, o, o, o, o,\n')
+                        if row != 7: f.write('   o, o, o, o, o, o, o, o,\n')
                         else: f.write('\n')
  
                     if phase == 0 and piece_name == 'king':
                         f.write('    ],\n\n    // endgame phase score\n    [\n')
             
-            f.write('  ];\n')            
+            f.write('    ]\n  ];\n')            
 
     # evaulation tuner
     def tune(self):
@@ -306,10 +321,7 @@ class EvalTuner():
 # main driver
 if __name__ == '__main__':
     tuner = EvalTuner()
-    params = tuner.extract_weights()
-    tuner.update_weights(params)
-    tuner.store_weights()
-    #tuner.tune()
+    tuner.tune()
 
 
 

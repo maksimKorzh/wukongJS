@@ -1129,7 +1129,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
   ];
 
   // mirror positional score tables for opposite side
-  const mirrorSquare= [
+  const mirrorSquare = [
     a1, b1, c1, d1, e1, f1, g1, h1,   o, o, o, o, o, o, o, o,
     a2, b2, c2, d2, e2, f2, g2, h2,   o, o, o, o, o, o, o, o,
     a3, b3, c3, d3, e3, f3, g3, h3,   o, o, o, o, o, o, o, o,
