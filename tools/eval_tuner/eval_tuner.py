@@ -325,9 +325,6 @@ class EvalTuner():
         while improved:
             improved = False    
             for index in range(len(best_params)):
-                # skip black piece weights
-                if (index >= 6 and index <= 13) or (index >= 403 and index <= 411): continue
-            
                 new_params = json.loads(json.dumps(best_params))
                 new_params[index] += adjust_value
                 self.update_weights(new_params)
