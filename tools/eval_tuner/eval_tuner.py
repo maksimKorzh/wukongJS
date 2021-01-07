@@ -218,26 +218,6 @@ class EvalTuner():
 
                 count += 1
     
-    # get mean square error
-    def mean_square_error(self):
-        number_of_positions = 1000
-        with open('positions.txt', encoding='utf-8') as f:
-            fens = f.read().split('\n')[0:number_of_positions]
-            error = 0.0
-            
-            for fen in fens:
-                try:
-                    result = float(fen.split('[')[-1][:-1])
-                    position = fen.split('[')[0]
-                    self.board.set_fen(position)
-                    score = self.evaluate()
-                    sigmoid = 1 / (1 + pow(10, -0.20 * score / 400))
-                    error += pow(result - sigmoid, 2)
-                
-                except Exception as e: print(e)
-
-            return error / number_of_positions
-    
     # extract weights from evaluation parameters
     def extract_weights(self):
         weights = []
@@ -315,9 +295,29 @@ class EvalTuner():
             
             f.write('    ]\n  ];\n')            
 
+    # get mean square error
+    def mean_square_error(self):
+        number_of_positions = 1000
+        with open('positions.txt', encoding='utf-8') as f:
+            fens = f.read().split('\n')[0:number_of_positions]
+            error = 0.0
+            
+            for fen in fens:
+                try:
+                    result = float(fen.split('[')[-1][:-1])
+                    position = fen.split('[')[0]
+                    self.board.set_fen(position)
+                    score = self.evaluate()
+                    sigmoid = 1 / (1 + pow(10, -0.20 * score / 400))
+                    error += pow(result - sigmoid, 2)
+                
+                except Exception as e: print(e)
+
+            return error / number_of_positions
+
     # evaulation tuner
     def tune(self):
-        adjust_value = 1
+        adjust_value = 5
         best_params = self.extract_weights()
         best_error = self.mean_square_error()
         improved = True
@@ -364,8 +364,8 @@ class EvalTuner():
 # main driver
 if __name__ == '__main__':
     tuner = EvalTuner()
-    tuner.generate_dataset()
-    #tuner.tune()
+    #tuner.generate_dataset()
+    tuner.tune()
     
 
 
