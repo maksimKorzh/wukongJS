@@ -203,12 +203,13 @@ class EvalTuner():
                     board.push(move)
                     move_num += 1
                     
-                    if board.is_checkmate(): print('mate'): continue
+                    if board.is_checkmate(): continue
                     if (self.evaluate() == self.quiescence(-50000, 50000)) and move_num > 5:
                         try: positions.append(board.fen() + ' [' + self.result[next_game.headers['Result']] + ']')
                         except: pass
 
-                next_game = chess.pgn.read_game(fr)
+                try: next_game = chess.pgn.read_game(fr)
+                except: pass
                 random.shuffle(positions)
                 
                 with open('positions.txt', 'a') as fw:

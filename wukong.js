@@ -1278,6 +1278,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
             scoreOpening * gamePhaseScore +
             scoreEndgame * (openingPhaseScore - gamePhaseScore)
         ) / openingPhaseScore;
+    
     else if (gamePhase == opening) score = scoreOpening;
     else if (gamePhase == endgame) score = scoreEndgame;
     
@@ -1518,15 +1519,15 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
           }
         }
         
-        score += materialWeights[opening][P] + materialWeights[opening][P] * 0.5;
-        
+        score += materialWeights[opening][P];
+
         if (score < beta && depth < 4) {
           newScore = quiescence(alpha, beta);
           if (newScore < beta) return (newScore > score) ? newScore : score;
         }
       }
       
-      // futility condition
+      // futility pruning condition
       let futilityMargin = [
         0, materialWeights[opening][P], materialWeights[opening][N], materialWeights[opening][R]
       ];
