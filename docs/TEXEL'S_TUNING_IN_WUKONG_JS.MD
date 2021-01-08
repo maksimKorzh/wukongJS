@@ -6,17 +6,20 @@ for WukongJS engine to serve as the only evaluation parameters<br>
 assuming tapered evaluation implementation.
 
 # Abstract
-Texel's tuning method is basically a supervised learning using logistic regression<br>
+Texel's tuning method is basically a supervised learning using logistic regression.<br>
 In order to follow the original methodology in exact way one needs to implement<br>
-quite sophisticated algorithms for otherwise training would be as slow as hell<br>
+quite sophisticated algorithms for otherwise training would be as slow as hell.<br>
 Current paper on the contrary offers the most simple implementation possible<br>
-and emphasizes pipe line flow to provide all the basics needed to master it
+and emphasizes pipe line flow to explain all the basics needed to master it.
 
 # Generating dataset
 There two major approaches to obtain a dataset for tuning purposes -<br>
 external PGN file or one produced by engine's self play. I used both<br>
 ways to tune Wukong JS. All we need to do is to extract FEN positions<br>
-from the PGN file and associate game result with it. See example below:<br>
+from the PGN file and associate game result with it so that<br>
+white win maps to '1.0', draw to '0.5' and black win to '0.1'<br>
+<br>
+See example below:<br>
 
 ```
 8/p5p1/1pnnkp2/4p2p/4P3/P2K1P2/1PN3PP/4B3 b - - 0 37 [0.5]
@@ -43,10 +46,55 @@ checkmates on board - just like in original method. Now the difference is<br>
 that in order to label positions with scalar evaluation value later on<br>
 using evaluate() function instead of quiescence() I've extracted only<br>
 those positions where static evaluation equals quiescence score so that<br>
-tactical noise didn't affect the tuning process.<br>
+tactical noise didn't affect the tuning process. All the positions within<br>
+a single game are shuffled. Also the overall data has been shuffled as well
 
-Finally I've associated game results with corresponding position so that<br>
-white win maps to '1.0', draw to '0.5' and black win to '0.1'
+# Calculating mean square error (MSE)
+In order to calculate the mean square error all we need is:<br>
+1. Get evaluation score 
+2. Map evaluation score to probabilistic value using sigmoid
+3. Subtract it from game result and square the product
+4. 
+
+See the python implementation below:
+```python
+def mean_square_error(self, K, number_of_positions):
+    # open file containing FEN positions
+    with open('positions.txt', encoding='utf-8') as f:
+        # init positions list with fixed number of games
+        fens = f.read().split('\n')[0:number_of_positions]
+        
+        # error accumulator
+        error = 0.0
+        
+        # loop over FEN strings
+        for fen in fens:
+            try:
+                # extract game result from FEN string
+                result = float(fen.split('[')[-1][:-1])
+                
+                # extract position
+                position = fen.split('[')[0]
+                
+                # set position on internal chess board (python-chess library)
+                self.board.set_fen(position)
+                
+                # get static evaluation of the position
+                score = self.evaluate()
+                
+                # map evaluation score to probabilistic value
+                sigmoid = 1 / (1 + pow(10, -K * score / 400))
+                
+                # sum error
+                error += pow(result - sigmoid, 2)
+            
+            except Exception as e: print(e)
+
+        # get mean square error
+        return error / number_of_positions
+```
+
+
 
 
 
