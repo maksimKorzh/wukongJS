@@ -362,7 +362,6 @@ class EvalTuner():
 if __name__ == '__main__':
     tuner = EvalTuner()
     #tuner.generate_dataset()
-    tuner.store_weights('weights.txt')
     print(tuner.mean_square_error())
     #tuner.tune()
     
