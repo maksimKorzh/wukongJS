@@ -6,7 +6,7 @@ which is basically a supervised learning using logistic regression
 Evaluation tuner allows to come up with your own unique material weights,<br>
 piece square tables and game phase scores for opening and endgame game phases<br>
 so that later they can be interpolated using tapered evaluation technique<br>
-amd serve as the only parameters of simplified evaluation function intended<br>
+and serve as the only parameters of simplified evaluation function intended<br>
 to compensate the lack of any other chess knowledge and not to be supplemented by them
 
 # Manual tuning of initial dataset
