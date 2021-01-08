@@ -297,7 +297,7 @@ class EvalTuner():
 
     # get mean square error
     def mean_square_error(self):
-        number_of_positions =1000
+        number_of_positions = 3000
         with open('positions.txt', encoding='utf-8') as f:
             fens = f.read().split('\n')[0:number_of_positions]
             error = 0.0
@@ -362,9 +362,10 @@ class EvalTuner():
 if __name__ == '__main__':
     tuner = EvalTuner()
     #tuner.generate_dataset()
-    #tuner.store_weights('weights.txt')
-    tuner.tune()
-    #print(tuner.mean_square_error())
+    tuner.store_weights('weights.txt')
+    print(tuner.mean_square_error())
+    #tuner.tune()
+    
     
 
 

@@ -1,3 +1,2 @@
 # What's new ?
- - minor GUI updates
- - refactored readme
+ - implemented Texel's tuning
