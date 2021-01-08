@@ -186,8 +186,8 @@ class EvalTuner():
         return alpha;
     
     # generate training dataset
-    def generate_dataset(self):
-        with open('/home/maksim/Downloads/gm2600.pgn') as fr:
+    def generate_dataset(self, filename):
+        with open(filename) as fr:
             next_game = chess.pgn.read_game(fr)
             count = 1
             
@@ -296,8 +296,7 @@ class EvalTuner():
             f.write('    ]\n  ];\n')            
 
     # get mean square error
-    def mean_square_error(self):
-        number_of_positions = 3000
+    def mean_square_error(self, K, number_of_positions):
         with open('positions.txt', encoding='utf-8') as f:
             fens = f.read().split('\n')[0:number_of_positions]
             error = 0.0
@@ -308,7 +307,7 @@ class EvalTuner():
                     position = fen.split('[')[0]
                     self.board.set_fen(position)
                     score = self.evaluate()
-                    sigmoid = 1 / (1 + pow(10, -0.20 * score / 400))
+                    sigmoid = 1 / (1 + pow(10, -K * score / 400))
                     error += pow(result - sigmoid, 2)
                 
                 except Exception as e: print(e)
@@ -316,10 +315,10 @@ class EvalTuner():
             return error / number_of_positions
 
     # evaulation tuner
-    def tune(self):
+    def tune(self, K, number_of_positions):
         adjust_value = 1
         best_params = self.extract_weights()
-        best_error = self.mean_square_error()
+        best_error = self.mean_square_error(K, number_of_positions)
         improved = True
         
         while improved:
@@ -328,7 +327,7 @@ class EvalTuner():
                 new_params = json.loads(json.dumps(best_params))
                 new_params[index] += adjust_value
                 self.update_weights(new_params)
-                new_error = self.mean_square_error()
+                new_error = self.mean_square_error(K, number_of_positions)
 
                 print('Tuning param %s out of %s, mean square error %s' % 
                      (index, len(best_params), new_error))
@@ -343,7 +342,7 @@ class EvalTuner():
                 else:
                     new_params[index] -= adjust_value * 2
                     self.update_weights(new_params)
-                    new_error = self.mean_square_error()
+                    new_error = self.mean_square_error(K, number_of_positions)
                     
                     if new_error < best_error:
                         best_error = new_error
@@ -361,8 +360,8 @@ class EvalTuner():
 # main driver
 if __name__ == '__main__':
     tuner = EvalTuner()
-    #tuner.generate_dataset()
-    print(tuner.mean_square_error())
+    #tuner.generate_dataset('games.pgn')
+    print(tuner.mean_square_error(0.20, 3000))
     #tuner.tune()
     
     

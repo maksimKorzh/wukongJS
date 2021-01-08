@@ -15,17 +15,14 @@ within the main driver in the bottom of the file "eval_tuner.py"
 # main driver
 if __name__ == '__main__':
     tuner = EvalTuner()
-    #tuner.generate_dataset()
-    #print(tuner.mean_square_error())
-    tuner.tune()
+    #tuner.generate_dataset('games.pgn')
+    print(tuner.mean_square_error(0.20, 3000))
+    #tuner.tune()
 ```
 
 You can simply comment/uncomment needed methods depending on<br>
 what you currently need:
 
- - generate_dataset() creates training dataset with FEN strings and game results
- - print(tuner.mean_square_error()) calculates mean square error for current input weights
+ - generate_dataset(filename) creates training dataset with FEN strings and game results<br>
+ - print(tuner.mean_square_error(K, number_of_games)) calculates mean square error<br>
  - tune() is a training routine, see "/test_weights" fot the ongoing outputs
-
-You'll need to specify source to PGN file is using generate_dataset()<br>
-You can also change number of positions to calculate mean square error for
