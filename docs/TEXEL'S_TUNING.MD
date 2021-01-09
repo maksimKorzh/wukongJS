@@ -1,10 +1,3 @@
-# Texel's tuning method in WunongJS
-A paper by Code Monkey king describing how in particular<br>
-the Texel's tuning method was applied to obtain unique<br>
-material weights, piece square tables and game phase scores<br>
-for WukongJS engine to serve as the only evaluation parameters<br>
-assuming tapered evaluation implementation.
-
 # Abstract
 Texel's tuning method is basically a supervised learning using logistic regression.<br>
 In order to follow the original methodology in exact way one needs to implement<br>
@@ -19,7 +12,7 @@ ways to tune Wukong JS. All we need to do is to extract FEN positions<br>
 from the PGN file and associate game result with it so that<br>
 white win maps to '1.0', draw to '0.5' and black win to '0.1'<br>
 <br>
-See example below:<br>
+See example dataset below:<br>
 
 ```
 8/p5p1/1pnnkp2/4p2p/4P3/P2K1P2/1PN3PP/4B3 b - - 0 37 [0.5]
@@ -97,11 +90,11 @@ def mean_square_error(self, K, number_of_positions):
 # Tuning
 Now when we're able to get the mean square error for a set of given position<br>
 all we need is to loop over the evaluation parameters we want to tune, adjust<br>
-them sligthly and recalculate mean square error. If it get's reduced we keep<br>
-the new parameters. The procedure is repeated until mean square error is getting<br>
-minimized. There are much more efficient and sophisticated algorithms to adjust<br>
-the evaluation parameters but I use the simplest possible. Unfortunately it's<br>
-the slowest method as well.
+them sligthly and recalculate mean square error. If it get's reduced we store<br>
+the new parameters otherwise keep existing ones. The procedure is repeated until<br>
+mean square error is getting minimized. There are much more efficient and sophisticated<br>
+algorithms to adjust the evaluation parameters but I use the simplest possible.<br>
+Unfortunately it's the slowest method as well.
 
 See the python implementation below:
 ```python
