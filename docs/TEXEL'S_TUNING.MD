@@ -5,7 +5,7 @@ understanding the basic pipe line and explanations of all the basics steps neede
 to establish it.
 
 # Generating dataset
-There two major approaches to obtain a dataset for tuning purposes -<br>
+There are two major approaches to obtain a dataset for tuning purposes -<br>
 external PGN file or one produced by engine's self play. I used both<br>
 ways to tune Wukong JS. All we need to do is to extract FEN positions<br>
 from the PGN file and associate game result with it so that<br>
@@ -34,7 +34,7 @@ rn1qk2b/pb3p2/2p1pn2/4N1p1/2pPP3/2N3B1/PP3PP1/R2QK3 w Qq - 0 14 [0.0]
 ```
 
 I've removed first 5 positions from each game and those containing<br>
-checkmates on board - just like in original method. Now the difference is<br>
+checkmates on board - just like in the original method. Now the difference is<br>
 that in order to label positions with scalar evaluation value later on<br>
 using evaluate() function instead of quiescence() I've extracted only<br>
 those positions where static evaluation equals quiescence score so that<br>
