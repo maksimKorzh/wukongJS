@@ -49,12 +49,12 @@ those positions where static evaluation equals quiescence score so that<br>
 tactical noise didn't affect the tuning process. All the positions within<br>
 a single game are shuffled. Also the overall data has been shuffled as well
 
-# Calculating mean square error (MSE)
+# Calculating mean square error
 In order to calculate the mean square error all we need is:<br>
 1. Get evaluation score 
 2. Map evaluation score to probabilistic value using sigmoid
 3. Subtract it from game result and square the product
-4. 
+4. Divide sum of errors for all positions by number of positions
 
 See the python implementation below:
 ```python
@@ -94,8 +94,93 @@ def mean_square_error(self, K, number_of_positions):
         return error / number_of_positions
 ```
 
+# Tuning
+Now when we're able to get the mean square error for a set of given position<br>
+all we need is to loop over the evaluation parameters we want to tune, adjust<br>
+them sligthly and recalculate mean square error. If it get's reduced we keep<br>
+the new parameters. The procedure is repeated until mean square error is getting<br>
+minimized. There are much more efficient and sophisticated algorithms to adjust<br>
+the evaluation parameters but I use the simplest possible. Unfortunately it's<br>
+the slowest method as well.
 
+See the python implementation below:
+```python
+def tune(self, K, number_of_positions):
+    # value to adjust parameter by
+    adjust_value = 1
+    
+    # get the copy of evaluation parameters actually used to evaluate position
+    best_params = self.extract_weights()
+    
+    # calculate initial mean square error
+    best_error = self.mean_square_error(K, number_of_positions)
+    
+    # variable to flag whether the mean square error has been minimized
+    improved = True
+    
+    # run routine until mean square error is getting minimized
+    while improved:
+        improved = False    
+        
+        # loop over all evaluation parameters
+        for index in range(len(best_params)):
+            # copy evaluation weights
+            new_params = json.loads(json.dumps(best_params))
+            
+            # adjust current parameter by +1
+            new_params[index] += adjust_value
+            
+            # update evaluation parameters actually used to get static evaluation score
+            self.update_weights(new_params)
+            
+            # recalculate mean square error with updated parameter
+            new_error = self.mean_square_error(K, number_of_positions)
 
+            print('Tuning param %s out of %s, mean square error %s' % 
+                 (index, len(best_params), new_error))
+            
+            # parameter adjustments reduced mean square error
+            if new_error < best_error:
+                # remember error
+                best_error = new_error
+                
+                # update best parameters
+                best_params = json.loads(json.dumps(new_params))
+                
+                improved = 1
+                print('found better params +')
+                self.store_weights('tuning_weights.txt')
+            
+            # parameter adjustments didn't reduce mean square error
+            else:
+                # adjust current parameter by -2 (-1 to restore initial state + -1 to adjust)
+                new_params[index] -= adjust_value * 2
+                
+                # update evaluation parameters actually used to get static evaluation score
+                self.update_weights(new_params)
+                
+                # recalculate mean square error with updated parameter
+                new_error = self.mean_square_error(K, number_of_positions)
+                
+                # parameter adjustments reduced mean square error
+                if new_error < best_error:
+                    # remember error
+                    best_error = new_error
+                    
+                    # update best parameters
+                    best_params = json.loads(json.dumps(new_params))
+                    
+                    improved = 1
+                    print('found better params -')
+                    self.store_weights('tuning_weights.txt')
+        
+        # store adjusted evaluation parameters when all of them has been traversed
+        self.store_weights('session_weights_' + str(datetime.datetime.today().strftime('%Y-%m-%d-%H-%M')) + '.txt')
+        print('Writing current session weights...')
+
+    print('Writing final weights...')
+    self.store_weights('final_weights.txt')
+```
 
 
 
