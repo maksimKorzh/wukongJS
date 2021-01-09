@@ -1286,6 +1286,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     score = (score * (100 - fifty) / 100) << 0;
     return (side == white) ? score: -score;
   }
+
   
   /****************************\
    ============================
@@ -1310,7 +1311,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
   var hashTable = [];
   
   // clear TT (hash table)
-  function clearHashTable() {
+  function initHashTable() {
     // loop over TT elements
     for (var index = 0; index < hashEntries; index++) {
       // reset TT inner fields
@@ -1327,8 +1328,8 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
   // read hash entry data
   function readHashEntry(alpha, beta, bestMove, depth) {
     // init hash entry
-    var hashEntry = hashTable[hashKey & hashEntries];
-    
+    var hashEntry = hashTable[hashKey & (hashEntries - 4)];
+
     // match hash key
     if (hashEntry.hashKey == hashKey) {
       if (hashEntry.depth >= depth) {
@@ -1341,8 +1342,8 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
         
         // match hash flag
         if (hashEntry.flag == HASH_EXACT) return score;
-        if ((hash_entry.flag == HASH_ALPHA) && (score <= alpha)) return alpha;
-        if ((hash_entry.flag == HASH_BETA) && (score >= beta)) return beta;
+        if ((hashEntry.flag == HASH_ALPHA) && (score <= alpha)) return alpha;
+        if ((hashEntry.flag == HASH_BETA) && (score >= beta)) return beta;
       }
 
       // store best move
@@ -1356,7 +1357,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
   // write hash entry data
   function writeHashEntry(score, bestMove, depth, hashFlag) {
     // init hash entry
-    var hashEntry = hashTable[hashKey & hashEntries];
+    var hashEntry = hashTable[hashKey & (hashEntries - 4)];
 
     // adjust mating scores
     if (score < -mateScore) score -= searchPly;
@@ -1479,11 +1480,13 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
   }
   
   // sort PV move
-  function sortPvMove(moveList) {
+  function sortPvMove(moveList, bestMove) {
     if (followPv) {
       followPv = 0;
       for (let count = 0; count < moveList.length; count++) {
-        if (moveList[count].move == pvTable[searchPly]) {
+        if (moveList[count].move == bestMove.value) {
+          moveList[count].score = 30000;
+        } else if (moveList[count].move == pvTable[searchPly]) {
           followPv = 1;
           moveList[count].score = 20000;
           break;
@@ -1521,7 +1524,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     generateCaptures(moveList);
 
     // sort PV move
-    sortPvMove(moveList);
+    sortPvMove(moveList, {'value': 0});
     
     // loop over moves
     for (var count = 0; count < moveList.length; count++) { 
@@ -1548,15 +1551,24 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
   function negamax(alpha, beta, depth, nullMove) {
     pvLength[searchPly] = searchPly;
     
+    // best move for TT
+    var bestMove = { value: 0 };
+    var hashFlag = HASH_ALPHA;
     let score = 0;
     let pvNode = beta - alpha > 1;
     let futilityPruning = 0;
-
+    
+    // read hash entry
+    if (searchPly && 
+       (score = readHashEntry(alpha, beta, bestMove, depth)) != noHashEntry &&
+       pvNode == 0) return score;
+    
+    // check time left
     if ((nodes & 2047) == 0) {
       checkTime();
       if (timing.stopped == 1) return 0;
     }
-    
+
     if ((searchPly && isRepetition()) || fifty >= 100) return 0;
     if (depth == 0) { nodes++; return quiescence(alpha, beta); }
     
@@ -1625,7 +1637,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     generateMoves(moveList);
     
     // sort PV move
-    sortPvMove(moveList);
+    sortPvMove(moveList, bestMove);
     
     // loop over moves
     for (let count = 0; count < moveList.length; count++) {
@@ -1672,6 +1684,8 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
       
       if (timing.stopped == 1) return 0;
       if (score > alpha) {
+        hashFlag = HASH_EXACT;
+        bestMove.value = move;
         alpha = score;
         storePvMove(move);
         
@@ -1680,6 +1694,9 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
           historyMoves[board[getMoveSource(move)] * 128 + getMoveTarget(move)] += depth;
         
         if (score >= beta) {
+          // store hash entry with the score equal to beta
+          writeHashEntry(beta, bestMove.value, depth, HASH_BETA);
+          
           // store killer moves
           if (getMoveCapture(move) == 0) {
             killerMoves[maxPly + searchPly] = killerMoves[searchPly];
@@ -1696,6 +1713,9 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
       if (inCheck) return -mateValue + searchPly;
       else return 0;
     }
+    
+    // store hash entry with the score equal to alpha
+    writeHashEntry(alpha, bestMove.value, depth, hashFlag);
 
     return alpha;
   }
@@ -1914,6 +1934,8 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     boardString += '\n 50 rule:          ' + fifty;
     boardString += '\n   moves:          ' + ((gamePly % 2) ? Math.round(gamePly / 2) - 1 : Math.round(gamePly / 2));
     console.log(boardString + '\n');
+    
+    initHashTable();
   }
   
   // print move
@@ -2083,6 +2105,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     initRandomKeys();
     hashKey = generateHashKey();
     initPieceList();
+    initHashTable();
   }())
 
 
@@ -2111,12 +2134,6 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     //setBoard('8/8/4p3/3p1p2/3P1P2/4P3/8/8 w -- 0 0 ');
     //setBoard('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1 ');
     updateBoard();
-    console.log(hashTable);
-    clearHashTable();
-    console.log(hashTable);
-    
-    writeHashEntry(25, {'value': 0}, 3, HASH_EXACT);
-    console.log('read hash:', readHashEntry(22, 36, {'value': 0}, 3))
   }
   
   return {
