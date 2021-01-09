@@ -192,7 +192,7 @@ class EvalTuner():
             count = 1
             
             while next_game:              
-                print('extracting positions from game %s out of %s total games' % (count, 384052))
+                print('extracting positions from game %s' % count)
 
                 board = next_game.board()
                 positions = []                
@@ -361,8 +361,8 @@ class EvalTuner():
 if __name__ == '__main__':
     tuner = EvalTuner()
     #tuner.generate_dataset('games.pgn')
-    #print(tuner.mean_square_error(0.20, 3000))
-    tuner.tune(0.20, 3000)
+    #print(tuner.mean_square_error(0.20, 30000))
+    tuner.tune(0.20, 30000)
     
     
 

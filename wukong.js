@@ -1287,6 +1287,89 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     return (side == white) ? score: -score;
   }
   
+  /****************************\
+   ============================
+   
+       TRANSPOSITION TABLE
+
+   ============================              
+  \****************************/
+  
+  // number hash table entries
+  var hashEntries = 800000;
+
+  // no hash entry found constant
+  const noHashEntry = 100000;
+
+  // transposition table hash flags
+  const HASH_EXACT = 0;
+  const HASH_ALPHA = 1;
+  const HASH_BETA = 2;
+
+  // define TT instance
+  var hashTable = [];
+  
+  // clear TT (hash table)
+  function clearHashTable() {
+    // loop over TT elements
+    for (var index = 0; index < hashEntries; index++) {
+      // reset TT inner fields
+      hashTable[index] = {
+        hashKey: 0,
+        depth: 0,
+        flag: 0,
+        score: 0,
+        bestMove: 0
+      }
+    }
+  }
+  
+  // read hash entry data
+  function readHashEntry(alpha, beta, bestMove, depth) {
+    // init hash entry
+    var hashEntry = hashTable[hashKey & hashEntries];
+    
+    // match hash key
+    if (hashEntry.hashKey == hashKey) {
+      if (hashEntry.depth >= depth) {
+        // init score
+        var score = hashEntry.score;
+        
+        // adjust mating scores
+        if (score < -mateScore) score += searchPly;
+        if (score > mateScore) score -= searchPly;
+        
+        // match hash flag
+        if (hashEntry.flag == HASH_EXACT) return score;
+        if ((hash_entry.flag == HASH_ALPHA) && (score <= alpha)) return alpha;
+        if ((hash_entry.flag == HASH_BETA) && (score >= beta)) return beta;
+      }
+
+      // store best move
+      bestMove.value = hashEntry.bestMove;
+    }
+    
+    // if hash entry doesn't exist
+    return noHashEntry;
+  }
+
+  // write hash entry data
+  function writeHashEntry(score, bestMove, depth, hashFlag) {
+    // init hash entry
+    var hashEntry = hashTable[hashKey & hashEntries];
+
+    // adjust mating scores
+    if (score < -mateScore) score -= searchPly;
+    if (score > mateScore) score += searchPly;
+
+    // write hash entry data 
+    hashEntry.hashKey = hashKey;
+    hashEntry.score = score;
+    hashEntry.flag = hashFlag;
+    hashEntry.depth = depth;
+    hashEntry.bestMove = bestMove;
+  }
+  
 
   /****************************\
    ============================
@@ -2028,7 +2111,12 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     //setBoard('8/8/4p3/3p1p2/3P1P2/4P3/8/8 w -- 0 0 ');
     //setBoard('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1 ');
     updateBoard();
-    console.log('score:', evaluate());
+    console.log(hashTable);
+    clearHashTable();
+    console.log(hashTable);
+    
+    writeHashEntry(25, {'value': 0}, 3, HASH_EXACT);
+    console.log('read hash:', readHashEntry(22, 36, {'value': 0}, 3))
   }
   
   return {
