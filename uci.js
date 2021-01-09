@@ -35,24 +35,27 @@ function parseGo(command) {
   if (go[1] == 'depth') { depth = parseInt(go[2]); }
 
   if(movetime != -1) {
-    timing.time = movetime + 10;
+    timing.time = movetime;
     movestogo = 1;
   }
 
   let startTime = new Date().getTime();
 
   if(timing.time != -1) {
+    let timeLeft = timing.time;
     timing.timeSet = 1;
     timing.time /= movestogo;
     timing.time = parseInt(timing.time);
 
-    if (timing.time <= 0) {
-        timing.time = 0;
-        inc -= 50;
-        if (inc < 0) inc = 10;
+    if (movestogo == 1) {
+      timing.stopTime = startTime + timing.time;
+    } else if (timeLeft <= 1000) {
+      inc -= 150
+      if (inc <= 0) inc = 100;
+      timing.stopTime = startTime + inc;
+    } else {
+      timing.stopTime = startTime + timing.time + inc;
     }
-    
-    timing.stopTime = startTime + timing.time + inc;        
   }
 
   // "infinite" depth if it's not specified
