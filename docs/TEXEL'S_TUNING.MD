@@ -1,9 +1,8 @@
 # Abstract
 Texel's tuning method is basically a supervised learning using logistic regression.<br>
-In order to follow the original methodology in exact way one needs to implement<br>
-quite sophisticated algorithms for otherwise training would be as slow as hell.<br>
-Current paper on the contrary offers the most simple implementation possible<br>
-and emphasizes pipe line flow to explain all the basics needed to master it.
+Current paper offers the most simple <a href="https://github.com/maksimKorzh/wukongJS/tree/main/tools/eval_tuner">implementation</a> possible with an emphasis on<br>
+understanding the basic pipe line and explanations of all the basics steps needed<br>
+to establish it.
 
 # Generating dataset
 There two major approaches to obtain a dataset for tuning purposes -<br>
@@ -174,6 +173,10 @@ def tune(self, K, number_of_positions):
     print('Writing final weights...')
     self.store_weights('final_weights.txt')
 ```
+
+# Video explanation
+[![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/3JCWxH6IehQ/0.jpg)](https://www.youtube.com/watch?v=3JCWxH6IehQ)
+
 
 
 
