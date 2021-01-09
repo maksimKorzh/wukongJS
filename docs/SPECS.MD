@@ -10,7 +10,7 @@
 
 # Evaluation
  - based on simplified evaluation by Tomasz Michniewski 
- - material + PST only obtained by <a href="https://github.com/maksimKorzh/wukongJS/blob/main/docs/TEXEL'S_TUNING.MD">Texel's tuning method</d>
+ - material + PST only obtained by <a href="https://github.com/maksimKorzh/wukongJS/blob/main/docs/TEXEL'S_TUNING.MD">Texel's tuning method</a>
  - tapared evaluation
  - insufficient material detection
 
