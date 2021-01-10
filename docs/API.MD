@@ -549,6 +549,19 @@ if (engine.generateLegalMoves().length == 0) {
 */
 ```
 
+# Set hash table size
+```js
+// set hash table size: min 4MB | max 128MB | default 16MB
+engine.setHashSize(64)
+
+/*
+    Output:
+    
+    Set hash table size to 64 Mb
+    Hash table initialized with 838860 entries
+*/
+```
+
 # Debugging
 If you've found a function within the engine object that doesn't have<br>
 a public API reference you can either to add it on your own and make a PR<br>
