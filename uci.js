@@ -102,6 +102,7 @@ uci.on('line', function(command){
   if (command == 'uci') {
     console.log('id name WukongJS ' + engine.VERSION);
     console.log('id author Code Monkey King');
+    console.log('option name Hash type spin default 16 min 4 max 128');
     console.log('uciok');
   }
 
@@ -111,12 +112,13 @@ uci.on('line', function(command){
   if (command.includes('position')) parsePosition(command);
   if (command.includes('go')) parseGo(command);
   
+  // set hash size
+  if (command.includes("setoption name Hash value")) {
+    let Mb = command.split(' ')[command.split(' ').length - 1];
+    engine.setHashSize(Mb);
+  }
+  
   // perft (non UCI command)
   if (command.includes('perft')) engine.perft(command.split(' ')[1]);
 })
-
-
-
-
-
 
