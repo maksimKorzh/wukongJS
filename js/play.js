@@ -121,6 +121,37 @@ function flip() {
   engine.updateBoard();
 }
 
+// use opening book
+function getBookMove() {
+  let moves = engine.getMoves();
+  let lines = [];
+  
+  if (moves.length == 0) {
+    let randomLine = book[Math.floor(Math.random() * book.length)];
+    let firstMove = randomLine.split(' ')[0];
+    return engine.moveFromString(firstMove);
+  } else if (moves.length) {
+    for (let line = 0; line < book.length; line++) {
+      let currentLine = moves.join(' ');
+
+      if (book[line].includes(currentLine) && book[line].split(currentLine)[0] == '')
+        lines.push(book[line]);
+    }
+  }
+  
+  if (lines.length) {
+    let currentLine = moves.join(' ');
+    let randomLine = lines[Math.floor(Math.random() * lines.length)];
+
+    try {
+      let bookMove = randomLine.split(currentLine)[1].split(' ')[1];
+      return engine.moveFromString(bookMove);
+    } catch(e) { return 0; }
+  }
+
+  return 0;
+}
+
 // engine move
 function think() {
   engine.drawBoard();
@@ -136,7 +167,10 @@ function think() {
   timing.stopTime = startTime + timing.time
   engine.setTimeControl(timing);
 
-  let bestMove = engine.search(64);
+  let bestMove = getBookMove();
+  if (bestMove) document.getElementById('score').innerHTML = 'book move'
+  else if (bestMove == 0) bestMove = engine.search(64);
+  
   let sourceSquare = engine.getMoveSource(bestMove);
   let targetSquare = engine.getMoveTarget(bestMove);
   let promotedPiece = engine.getMovePromoted(bestMove);
