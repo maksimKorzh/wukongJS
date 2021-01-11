@@ -1342,7 +1342,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
   // read hash entry data
   function readHashEntry(alpha, beta, bestMove, depth) {
     // init hash entry
-    var hashEntry = hashTable[hashKey & (hashEntries - 4)];
+    var hashEntry = hashTable[(hashKey & 0x7fffffff) % hashEntries];
 
     // match hash key
     if (hashEntry.hashKey == hashKey) {
@@ -1371,7 +1371,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
   // write hash entry data
   function writeHashEntry(score, bestMove, depth, hashFlag) {
     // init hash entry
-    var hashEntry = hashTable[hashKey & (hashEntries - 4)];
+    var hashEntry = hashTable[(hashKey & 0x7fffffff) % hashEntries];
 
     // adjust mating scores
     if (score < -mateScore) score -= searchPly;
@@ -1575,8 +1575,8 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     // read hash entry
     if (searchPly && 
        (score = readHashEntry(alpha, beta, bestMove, depth)) != noHashEntry &&
-       pvNode == 0) return score;
-    
+        pvNode == 0) return score;
+
     // check time left
     if ((nodes & 2047) == 0) {
       checkTime();
