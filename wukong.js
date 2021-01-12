@@ -799,7 +799,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     // switch side to move
     side ^= 1;
     hashKey ^= sideKey;
-    
+
     // return illegal move if king is left in check 
     if (isSquareAttacked((side == white) ? kingSquare[side ^ 1] : kingSquare[side ^ 1], side)) {
       takeBack();
@@ -858,7 +858,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
 
     moveStack.pop();
   }
-  
+
   // make null move
   function makeNullMove() {
     // backup current board state
@@ -869,11 +869,12 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
       enpassant: enpassant,
       castle: castle,
       fifty: fifty,
-      hash: hashKey,
+      hash: hashKey
     });
     
     if (enpassant != noEnpassant) hashKey ^= pieceKeys[enpassant];
     enpassant = noEnpassant;
+    
     fifty = 0;
     side ^= 1;
     hashKey ^= sideKey;
@@ -1317,7 +1318,8 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     // adjust MB if going beyond the aloowed bounds
     if(Mb < 4) Mb = 4;
     if(Mb > 128) Mb = 128;
-    hashEntries = parseInt(Mb * 1024 * 1024 / 80);
+    
+    hashEntries = parseInt(Mb * 0x100000 / 20);
     initHashTable();
     
     console.log('Set hash table size to', Mb, 'Mb');
@@ -1610,10 +1612,28 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
       if (nullMove) {
         // null move pruning
         if ( searchPly && depth > 2 && staticEval >= beta) {
-          makeNullMove();
-          score = -negamax(-beta, -beta + 1, depth - 1 - 2, NO_NULL);
-          takeNullMove();
+          // preserve board state variables
+          let oldSide = side;
+          let oldEnpassant = enpassant;
+          let oldCastle = castle;
+          let oldFifty = fifty;
+          let oldHash = hashKey;
+          
+          if (enpassant != noEnpassant) hashKey ^= pieceKeys[enpassant];
+          enpassant = noEnpassant;
+          fifty = 0;
+          side ^= 1;
+          hashKey ^= sideKey;
 
+          score = -negamax(-beta, -beta + 1, depth - 1 - 2, NO_NULL);
+          
+          // restore board state
+          side = oldSide;
+          enpassant = oldEnpassant;
+          castle = oldCastle;
+          fifty = oldFifty;
+          hashKey = oldHash;
+          
           if (timing.stopped == 1) return 0;
           if (score >= beta) return beta;
         }

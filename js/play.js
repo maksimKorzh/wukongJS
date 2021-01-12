@@ -21,6 +21,7 @@ console.log('  type "engine" for public API reference');
 
 // user input controls
 var clickLock = 0;
+var allowBook = 1;
 var userSource, userTarget;
 
 // 3 fold repetitions
@@ -92,6 +93,7 @@ function validateMove(userSource, userTarget, promotedPiece) {
 // set FEN
 function setFen() {
   let fen = document.getElementById('fen').value;
+  if (fen != engine.START_FEN) allowBook = 0;
   engine.setBoard(fen);
   engine.drawBoard();
   engine.updateBoard();
@@ -99,6 +101,7 @@ function setFen() {
 
 // start new game
 function newGame() {
+  allowBook = 1;
   engine.setBoard(engine.START_FEN);
   engine.drawBoard();
   engine.updateBoard();
@@ -123,6 +126,8 @@ function flip() {
 
 // use opening book
 function getBookMove() {
+  if (allowBook == 0) return 0;
+
   let moves = engine.getMoves();
   let lines = [];
   
