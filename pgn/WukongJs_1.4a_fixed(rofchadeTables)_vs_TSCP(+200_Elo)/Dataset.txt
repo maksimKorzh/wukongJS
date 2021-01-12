@@ -1,0 +1,12 @@
+   Engine              Score                                               Wu
+1: WukongJS 1.4a tuned 35,5/46 ............................................... 
+2: TSCP                10,5/46 0001001100=00=00=00=0=000000001==00000000=10=1? 
+
+46 of 100 games played
+Name of the tournament: Dataset
+Site/ Country: maksim-Inspiron-3582, Ukraine
+Level: Blitz 2/1
+Operating system: Linux 4.15.0-20-generic x86_64
+PGN-File: /home/maksim/Tournaments/Dataset.pgn
+Website: 
+E-Mail Address: 
