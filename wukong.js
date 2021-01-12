@@ -887,7 +887,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     enpassant = moveStack[moveStack.length - 1].enpassant;
     castle = moveStack[moveStack.length - 1].castle;
     fifty = moveStack[moveStack.length - 1].fifty;
-    hashKey = moveStack[moveStack.length - 1].hashKey;
+    hashKey = moveStack[moveStack.length - 1].hash;
     moveStack.pop();
   }
 
@@ -1612,27 +1612,9 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
       if (nullMove) {
         // null move pruning
         if ( searchPly && depth > 2 && staticEval >= beta) {
-          // preserve board state variables
-          let oldSide = side;
-          let oldEnpassant = enpassant;
-          let oldCastle = castle;
-          let oldFifty = fifty;
-          let oldHash = hashKey;
-          
-          if (enpassant != noEnpassant) hashKey ^= pieceKeys[enpassant];
-          enpassant = noEnpassant;
-          fifty = 0;
-          side ^= 1;
-          hashKey ^= sideKey;
-
+          makeNullMove();
           score = -negamax(-beta, -beta + 1, depth - 1 - 2, NO_NULL);
-          
-          // restore board state
-          side = oldSide;
-          enpassant = oldEnpassant;
-          castle = oldCastle;
-          fifty = oldFifty;
-          hashKey = oldHash;
+          takeNullMove();
           
           if (timing.stopped == 1) return 0;
           if (score >= beta) return beta;
