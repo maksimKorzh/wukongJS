@@ -361,8 +361,8 @@ class EvalTuner():
 if __name__ == '__main__':
     tuner = EvalTuner()
     #tuner.generate_dataset('games.pgn')
-    print(tuner.mean_square_error(0.20, 30000))
-    #tuner.tune(0.20, 1000)
+    #print(tuner.mean_square_error(0.20, 1000))
+    tuner.tune(0.20, 1000)
     
     
 

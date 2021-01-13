@@ -50,7 +50,7 @@ function parseGo(command) {
     if (movestogo == 1) {
       timing.stopTime = startTime + timing.time;
     } else if (timeLeft <= 1000) {
-      inc -= 150
+      inc -= 300
       if (inc <= 0) inc = 100;
       timing.stopTime = startTime + inc;
     } else {
