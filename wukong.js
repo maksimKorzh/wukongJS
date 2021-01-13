@@ -1298,7 +1298,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
   \****************************/
   
   // 16Mb default hash table size
-  var hashEntries = 209715;    
+  var hashEntries = 838860;    
 
   // no hash entry found constant
   const noHashEntry = 100000;
