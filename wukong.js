@@ -1497,12 +1497,19 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
   
   // sort PV move
   function sortPvMove(moveList, bestMove) {
-    if (followPv) {
+    // sort hash table move
+    for (let count = 0; count < moveList.length; count++) {
+      if (moveList[count].move == bestMove.value) {
+        moveList[count].score = 30000;
+        return;
+      }
+    }
+    
+    // sort PV move
+    if (searchPly && followPv) {
       followPv = 0;
       for (let count = 0; count < moveList.length; count++) {
-        if (moveList[count].move == bestMove.value) {
-          moveList[count].score = 30000;
-        } else if (moveList[count].move == pvTable[searchPly]) {
+        if (moveList[count].move == pvTable[searchPly]) {
           followPv = 1;
           moveList[count].score = 20000;
           break;
