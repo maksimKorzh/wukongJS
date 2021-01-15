@@ -1,0 +1,77 @@
+[Settings]
+TournamentName=Dataset
+Type=1
+CurrSwissRound=0
+Rounds=100
+CurrentPair=1
+CurrentRound=100
+Level=2 2\0/1#0
+
+[Options]
+QuitAfterTournament=0
+ShutDownAfterTournament=0
+RestartEngines=0
+RepeatStartPosition=1
+Startposition=0
+Variant=0
+StartPGNEPD=/home/maksim/Desktop/test.pgn
+Resign=0
+ResignValue=-900
+MaxGameLength=250
+EarlyDrawFromMove=9999
+TablebaseDraw=0
+Autoflag=1
+Ponder=0
+AutoRotateInGautlet=1
+RutschSystem=1
+RestartArenaAfterGamesValue=20
+RestartArenaAtHour1=0
+RestartArenaAtHourValue=2
+ShutdownComputerAfterGames1=0
+ShutdownComputerAfterGamesValue=0
+
+[Save]
+SaveGamesPGN=1
+SaveIncompleteGamesPGN=1
+PGNFile=/home/maksim/Tournaments/Dataset.pgn
+Protocolfile=/home/maksim/Tournaments/Dataset.log
+TurTabTextfile=/home/maksim/Tournaments/Dataset.txt
+TurTabHTMLfile=/home/maksim/Tournaments/Dataset.html
+SaveTurTabText=1
+SaveTurTabHTML=1
+HTMLuseCountry=0
+HTMLuseFlags=0
+HTMLuseEnglish=0
+HTMLshortResults=0
+HTMLonlyPoints=0
+HTMLFlagsFromWebsite=0
+HTMLshowPGNfilename=1
+HTMLshowBenchmark=0
+PGNwebsite=
+HTMLWinPercent=0
+HTMLStartELO=0
+HTMLShowConditions=0
+HTMLConditions=
+HTMLTopLineColorized=0
+HTMLTableTopLineColor=6737151
+
+[Data]
+LastPGNEPDindex=1
+Country=Ukraine
+Site=maksim-Inspiron-3582
+Hardware=Intel(R) Celeron(R) N4000 CPU @ 1.10GHz 2248.570 MHz with 3â752 MB Memory
+OS=Linux 4.15.0-20-generic x86_64
+Website=
+E-Mail=
+ArenaVersion=Arena 3.10beta
+LastGameDate=2021.01.15
+LastGameTime=03:43:26
+FirstGameDate=2021.01.14
+FirstGameTime=16:46:13
+
+[PairingResults]
+TSCP ------ WukongJS 1.4=00110d1100011d00d110010101011100dd1011dd001d0001d01d10100111d1110d001100011001010dd010100110d0011000
+
+[Participants]
+Engine1=WukongJS 1.4
+Engine2=TSCP
