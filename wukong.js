@@ -23,8 +23,8 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
   \****************************/
   
   // chess engine version
-  const version = '1.4';
-  const elo = '1720';
+  const version = '1.5a';
+  const elo = '1740';
 
   // sides to move  
   const white = 0;

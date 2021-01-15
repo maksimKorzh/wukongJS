@@ -17,6 +17,7 @@
   <a href="https://github.com/maksimKorzh/wukongJS/blob/main/docs/UCI.MD">Install as UCI</a> |
   <a href="https://github.com/maksimKorzh/wukongJS/blob/main/docs/API.MD">API docs</a> |
   <a href="https://github.com/maksimKorzh/wukongJS/blob/main/docs/SPECS.MD">Tech specs</a> |
+  <a href="https://github.com/maksimKorzh/wukongJS/blob/main/docs/CREDITS.MD">Credits</a> |
   <a href="https://github.com/maksimKorzh/wukongJS/issues">Support</a>
 </p>
 <hr>
