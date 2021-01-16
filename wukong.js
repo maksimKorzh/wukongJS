@@ -279,13 +279,118 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
    ============================              
   \****************************/
 
+  const NULL = 0;
+  const KING = 1;
+  const PAWN = 2;
+  const KNIGHT = 3;
+  const BISHOP = 4;
+  const ROOK = 5;
+  const QUEEN = 6;
+  const WHITE_KING = makePiece(white, KING);
+  const WHITE_PAWN = makePiece(white, PAWN);
+  const WHITE_KNIGHT = makePiece(white, KNIGHT);
+  const WHITE_BISHOP = makePiece(white, BISHOP);
+  const WHITE_ROOK = makePiece(white, ROOK);
+  const WHITE_QUEEN = makePiece(white, QUEEN);
+  const BLACK_KING = makePiece(black, KING);
+  const BLACK_PAWN = makePiece(black, PAWN);
+  const BLACK_KNIGHT = makePiece(black, KNIGHT);
+  const BLACK_BISHOP = makePiece(black, BISHOP);
+  const BLACK_ROOK = makePiece(black, ROOK);
+  const BLACK_QUEEN = makePiece(black, QUEEN);
+  
+  const PIECE_COLOR_MASK = 0x08;
+  const PIECE_TYPE_MASK = 0x07;
+  const PIECE_SLIDER_MASK = 0x04;
+  const OUT_OF_BOARD_MASK = 0x88;
+  
+  const UP = -16;
+  const RIGHT = +1;
+  const DOWN = +16;
+  const LEFT = -1;
+  
+  
+  const MOVE_DIRECTIONS = [
+    [],
+    [UP, RIGHT, DOWN, LEFT, UP + LEFT, UP + RIGHT, DOWN + LEFT, DOWN + RIGHT],
+    [],
+    [UP + UP + LEFT, UP + UP + RIGHT, DOWN + DOWN + LEFT, DOWN + DOWN + RIGHT, LEFT + LEFT + UP, LEFT + LEFT + DOWN, RIGHT + RIGHT + UP, RIGHT + RIGHT + DOWN],
+    [UP + LEFT, UP + RIGHT, DOWN + LEFT, DOWN + RIGHT],
+    [UP, RIGHT, DOWN, LEFT],
+    [UP, RIGHT, DOWN, LEFT, UP + LEFT, UP + RIGHT, DOWN + LEFT, DOWN + RIGHT] // QUEEN
+  ];
+
+  
+  function makePiece(color, pieceType) {
+    return pieceType | (color << 3);
+  }
+  
+//  |   1 |   1 | 0001 | WHITE KING   |   | 0000 0010 | 0x02 | Q-SIDE CASTLING |
+//  |   2 |   2 | 0010 | WHITE PAWN   |   | 0000 0100 | 0x04 | PAWN 2 SQUARES  |
+//  |   3 |   3 | 0011 | WHITE KNIGHT |   | 0000 1000 | 0x08 | EN PASSANT      |
+//  |   4 |   4 | 0100 | WHITE BISHOP |   | 0001 0000 | 0x10 | PROMOTION       |
+//  |   5 |   5 | 0101 | WHITE ROOK   |   | 0010 0000 | 0x20 | PAWN OR CAPTURE |
+//  |   6 |   6 | 0110 | WHITE QUEEN  |   | 0100 0000 | 0x40 | NOT YET USED    |
+//  |   7 |   7 | 0111 |              |   | 1000 0000 | 0x80 | NOT YET USED    |
+//  |   8 |   8 | 1000 |              |   +-----------+------+-----------------+
+//  |   9 |   9 | 1001 | BLACK KING   |
+//  |  10 |   A | 1010 | BLACK PAWN   |
+//  |  11 |   B | 1011 | BLACK KNIGHT |
+//  |  12 |   C | 1100 | BLACK BISHOP |
+//  |  13 |   D | 1101 | BLACK ROOK   |
+//  |  14 |   E | 1110 | BLACK QUEEN  
+
+  const mapPiece = [0, K, P, N, B, R, Q, 0, 0, k, p, k, b, r, q];
+  const mapBack = [
+    0, 
+    WHITE_PAWN, WHITE_KNIGHT, WHITE_BISHOP, WHITE_ROOK, WHITE_QUEEN, WHITE_KING,
+    BLACK_PAWN, BLACK_KNIGHT, BLACK_BISHOP, BLACK_ROOK, BLACK_QUEEN, BLACK_KING
+  ];
+  
+  // r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 10
+  
   // square attacked
-  function isSquareAttacked(square, side) {
-    // by pawns
+  function isSquareAttacked(square, color) {
+    for (let pieceType = QUEEN; pieceType >= KING; pieceType--) {
+        let piece = makePiece(color, pieceType);
+        if (pieceType == PAWN) {
+            let direction = DOWN * (1 - 2 * color);
+            for (let lr = LEFT; lr <= RIGHT; lr += 2) {
+                let targetSquare = square + direction + lr;
+                if (!(targetSquare & OUT_OF_BOARD_MASK) && mapBack[board[targetSquare]] == piece) {
+                    return true;
+                }
+            }
+        }
+        else {
+            let slide = pieceType & PIECE_SLIDER_MASK;
+            let directions = MOVE_DIRECTIONS[pieceType];
+            for (let d = 0; d < directions.length; d++) {
+                let targetSquare = square;
+                do {
+                    targetSquare += directions[d];
+                    if (targetSquare & OUT_OF_BOARD_MASK)
+                        break;
+                    let targetPiece = mapBack[board[targetSquare]];
+                    if (targetPiece != NULL) {
+                        if (targetPiece == piece)
+                            return true;
+                        break;
+                    }
+                } while (slide);
+            }
+        }
+    }
+
+    return false;
+    
+    
+    
+    /* by pawns
     for (let index = 0; index < 2; index++) {
-      let targetSquare = square + pawnDirections.offsets[side][index] 
+      let targetSquare = square + pawnDirections.offsets[color][index] 
       if (((targetSquare) & 0x88) == 0 &&
-           (board[targetSquare] == pawnDirections.pawn[side])) return 1;
+           (board[targetSquare] == pawnDirections.pawn[color])) return 1;
     }
     
     // by leaper pieces
@@ -294,7 +399,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
         let targetSquare = square + leaperPieces[piece].offsets[index];
         let targetPiece = board[targetSquare];
         if ((targetSquare & 0x88) == 0)
-          if (targetPiece == leaperPieces[piece].side[side]) return 1;
+          if (targetPiece == leaperPieces[piece].side[color]) return 1;
       }
     }
     
@@ -304,14 +409,14 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
         let targetSquare = square + sliderPieces[piece].offsets[index];
         while ((targetSquare & 0x88) == 0) {
           var targetPiece = board[targetSquare];
-          if (sliderPieces[piece].side[side].includes(targetPiece)) return 1;
+          if (sliderPieces[piece].side[color].includes(targetPiece)) return 1;
           if (targetPiece) break;
           targetSquare += sliderPieces[piece].offsets[index];
         }
       }
     }
 
-    return 0;
+    return 0;*/
   }
 
 
@@ -963,7 +1068,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
   */
   
   const opening = 0, endgame = 1, middlegame = 2;
-  const PAWN = 0, KNIGHT = 1, BISHOP = 2, ROOK = 3, QUEEN = 4, KING = 5;
+  const PAWN_PST = 0, KNIGHT_PST = 1, BISHOP_PST = 2, ROOK_PST = 3, QUEEN_PST = 4, KING_PST = 5;
   const openingPhaseScore = 5900;
   const endgamePhaseScore = 500;
 
@@ -1212,63 +1317,63 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
         // positional score
         switch (piece) {
           case P:
-            scoreOpening += pst[opening][PAWN][square];
-            scoreEndgame += pst[endgame][PAWN][square];
+            scoreOpening += pst[opening][PAWN_PST][square];
+            scoreEndgame += pst[endgame][PAWN_PST][square];
             break;
 
           case N:
-            scoreOpening += pst[opening][KNIGHT][square];
-            scoreEndgame += pst[endgame][KNIGHT][square];
+            scoreOpening += pst[opening][KNIGHT_PST][square];
+            scoreEndgame += pst[endgame][KNIGHT_PST][square];
             break;
 
           case B:
-            scoreOpening += pst[opening][BISHOP][square];
-            scoreEndgame += pst[endgame][BISHOP][square];
+            scoreOpening += pst[opening][BISHOP_PST][square];
+            scoreEndgame += pst[endgame][BISHOP_PST][square];
             break;
 
           case R:
-            scoreOpening += pst[opening][ROOK][square];
-            scoreEndgame += pst[endgame][ROOK][square];
+            scoreOpening += pst[opening][ROOK_PST][square];
+            scoreEndgame += pst[endgame][ROOK_PST][square];
             break;
 
           case Q:
-            scoreOpening += pst[opening][QUEEN][square];
-            scoreEndgame += pst[endgame][QUEEN][square];
+            scoreOpening += pst[opening][QUEEN_PST][square];
+            scoreEndgame += pst[endgame][QUEEN_PST][square];
             break;
 
           case K:
-            scoreOpening += pst[opening][KING][square];
-            scoreEndgame += pst[endgame][KING][square];
+            scoreOpening += pst[opening][KING_PST][square];
+            scoreEndgame += pst[endgame][KING_PST][square];
             break;
 
           case p:
-            scoreOpening -= pst[opening][PAWN][mirrorSquare[square]];
-            scoreEndgame -= pst[endgame][PAWN][mirrorSquare[square]];
+            scoreOpening -= pst[opening][PAWN_PST][mirrorSquare[square]];
+            scoreEndgame -= pst[endgame][PAWN_PST][mirrorSquare[square]];
             break;
 
           case n:
-            scoreOpening -= pst[opening][KNIGHT][mirrorSquare[square]];
-            scoreEndgame -= pst[endgame][KNIGHT][mirrorSquare[square]];
+            scoreOpening -= pst[opening][KNIGHT_PST][mirrorSquare[square]];
+            scoreEndgame -= pst[endgame][KNIGHT_PST][mirrorSquare[square]];
             break;
 
           case b:
-            scoreOpening -= pst[opening][BISHOP][mirrorSquare[square]];
-            scoreEndgame -= pst[endgame][BISHOP][mirrorSquare[square]];
+            scoreOpening -= pst[opening][BISHOP_PST][mirrorSquare[square]];
+            scoreEndgame -= pst[endgame][BISHOP_PST][mirrorSquare[square]];
             break;
 
           case r:
-            scoreOpening -= pst[opening][ROOK][mirrorSquare[square]];
-            scoreEndgame -= pst[endgame][ROOK][mirrorSquare[square]];
+            scoreOpening -= pst[opening][ROOK_PST][mirrorSquare[square]];
+            scoreEndgame -= pst[endgame][ROOK_PST][mirrorSquare[square]];
             break;
           
           case q:
-            scoreOpening -= pst[opening][QUEEN][mirrorSquare[square]];
-            scoreEndgame -= pst[endgame][QUEEN][mirrorSquare[square]];
+            scoreOpening -= pst[opening][QUEEN_PST][mirrorSquare[square]];
+            scoreEndgame -= pst[endgame][QUEEN_PST][mirrorSquare[square]];
             break;
 
           case k:
-            scoreOpening -= pst[opening][KING][mirrorSquare[square]];
-            scoreEndgame -= pst[endgame][KING][mirrorSquare[square]];
+            scoreOpening -= pst[opening][KING_PST][mirrorSquare[square]];
+            scoreEndgame -= pst[endgame][KING_PST][mirrorSquare[square]];
             break;
         }
       }
