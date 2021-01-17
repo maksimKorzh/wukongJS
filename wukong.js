@@ -46,10 +46,10 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
   const p = 7, n = 8, b = 9, r = 10, q = 11, k = 12;
   
   // map "optimized" piece codes to engine's piece codes
-  const mapToOptimized = [0, K, P, N, B, R, Q, 0, 0, k, p, n, b, r, q];
+  const mapFromOptimized = [0, K, P, N, B, R, Q, 0, 0, k, p, n, b, r, q];
   
-  // map board piece to "optimized" piece code
-  const mapFromOptimized = [0, 2, 3, 4, 5, 6, 1, 10, 11, 12, 13, 14, 9];
+  // map board piece to "optimized" piece codes
+  const mapToOptimized = [0, 2, 3, 4, 5, 6, 1, 10, 11, 12, 13, 14, 9];
   
   // empty square & offboard square
   const e = 0, o = 13;
@@ -331,7 +331,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
         let direction = 16 * (1 - 2 * color);
         for (let lr = -1; lr <= 1; lr += 2) {
           let targetSquare = square + direction + lr;
-          if (!(targetSquare & 0x88) && board[targetSquare] == mapToOptimized[piece]) return true;
+          if (!(targetSquare & 0x88) && board[targetSquare] == mapFromOptimized[piece]) return true;
         }
       }
       
@@ -346,7 +346,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
             if (targetSquare & 0x88) break;
             let targetPiece = board[targetSquare];
             if (targetPiece != e) {
-              if (targetPiece == mapToOptimized[piece]) return true;
+              if (targetPiece == mapFromOptimized[piece]) return true;
               break;
             }
           } while (slider);
@@ -441,7 +441,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     for (let piece = P; piece <= k; piece++) {
       for (let pieceIndex = 0; pieceIndex < pieceList[piece]; pieceIndex++) {
         let sourceSquare = pieceList.pieces[piece * 10 + pieceIndex];
-        let optimizedPiece = mapFromOptimized[board[sourceSquare]];
+        let optimizedPiece = mapToOptimized[board[sourceSquare]];
         let pieceType = optimizedPiece & 0x07;
         
         if (mapColor[(optimizedPiece & 0x08)] == side) {
@@ -454,7 +454,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
             if ((targetSquare & 0x88) == 0 && board[targetSquare] == e) {   
               if ((targetSquare & 0xF0) == pawnPromotingRank[side]) {
                 for (let promotedPiece = QUEEN; promotedPiece >= KNIGHT; promotedPiece--)
-                  addMove(moveList, encodeMove(sourceSquare, targetSquare, mapToOptimized[promotedPiece | (side << 3)], 0, 0, 0, 0));
+                  addMove(moveList, encodeMove(sourceSquare, targetSquare, mapFromOptimized[promotedPiece | (side << 3)], 0, 0, 0, 0));
               } else {
                 addMove(moveList, encodeMove(sourceSquare, targetSquare, 0, 0, 0, 0, 0));
                 let doubleTarget = sourceSquare + direction * 2;
@@ -468,12 +468,12 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
             for (let lr = -1; lr <= 1; lr += 2) {
               targetSquare = sourceSquare + direction + lr;
               if (targetSquare & 0x88) continue;
-              let targetPiece = mapFromOptimized[board[targetSquare]];
+              let targetPiece = mapToOptimized[board[targetSquare]];
               
               if (targetPiece != e && mapColor[targetPiece & 0x08] != side) {
                 if ((targetSquare & 0xF0) == pawnPromotingRank[side]) {
                   for (let promotedPiece = QUEEN; promotedPiece >= KNIGHT; promotedPiece--)
-                    addMove(moveList, encodeMove(sourceSquare, targetSquare, mapToOptimized[promotedPiece | (side << 3)], 1, 0, 0, 0));
+                    addMove(moveList, encodeMove(sourceSquare, targetSquare, mapFromOptimized[promotedPiece | (side << 3)], 1, 0, 0, 0));
                 } else addMove(moveList, encodeMove(sourceSquare, targetSquare, 0, 1, 0, 0, 0));
               }
               
@@ -515,7 +515,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
               do {
                 targetSquare += directions[d];
                 if (targetSquare & 0x88) break;
-                let targetPiece = mapFromOptimized[board[targetSquare]];
+                let targetPiece = mapToOptimized[board[targetSquare]];
                 if (targetPiece != e) {
                   if (mapColor[targetPiece & 0x08] != side)
                     addMove(moveList, encodeMove(sourceSquare, targetSquare, 0, 1, 0, 0, 0));
@@ -537,7 +537,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     for (let piece = P; piece <= k; piece++) {
       for (let pieceIndex = 0; pieceIndex < pieceList[piece]; pieceIndex++) {
         let sourceSquare = pieceList.pieces[piece * 10 + pieceIndex];
-        let optimizedPiece = mapFromOptimized[board[sourceSquare]];
+        let optimizedPiece = mapToOptimized[board[sourceSquare]];
         let pieceType = optimizedPiece & 0x07;
         
         if (mapColor[(optimizedPiece & 0x08)] == side) {
@@ -550,12 +550,12 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
             for (let lr = -1; lr <= 1; lr += 2) {
               targetSquare = sourceSquare + direction + lr;
               if (targetSquare & 0x88) continue;
-              let targetPiece = mapFromOptimized[board[targetSquare]];
+              let targetPiece = mapToOptimized[board[targetSquare]];
               
               if (targetPiece != e && mapColor[targetPiece & 0x08] != side) {
                 if ((targetSquare & 0xF0) == pawnPromotingRank[side]) {
                   for (let promotedPiece = QUEEN; promotedPiece >= KNIGHT; promotedPiece--)
-                    addMove(moveList, encodeMove(sourceSquare, targetSquare, mapToOptimized[promotedPiece | (side << 3)], 1, 0, 0, 0));
+                    addMove(moveList, encodeMove(sourceSquare, targetSquare, mapFromOptimized[promotedPiece | (side << 3)], 1, 0, 0, 0));
                 } else addMove(moveList, encodeMove(sourceSquare, targetSquare, 0, 1, 0, 0, 0));
               }
               
@@ -575,7 +575,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
               do {
                 targetSquare += directions[d];
                 if (targetSquare & 0x88) break;
-                let targetPiece = mapFromOptimized[board[targetSquare]];
+                let targetPiece = mapToOptimized[board[targetSquare]];
                 if (targetPiece != e) {
                   if (mapColor[targetPiece & 0x08] != side)
                     addMove(moveList, encodeMove(sourceSquare, targetSquare, 0, 1, 0, 0, 0));
