@@ -30,6 +30,9 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
   const white = 0;
   const black = 1;
   
+  // map "optimized" color to side to move 
+  const mapColor = [0, 0, 0, 0, 0, 0, 0, 0, 1];
+  
   // piece types
   const KING = 1;
   const PAWN = 2;
@@ -41,6 +44,12 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
   // piece encoding  
   const P = 1, N = 2, B = 3, R = 4, Q = 5, K = 6;
   const p = 7, n = 8, b = 9, r = 10, q = 11, k = 12;
+  
+  // map "optimized" piece codes to engine's piece codes
+  const mapToOptimized = [0, K, P, N, B, R, Q, 0, 0, k, p, n, b, r, q];
+  
+  // map board piece to "optimized" piece code
+  const mapFromOptimized = [0, 2, 3, 4, 5, 6, 1, 10, 11, 12, 13, 14, 9];
   
   // empty square & offboard square
   const e = 0, o = 13;
@@ -302,15 +311,6 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     rookOffsets,
     kingOffsets // Queen
   ];
-  
-  // map "optimized" piece codes to engine's piece codes
-  const mapToOptimized = [0, K, P, N, B, R, Q, 0, 0, k, p, n, b, r, q];
-  
-  // map board piece to "optimized" piece code
-  const mapFromOptimized = [0, 2, 3, 4, 5, 6, 1, 10, 11, 12, 13, 14, 9];
-  
-  // map "optimized" color to side to move 
-  const mapColor = [0, 0, 0, 0, 0, 0, 0, 0, 1];
 
 
   /****************************\
@@ -395,68 +395,18 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
    ============================              
   \****************************/
   
-  // pawn directions to side mapping
-  var pawnDirections = {
-    offsets: [[17, 15], [-17, -15]],
-    pawn: [P, p]
-  }
-  
-  // leaper piece to offset mapping
-  var leaperPieces = {
-    knight: { offsets: knightOffsets, side: [N, n] },
-    king: { offsets: kingOffsets, side: [K, k] }
-  };
-  
-  // slider piece to offset mapping
-  var sliderPieces = {
-    bishop: { offsets: bishopOffsets, side: [[B, Q], [b, q]] },
-    rook: { offsets: rookOffsets, side: [[R, Q], [r, q]] }
-  };
-  
-  // pawn & castling mappings
-  var specialMoves = {
-    color: [
-      {
-        offset: [-17, -15],
-        pawn: P,
-        target: -16,
-        doubleTarget: -32,
-        capture: [7, 12],
-        rank7: [a7, h7],
-        rank2: [a2, h2],
-        promoted: [Q, R, B, N],
-        king: K,
-        castling: [1, 2],
-        empty: [f1, g1, d1, b1, c1],
-        attacked: [e1, f1, d1],
-        by: [black, white],
-        castle: [e1, g1, c1]
-      },
-      {
-        offset: [17, 15],
-        pawn: p,
-        target: 16,
-        doubleTarget: 32,
-        capture: [1, 6],
-        rank7: [a2, h2],
-        rank2: [a7, h7],
-        promoted: [q, r, b, n],
-        king: k,
-        castling: [4, 8],
-        empty: [f8, g8, d8, b8, c8],
-        attacked: [e8, f8, d8],
-        by: [black, white],
-        castle: [e8, g8, c8]
-      }
-    ]
-  }
-  
   // ranks
   const pawnStartingRank = [0x60, 0x10];
   const pawnPromotingRank = [0x00, 0x70];
   
+  // castling side bits
+  const castlingSide = [
+    [1, 2],
+    [4, 8]
+  ];
+  
   // castling rights
-  var castlingRights = [
+  const castlingRights = [
      7, 15, 15, 15,  3, 15, 15, 11,  o, o, o, o, o, o, o, o,
     15, 15, 15, 15, 15, 15, 15, 15,  o, o, o, o, o, o, o, o,
     15, 15, 15, 15, 15, 15, 15, 15,  o, o, o, o, o, o, o, o,
@@ -491,93 +441,91 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     for (let piece = P; piece <= k; piece++) {
       for (let pieceIndex = 0; pieceIndex < pieceList[piece]; pieceIndex++) {
         let sourceSquare = pieceList.pieces[piece * 10 + pieceIndex];
-        
-        // pawns
-        if (board[sourceSquare] == specialMoves.color[side].pawn) {
-          let direction = -16 * (1 - 2 * side);
-          let targetSquare = sourceSquare + direction;
-          
-          // quiet moves
-          if ((targetSquare & 0x88) == 0 && board[targetSquare] == e) {   
-            if ((targetSquare & 0xF0) == pawnPromotingRank[side]) {
-              for (let promotedPiece = QUEEN; promotedPiece >= KNIGHT; promotedPiece--)
-                addMove(moveList, encodeMove(sourceSquare, targetSquare, mapToOptimized[promotedPiece | (side << 3)], 0, 0, 0, 0));
-            } else {
-              addMove(moveList, encodeMove(sourceSquare, targetSquare, 0, 0, 0, 0, 0));
-              let doubleTarget = sourceSquare + direction * 2;
-              
-              if ((sourceSquare & 0xF0) == pawnStartingRank[side] && board[doubleTarget] == e)
-                addMove(moveList, encodeMove(sourceSquare, doubleTarget, 0, 0, 1, 0, 0));
-            }
-          }
-          
-          // captures
-          for (let lr = -1; lr <= 1; lr += 2) {
-            targetSquare = sourceSquare + direction + lr;
-            if (targetSquare & 0x88) continue;
-            let targetPiece = mapFromOptimized[board[targetSquare]];
-            
-            if (targetPiece != e && mapColor[targetPiece & 0x08] != side) {
-              if ((targetSquare & 0xF0) == pawnPromotingRank[side]) {
-                for (let promotedPiece = QUEEN; promotedPiece >= KNIGHT; promotedPiece--)
-                  addMove(moveList, encodeMove(sourceSquare, targetSquare, mapToOptimized[promotedPiece | (side << 3)], 1, 0, 0, 0));
-              } else addMove(moveList, encodeMove(sourceSquare, targetSquare, 0, 1, 0, 0, 0));
-            }
-            
-            if (targetSquare == enpassant)
-              addMove(moveList, encodeMove(sourceSquare, targetSquare, 0, 1, 0, 1, 0));
-          }
-        }
-
-        // castling
-        else if (board[sourceSquare] == specialMoves.color[side].king) {
-          // king side
-          if (castle & specialMoves.color[side].castling[0]) {
-            if (board[specialMoves.color[side].empty[0]] == e &&
-                board[specialMoves.color[side].empty[1]] == e) {
-              if (isSquareAttacked(specialMoves.color[side].attacked[1], specialMoves.color[side].by[side]) == 0 &&
-                  isSquareAttacked(specialMoves.color[side].attacked[0], specialMoves.color[side].by[side]) == 0)
-                  addMove(moveList, encodeMove(specialMoves.color[side].castle[0], specialMoves.color[side].castle[1], 0, 0, 0, 0, 1));
-            }
-          }
-          
-          // queen side
-          if (castle & specialMoves.color[side].castling[1]) {
-            if (board[specialMoves.color[side].empty[2]] == e &&
-                board[specialMoves.color[side].empty[3]] == e &&
-                board[specialMoves.color[side].empty[4]] == e) {
-              if (isSquareAttacked(specialMoves.color[side].attacked[2], specialMoves.color[side].by[side]) == 0 &&
-                  isSquareAttacked(specialMoves.color[side].attacked[0], specialMoves.color[side].by[side]) == 0)
-                  addMove(moveList, encodeMove(specialMoves.color[side].castle[0], specialMoves.color[side].castle[2], 0, 0, 0, 0, 1));
-            }
-          }
-        }
-        
-        // convert piece code to optimized piece code
         let optimizedPiece = mapFromOptimized[board[sourceSquare]];
         let pieceType = optimizedPiece & 0x07;
-
-        // pieces
-        if (mapColor[(optimizedPiece & 0x08)] == side && pieceType != PAWN) {
-          let slider = pieceType & 0x04;
-          let directions = pieceOffsets[pieceType];
-          
-          for (let d = 0; d < directions.length; d++) {
-            let targetSquare = sourceSquare;
+        
+        if (mapColor[(optimizedPiece & 0x08)] == side) {
+          // pawns
+          if (pieceType == PAWN) {
+            let direction = -16 * (1 - 2 * side);
+            let targetSquare = sourceSquare + direction;
             
-            do {
-              targetSquare += directions[d];
-              if (targetSquare & 0x88) break;
-              let targetPiece = mapFromOptimized[board[targetSquare]];
-              if (targetPiece != e) {
-                if (mapColor[targetPiece & 0x08] != side)
-                  addMove(moveList, encodeMove(sourceSquare, targetSquare, 0, 1, 0, 0, 0));
+            // quiet moves
+            if ((targetSquare & 0x88) == 0 && board[targetSquare] == e) {   
+              if ((targetSquare & 0xF0) == pawnPromotingRank[side]) {
+                for (let promotedPiece = QUEEN; promotedPiece >= KNIGHT; promotedPiece--)
+                  addMove(moveList, encodeMove(sourceSquare, targetSquare, mapToOptimized[promotedPiece | (side << 3)], 0, 0, 0, 0));
+              } else {
+                addMove(moveList, encodeMove(sourceSquare, targetSquare, 0, 0, 0, 0, 0));
+                let doubleTarget = sourceSquare + direction * 2;
                 
-                break;
+                if ((sourceSquare & 0xF0) == pawnStartingRank[side] && board[doubleTarget] == e)
+                  addMove(moveList, encodeMove(sourceSquare, doubleTarget, 0, 0, 1, 0, 0));
+              }
+            }
+            
+            // captures
+            for (let lr = -1; lr <= 1; lr += 2) {
+              targetSquare = sourceSquare + direction + lr;
+              if (targetSquare & 0x88) continue;
+              let targetPiece = mapFromOptimized[board[targetSquare]];
+              
+              if (targetPiece != e && mapColor[targetPiece & 0x08] != side) {
+                if ((targetSquare & 0xF0) == pawnPromotingRank[side]) {
+                  for (let promotedPiece = QUEEN; promotedPiece >= KNIGHT; promotedPiece--)
+                    addMove(moveList, encodeMove(sourceSquare, targetSquare, mapToOptimized[promotedPiece | (side << 3)], 1, 0, 0, 0));
+                } else addMove(moveList, encodeMove(sourceSquare, targetSquare, 0, 1, 0, 0, 0));
               }
               
-              addMove(moveList, encodeMove(sourceSquare, targetSquare, 0, 0, 0, 0, 0));
-            } while (slider);
+              if (targetSquare == enpassant)
+                addMove(moveList, encodeMove(sourceSquare, targetSquare, 0, 1, 0, 1, 0));
+            }
+          }
+
+          // castling
+          else if (pieceType == KING) {
+            let ks = kingSquare[side];
+            
+            // king side
+            if (castle & castlingSide[side][0]) {
+              if (board[ks + 1] == e && board[ks + 2] == e) {
+                if (isSquareAttacked(ks, 1 - side) == 0 && isSquareAttacked(ks + 1, 1 - side) == 0)
+                    addMove(moveList, encodeMove(ks, ks + 2, 0, 0, 0, 0, 1));
+              }
+            }
+            
+            // queen side
+            if (castle & castlingSide[side][1]) {
+              if (board[ks - 1] == e && board[ks - 2] == e && board[ks - 3] == e) {
+                if (isSquareAttacked(ks, 1 - side) == 0 &&
+                    isSquareAttacked(ks - 1, 1 - side) == 0)
+                    addMove(moveList, encodeMove(ks, ks - 2, 0, 0, 0, 0, 1));
+              }
+            }
+          }
+
+          // pieces
+          if (pieceType != PAWN) {
+            let slider = pieceType & 0x04;
+            let directions = pieceOffsets[pieceType];
+            
+            for (let d = 0; d < directions.length; d++) {
+              let targetSquare = sourceSquare;
+              
+              do {
+                targetSquare += directions[d];
+                if (targetSquare & 0x88) break;
+                let targetPiece = mapFromOptimized[board[targetSquare]];
+                if (targetPiece != e) {
+                  if (mapColor[targetPiece & 0x08] != side)
+                    addMove(moveList, encodeMove(sourceSquare, targetSquare, 0, 1, 0, 0, 0));
+                  
+                  break;
+                }
+                
+                addMove(moveList, encodeMove(sourceSquare, targetSquare, 0, 0, 0, 0, 0));
+              } while (slider);
+            }
           }
         }
       }
@@ -589,54 +537,54 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     for (let piece = P; piece <= k; piece++) {
       for (let pieceIndex = 0; pieceIndex < pieceList[piece]; pieceIndex++) {
         let sourceSquare = pieceList.pieces[piece * 10 + pieceIndex];
-        
-        // pawns
-        if (board[sourceSquare] == specialMoves.color[side].pawn) {
-          let direction = -16 * (1 - 2 * side);
-          let targetSquare = sourceSquare + direction;
-          
-          // captures
-          for (let lr = -1; lr <= 1; lr += 2) {
-            targetSquare = sourceSquare + direction + lr;
-            if (targetSquare & 0x88) continue;
-            let targetPiece = mapFromOptimized[board[targetSquare]];
-            
-            if (targetPiece != e && mapColor[targetPiece & 0x08] != side) {
-              if ((targetSquare & 0xF0) == pawnPromotingRank[side]) {
-                for (let promotedPiece = QUEEN; promotedPiece >= KNIGHT; promotedPiece--)
-                  addMove(moveList, encodeMove(sourceSquare, targetSquare, mapToOptimized[promotedPiece | (side << 3)], 1, 0, 0, 0));
-              } else addMove(moveList, encodeMove(sourceSquare, targetSquare, 0, 1, 0, 0, 0));
-            }
-            
-            if (targetSquare == enpassant)
-              addMove(moveList, encodeMove(sourceSquare, targetSquare, 0, 1, 0, 1, 0));
-          }
-        }
-        
-        // convert piece code to optimized piece code
         let optimizedPiece = mapFromOptimized[board[sourceSquare]];
         let pieceType = optimizedPiece & 0x07;
-
-        // pieces
-        if (mapColor[(optimizedPiece & 0x08)] == side && pieceType != PAWN) {
-          let slider = pieceType & 0x04;
-          let directions = pieceOffsets[pieceType];
-          
-          for (let d = 0; d < directions.length; d++) {
-            let targetSquare = sourceSquare;
+        
+        if (mapColor[(optimizedPiece & 0x08)] == side) {
+          // pawns
+          if (pieceType == PAWN) {
+            let direction = -16 * (1 - 2 * side);
+            let targetSquare = sourceSquare + direction;
             
-            do {
-              targetSquare += directions[d];
-              if (targetSquare & 0x88) break;
+            // captures
+            for (let lr = -1; lr <= 1; lr += 2) {
+              targetSquare = sourceSquare + direction + lr;
+              if (targetSquare & 0x88) continue;
               let targetPiece = mapFromOptimized[board[targetSquare]];
-              if (targetPiece != e) {
-                if (mapColor[targetPiece & 0x08] != side)
-                  addMove(moveList, encodeMove(sourceSquare, targetSquare, 0, 1, 0, 0, 0));
-                
-                break;
+              
+              if (targetPiece != e && mapColor[targetPiece & 0x08] != side) {
+                if ((targetSquare & 0xF0) == pawnPromotingRank[side]) {
+                  for (let promotedPiece = QUEEN; promotedPiece >= KNIGHT; promotedPiece--)
+                    addMove(moveList, encodeMove(sourceSquare, targetSquare, mapToOptimized[promotedPiece | (side << 3)], 1, 0, 0, 0));
+                } else addMove(moveList, encodeMove(sourceSquare, targetSquare, 0, 1, 0, 0, 0));
               }
+              
+              if (targetSquare == enpassant)
+                addMove(moveList, encodeMove(sourceSquare, targetSquare, 0, 1, 0, 1, 0));
+            }
+          }
 
-            } while (slider);
+          // pieces
+          if (pieceType != PAWN) {
+            let slider = pieceType & 0x04;
+            let directions = pieceOffsets[pieceType];
+            
+            for (let d = 0; d < directions.length; d++) {
+              let targetSquare = sourceSquare;
+              
+              do {
+                targetSquare += directions[d];
+                if (targetSquare & 0x88) break;
+                let targetPiece = mapFromOptimized[board[targetSquare]];
+                if (targetPiece != e) {
+                  if (mapColor[targetPiece & 0x08] != side)
+                    addMove(moveList, encodeMove(sourceSquare, targetSquare, 0, 1, 0, 0, 0));
+                  
+                  break;
+                }
+
+              } while (slider);
+            }
           }
         }
       }
