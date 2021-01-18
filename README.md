@@ -8,6 +8,7 @@
 <h4 align="center">Code Monkey King</h4>
 <p align="center">
   <a href="https://github.com/maksimKorzh/wukongJS/raw/main/releases">Old versions</a> |
+  <a href="https://www.patreon.com/code_monkey_king">Donate</a> |
   <a href="https://github.com/maksimKorzh/wukongJS/raw/main/releases/WukongJS_v1.4.zip">Download</a> |
   <a class="btn btn-success" href="https://maksimkorzh.github.io/wukongJS/wukong.html">Play online</a>
 </p>
