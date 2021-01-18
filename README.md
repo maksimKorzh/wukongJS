@@ -22,7 +22,7 @@
 </p>
 <hr>
 <p align="center">
-  <a href="https://www.patreon.com/code_monkey_king"><strong>DONATE</strong></a>
+  <a href="https://www.patreon.com/code_monkey_king"><strong>DONATE</strong></a><br>
   <a href="https://www.youtube.com/channel/UCB9-prLkPwgvlKKqDgXhsMQ/playlists">Chess programming -YouTube channel</a><br>
   <small>freesoft.for.people@gmail.com</small>
 </p>
