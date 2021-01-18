@@ -9,8 +9,7 @@
 <p align="center">
   <a href="https://github.com/maksimKorzh/wukongJS/raw/main/releases">Old versions</a> |
   <a href="https://github.com/maksimKorzh/wukongJS/raw/main/releases/WukongJS_v1.4.zip">Download</a> |
-  <a class="btn btn-success" href="https://maksimkorzh.github.io/wukongJS/wukong.html">Play online</a> |
-  <a href="https://www.patreon.com/code_monkey_king">Donate</a>
+  <a class="btn btn-success" href="https://maksimkorzh.github.io/wukongJS/wukong.html">Play online</a>
 </p>
 <hr>
 <p align="center">
@@ -23,6 +22,7 @@
 </p>
 <hr>
 <p align="center">
+  <a href="https://www.patreon.com/code_monkey_king"><strong>DONATE</strong></a>
   <a href="https://www.youtube.com/channel/UCB9-prLkPwgvlKKqDgXhsMQ/playlists">Chess programming -YouTube channel</a><br>
   <small>freesoft.for.people@gmail.com</small>
 </p>
