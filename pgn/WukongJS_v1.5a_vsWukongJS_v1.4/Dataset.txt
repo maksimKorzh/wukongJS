@@ -1,0 +1,12 @@
+   Engine        Score                                                                                                     Wu
+1: WukongJS 1.5a 74,5/100 .................................................................................................... 
+2: WukongJS 1.4  25,5/100 =0000=0===110001001000000000===00000==01=11000=0==010==100=00===000000000==0=01000010=0=1000000=000= 
+
+100 games played / Tournament is finished
+Name of the tournament: Dataset
+Site/ Country: maksim-Inspiron-3582, Ukraine
+Level: Blitz 2/1
+Operating system: Linux 4.15.0-20-generic x86_64
+PGN-File: /home/maksim/Tournaments/Dataset.pgn
+Website: 
+E-Mail Address: 
