@@ -68,6 +68,9 @@
       getMoveSource: function(move) { return getMoveSource(move); },
       getMoveTarget: function(move) { return getMoveTarget(move); },
       getMovePromoted: function(move) { return getMovePromoted(move); },
+      getMoveCapture: function(move) { return getMoveCapture(move); },
+      generateLegalMoves: function() { return generateLegalMoves(); },
+      printMoveList: function(moveList) { printMoveList(moveList); },
 
       // timing
       resetTimeControl: function() { resetTimeControl(); },
@@ -337,12 +340,13 @@ engine.printBoard();
 */
 ```
 
-# extract move source/target/promoted piece
+# extract move source/target/promoted/captured flag
 ```js
 let move = engine.moveFromString('e2e4');
 console.log(engine.getMoveSource(move), engine.squareToString(engine.getMoveSource(move)));
 console.log(engine.getMoveTarget(move), engine.squareToString(engine.getMoveTarget(move)));
 console.log(engine.getMovePromoted(move), engine.promotedToString(engine.getMovePromoted(move)));
+console.log(engine.getMoveCaptured(move));
 
 /*
     Output:
@@ -350,6 +354,7 @@ console.log(engine.getMovePromoted(move), engine.promotedToString(engine.getMove
     100 'e2'
     68 'e4'
     0 undefined
+    0
 
 */
 ```
