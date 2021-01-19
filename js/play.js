@@ -19,6 +19,10 @@ document.getElementById('engine-title').innerHTML =
 console.log('\n  Wukong JS - BROWSER MODE - v' + engine.VERSION);
 console.log('  type "engine" for public API reference');
 
+// import sounds
+var moveSound = new Audio('Sounds/move.wav');
+var captureSound = new Audio('Sounds/capture.wav');
+
 // user input controls
 var clickLock = 0;
 var allowBook = 1;
@@ -44,11 +48,13 @@ function dropPiece(event, square) {
   engine.movePiece(userSource, userTarget, promotedPiece); 
   clickLock = 0;
   
-  if (engine.getPiece(square))
+  if (engine.getPiece(square)) {
     document.getElementById(square).style.backgroundColor = engine.SELECT_COLOR;
+    playSound(valid);
+  }
   
   event.preventDefault();
-  if (valid) setTimeout(function() { think() }, 1);
+  if (valid) setTimeout(function() { think() }, 100);
 }
 
 // click event handler
@@ -73,8 +79,10 @@ function tapPiece(square) {
     engine.movePiece(userSource, userTarget, promotedPiece);
     clickLock = 0;
     
-    if (engine.getPiece(square))
+    if (engine.getPiece(square)) {
       document.getElementById(square).style.backgroundColor = engine.SELECT_COLOR;
+      playSound(valid);
+    }
 
     if (valid) setTimeout(function() { think() }, 1);
   }
@@ -159,8 +167,6 @@ function getBookMove() {
 
 // engine move
 function think() {
-  engine.drawBoard();
-  engine.updateBoard();
   engine.resetTimeControl();
   
   let moveTime = parseInt(document.getElementById('movetime').value);
@@ -172,7 +178,15 @@ function think() {
   timing.stopTime = startTime + timing.time
   engine.setTimeControl(timing);
 
+  let bookMoveFlag = 0;
+  let delayMove = 0;
   let bestMove = getBookMove();
+  
+  if (bestMove) {
+    bookMoveFlag = 1;
+    delayMove = 1000;
+  }
+  
   if (bestMove) document.getElementById('score').innerHTML = 'book move'
   else if (bestMove == 0) bestMove = engine.search(64);
   
@@ -199,21 +213,24 @@ function think() {
     return;
   }
 
-  engine.movePiece(sourceSquare, targetSquare, promotedPiece);
+  setTimeout(function() {
+    engine.movePiece(sourceSquare, targetSquare, promotedPiece);
+    
+    engine.drawBoard();
+    engine.updateBoard();
+ 
+    if (engine.getPiece(targetSquare)) {
+      document.getElementById(targetSquare).style.backgroundColor = engine.SELECT_COLOR;             
+      playSound(bestMove);
+    }
   
-  if (engine.getPiece(targetSquare))
-    document.getElementById(targetSquare).style.backgroundColor = engine.SELECT_COLOR;               
+  }, delayMove);
 }
 
-// background image on/off
-function switchBackground(button) {
-  if (backgroundLock == 0) {
-    document.body.style.backgroundImage = '';
-    button.innerHTML = 'Image on';
-    backgroundLock = 1;
-  } else if (backgroundLock == 1) {
-    document.body.style.backgroundImage = 'url(logo/wallpaper_wukong.jpg)';
-    button.innerHTML = 'Image off';
-    backgroundLock = 0;
-  }
+// play sound
+function playSound(move) {
+  if (engine.getMoveCapture(move)) captureSound.play();
+  else moveSound.play();
 }
+
+
