@@ -45,10 +45,11 @@ function dropPiece(event, square) {
   let promotedPiece = parseInt(document.getElementById('promoted').value);
   promotedPiece = (engine.getSide() ? (promotedPiece + 6): promotedPiece)
   let valid = validateMove(userSource, userTarget, promotedPiece);
-  engine.movePiece(userSource, userTarget, promotedPiece); 
+  engine.movePiece(userSource, userTarget, promotedPiece);
+  
   clickLock = 0;
   
-  if (engine.getPiece(square)) {
+  if (engine.getPiece(square) && valid) {
     document.getElementById(square).style.backgroundColor = engine.SELECT_COLOR;
     playSound(valid);
   }
@@ -79,7 +80,7 @@ function tapPiece(square) {
     engine.movePiece(userSource, userTarget, promotedPiece);
     clickLock = 0;
     
-    if (engine.getPiece(square)) {
+    if (engine.getPiece(square) && valid) {
       document.getElementById(square).style.backgroundColor = engine.SELECT_COLOR;
       playSound(valid);
     }
