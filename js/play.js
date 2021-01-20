@@ -124,6 +124,7 @@ function newGame() {
   guiDepth = 0;
   guiTime = 0;
   guiPv = '';
+  gameResult = '';
   userTime = 0;
   allowBook = 1;
   engine.setBoard(engine.START_FEN);
@@ -241,7 +242,7 @@ function think() {
       userTime = Date.now();
     }
   
-  }, delayMove);
+  }, delayMove + (guiTime < 100 && delayMove == 0) ? 1000 : 0);
 }
 
 // get moves in SAN notation
