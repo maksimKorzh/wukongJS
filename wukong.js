@@ -1874,7 +1874,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
       if (validMove) {
         makeMove(validMove);
         
-        if (typeof(document) != undefined) {
+        if (typeof(document) != 'undefined') {
           let pv = ''
           let time = 0;
           let score = 0;
