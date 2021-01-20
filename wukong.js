@@ -1710,7 +1710,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
       let info = '';
       
       if (typeof(document) != 'undefined')
-        var guiScore = 0;
+        var uciScore = 0;
       
       if (score >= -mateValue && score <= -mateScore) {
         info = 'info score mate ' + (parseInt(-(score + mateValue) / 2 - 1)) + 
@@ -1720,7 +1720,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
                ' pv ';
                
         if (typeof(document) != 'undefined')
-          guiScore = 'mate in ' + Math.abs((parseInt(-(score + mateValue) / 2 - 1)));
+          uciScore = 'M' + Math.abs((parseInt(-(score + mateValue) / 2 - 1)));
       } else if (score >= mateScore && score <= mateValue) {
         info = 'info score mate ' + (parseInt((mateValue - score) / 2 + 1)) + 
                ' depth ' + currentDepth +
@@ -1729,7 +1729,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
                ' pv ';
              
         if (typeof(document) != 'undefined')
-          guiScore = 'mate in ' + Math.abs((parseInt((mateValue - score) / 2 + 1)));
+          uciScore = 'M' + Math.abs((parseInt((mateValue - score) / 2 + 1)));
       } else {
         info = 'info score cp ' + score + 
                ' depth ' + currentDepth +
@@ -1738,7 +1738,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
                ' pv ';
         
         if (typeof(document) != 'undefined')
-          guiScore = -score;
+          uciScore = -score;
       }
       
       for (let count = 0; count < pvLength[0]; count++)
@@ -1747,9 +1747,11 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
       console.log(info);
       
       if (typeof(document) != 'undefined') {
-        if (guiScore == 49000) guiScore = 'mate in 1';
-        else document.getElementById('score').innerHTML = guiScore;
-        document.getElementById('info').innerHTML = info.split('pv ')[1];
+        if (uciScore == 49000) uciScore = 'M1';
+        guiScore = uciScore;
+        guiDepth = info.split('depth ')[1].split(' ')[0];
+        guiPv = info.split('pv ')[1];
+        guiTime = info.split('time ')[1].split(' ')[0];
       }
       
       if (info.includes('mate') || info.includes('-49000')) break;
@@ -1869,7 +1871,32 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
       let move = moves[index];
       let moveString = moves[index];
       let validMove = moveFromString(move);
-      if (validMove) makeMove(validMove);
+      if (validMove) {
+        makeMove(validMove);
+        
+        if (typeof(document) != undefined) {
+          let pv = ''
+          let time = 0;
+          let score = 0;
+          let depth = 0;
+          
+          if (userTime) {
+            time = Date.now() - userTime;
+          } else {
+            score = guiScore;
+            depth = guiDepth;
+            time = guiTime;
+            pv = guiPv;
+          }
+          
+          moveStack[moveStack.length - 1].piece = board[getMoveTarget(validMove)];
+          moveStack[moveStack.length - 1].inCheck = isSquareAttacked(kingSquare[side], side ^ 1) ? 1 : 0;
+          moveStack[moveStack.length - 1].score = score;
+          moveStack[moveStack.length - 1].depth = depth;
+          moveStack[moveStack.length - 1].time = time;
+          moveStack[moveStack.length - 1].pv = pv;
+        }
+      }
     }
     
     searchPly = 0;
@@ -2185,8 +2212,10 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     // move manipulation
     moveFromString: function(moveString) { return moveFromString(moveString); },
     moveToString: function(move) { return moveToString(move); },
+    moveStack: function() { return moveStack; },
     loadMoves: function(moves) { loadMoves(moves); },
     getMoves: function() { return getMoves(); },
+    pgn: function() { return getGamePgn(); },
     getMoveSource: function(move) { return getMoveSource(move); },
     getMoveTarget: function(move) { return getMoveTarget(move); },
     getMovePromoted: function(move) { return getMovePromoted(move); },

@@ -11,9 +11,6 @@ var engine = new Engine();
 
 // update version in GUI
 document.title = 'WukongJS v ' + engine.VERSION;
-document.getElementById('engine-title').innerHTML = 
-  'Wukong JS ' + engine.VERSION +
-  ' ~ ' + engine.ELO + ' ELO';
 
 // run in browser mode  
 console.log('\n  Wukong JS - BROWSER MODE - v' + engine.VERSION);
@@ -22,6 +19,15 @@ console.log('  type "engine" for public API reference');
 // import sounds
 var moveSound = new Audio('Sounds/move.wav');
 var captureSound = new Audio('Sounds/capture.wav');
+
+// stats
+var guiScore = 0;
+var guiDepth = 0;
+var guiTime = 0;
+var guiPv = '';
+var userTime = 0;
+var gameResult = '*';
+var guiFen = '';
 
 // user input controls
 var clickLock = 0;
@@ -50,8 +56,10 @@ function dropPiece(event, square) {
   clickLock = 0;
   
   if (engine.getPiece(square) && valid) {
+    userTime = Date.now() - userTime;
     document.getElementById(square).style.backgroundColor = engine.SELECT_COLOR;
     playSound(valid);
+    updatePgn();
   }
   
   event.preventDefault();
@@ -83,6 +91,7 @@ function tapPiece(square) {
     if (engine.getPiece(square) && valid) {
       document.getElementById(square).style.backgroundColor = engine.SELECT_COLOR;
       playSound(valid);
+      updatePgn();
     }
 
     if (valid) setTimeout(function() { think() }, 1);
@@ -106,16 +115,21 @@ function setFen() {
   engine.setBoard(fen);
   engine.drawBoard();
   engine.updateBoard();
+  guiFen = fen;
 }
 
 // start new game
 function newGame() {
+  guiScore = 0;
+  guiDepth = 0;
+  guiTime = 0;
+  guiPv = '';
+  userTime = 0;
   allowBook = 1;
   engine.setBoard(engine.START_FEN);
   engine.drawBoard();
   engine.updateBoard();
-  document.getElementById('score').innerHTML = '0';
-  document.getElementById('info').innerHTML = 'Press Ctrl-Shift-I to see how engine is calculating';
+  document.getElementById('pgn').value = '';
   repetitions = 0;
 }
 
@@ -187,8 +201,7 @@ function think() {
     bookMoveFlag = 1;
     delayMove = 1000;
   }
-  
-  if (bestMove) document.getElementById('score').innerHTML = 'book move'
+
   else if (bestMove == 0) bestMove = engine.search(64);
   
   let sourceSquare = engine.getMoveSource(bestMove);
@@ -197,20 +210,21 @@ function think() {
 
   if (engine.isRepetition()) repetitions++;
   if (repetitions == 3) {
-    document.getElementById('info').innerHTML = 'Draw by 3 fold repetition';
+    gameResult = '1/2-1/2 Draw by 3 fold repetition';
     return;
   } else if (engine.getFifty() >= 100) {
-    document.getElementById('info').innerHTML = 'Draw by 50 rule move';
+    gameResult = '1/2-1/2 Draw by 50 rule move';
     return;
   } else if (engine.isMaterialDraw()) {
-    document.getElementById('info').innerHTML = 'Draw by insufficient material';
+    gameResult = '1/2-1/2 Draw by insufficient material';
     return;
   } else if (engine.generateLegalMoves().length == 0 && engine.inCheck()) {
-    document.getElementById('info').innerHTML = 'Checkmate';
+    gameResult = '1-0 Mate';
     return;
+  } else if (guiScore == 'M1') {
+    gameResult = '0-1 Mate';
   } else if (engine.generateLegalMoves().length == 0 && engine.inCheck() == 0) {
-    document.getElementById('score').innerHTML = '0';
-    document.getElementById('info').innerHTML = 'Stalemate';
+    gameResult = 'Stalemate';
     return;
   }
 
@@ -223,9 +237,110 @@ function think() {
     if (engine.getPiece(targetSquare)) {
       document.getElementById(targetSquare).style.backgroundColor = engine.SELECT_COLOR;             
       playSound(bestMove);
+      updatePgn();
+      userTime = Date.now();
     }
   
   }, delayMove);
+}
+
+// get moves in SAN notation
+function getGamePgn() {
+  let moveStack = engine.moveStack();
+  let pgn = '';
+  let sanPiece = [0, 'P', 'N', 'B', 'R', 'Q', 'K', 'P', 'N', 'B', 'R', 'Q', 'K',];
+
+  for (let index = 0; index < moveStack.length; index++) {
+    let move = moveStack[index].move;
+    let movePiece = moveStack[index].piece;
+    let moveInCheck = moveStack[index].inCheck;
+    let moveScore = moveStack[index].score;
+    let moveDepth = moveStack[index].depth;
+    let moveTime = moveStack[index].time;
+    let movePv = moveStack[index].pv;
+    
+    let sourceSquare = engine.getMoveSource(move);
+    let targetSquare = engine.getMoveTarget(move);
+    let piece = sanPiece[movePiece];
+    let check = '';
+    let capture = '';
+    
+    if (piece == 'P') piece = '';
+    if (moveInCheck) check = '+';
+
+    if (engine.getMoveCapture(move)) {
+      if (piece) capture = 'x';
+      else capture = engine.squareToString(sourceSquare)[0] + 'x';
+    }
+    
+    let moveNumber = ((index % 2) ? '': ((index / 2 + 1) + '. '));
+    let moveString = piece + 
+                     capture + 
+                     engine.squareToString(targetSquare) +
+                     check;
+    
+    if (moveString == 'Kg1' || moveString == 'Kg8') moveString = '0-0';
+    if (moveString == 'Kc1' || moveString == 'Kc8') moveString = '0-0-0';
+
+    let displayScore = (((moveScore / 100) == 0) ? '-0.00' : (moveScore / 100)) + '/' + moveDepth + ' ';
+    if (typeof(moveScore) == 'string') displayScore = '+' + moveScore + '/' + moveDepth + ' ';
+    
+    let stats = (movePv ? '(' + movePv.trim() + ')' + ' ': '') + 
+                (moveDepth ? ((moveScore > 0) ? ('+' + displayScore) : displayScore): '') +
+                Math.round(moveTime / 1000);
+
+    let nextMove = moveNumber + moveString + (moveTime ? ' {' + stats + '}' : '');
+
+    pgn += nextMove + ' ';
+    userTime = 0;      
+  }
+
+  return pgn;
+}
+
+// update PGN
+function updatePgn(message) {
+  let pgn = getGamePgn();
+  let gameMoves = document.getElementById('pgn');
+  
+  gameMoves.value = pgn;
+  
+  if (gameResult == '1-0 Mate' || gameResult == '0-1 Mate') {
+    gameMoves.value += '# ' + gameResult;
+  } else if (gameResult != '*') {
+    gameMoves.value += ' ' + gameResult;
+  }
+  
+  gameMoves.scrollTop = gameMoves.scrollHeight;
+}
+
+// download PGN
+function downloadPgn() {
+  let userName = prompt('Enter your name:', 'Player');
+  let userColor = prompt('Enter your color ("White" or "Black"):');
+  
+  if (userColor != 'White' && userColor != 'Black') {
+    alert('Wrong color, please try again');
+    return;
+  }
+
+  let header = '';
+  if (guiFen) header += '[FEN "' + guiFen + '"]\n';
+  header += '[Event "Friendly chess game"]\n';
+  header += '[Site "https://maksimkorzh.github.io/wukongJS/wukong.html"]\n';
+  header += '[Date "' + new Date() + '"]\n';
+  header += '[White "' + ((userColor == 'White') ? userName : 'WukongJS') + '"]\n';
+  header += '[Black "' + ((userColor == 'Black') ? userName : 'WukongJS') + '"]\n';
+  header += '[Result "' + gameResult + '"]\n\n';
+
+  let downloadLink = document.createElement('a');
+  downloadLink.id = 'download';
+  downloadLink.download = 'game.pgn';
+  downloadLink.hidden = true;
+  downloadLink.href = window.URL.createObjectURL( new Blob([header + getGamePgn()], {type: 'text'}));
+  document.body.appendChild(downloadLink);
+  downloadLink.click();
+  downloadLink.remove();
 }
 
 // play sound
