@@ -1,0 +1,8 @@
+[Event "Friendly chess game"]
+[Site "https://maksimkorzh.github.io/wukongJS/wukong.html"]
+[Date "Thu Jan 21 2021 20:18:20 GMT+0200 (Eastern European Standard Time)"]
+[White "CMK"]
+[Black "CMK"]
+[Result "1/2-1/2 Draw by 3 fold repetition"]
+
+1. e4 Nc6 {3} 2. Nc3 {(b1c3 e7e5 g1e2 g8e7) +0.38/4 0} e5 {6} 3. Ne2 {(g1e2 f8c5 d2d3 g8e7) +0.36/4 0} d6 {9} 4. d4 {(d2d4 g8e7 d4d5 c6b4) +0.15/4 0} f5 {11} 5. d5 {(d4d5 c6e7 c1e3 g8f6) -0.32/4 0} Ne7 {1} 6. Bg5 {(c1g5 c8d7 e4f5 d7f5) -0.3/4 0} h6 {2} 7. Bh4 {(g5h4 f5e4 c3e4 c8g4) -0.2/4 0} g5 {1} 8. Bg3 {(h4g3 f5f4 d1d3 f4g3 e2g3) +1.42/4 0} f4 {1} 9. Nxf4 {(e2f4 g5f4 d1h5 e8d7 f1b5) +1.29/4 0} gxf4 {1} 10. Qh5+ {(d1h5 e8d7 h5g4 d7e8 g4h5 e8d7) -0.00/4 0} Kd7 {4} 11. Qh3+ {(h5h3 d7e8 h3h5 e8d7) -0.00/4 0} Ke8 {1} 12. Qh5+ {(h3h5 e8d7) -0.00/4 0} Kd7 {1} 13. Qh3+ {(h5h3) -0.00/4 0} Ke8 {1} 14. Qh5+ {(h3h5) -0.00/4 0} Kd7 {1} 

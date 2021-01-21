@@ -1,0 +1,8 @@
+[Event "Friendly chess game"]
+[Site "https://maksimkorzh.github.io/wukongJS/wukong.html"]
+[Date "Thu Jan 21 2021 20:07:10 GMT+0200 (Eastern European Standard Time)"]
+[White "CMK"]
+[Black "DrPi"]
+[Result "1-0 Mate"]
+
+1. e4 d6 2. d4 {5} g6 3. Nc3 {2} Nc6 {(b8c6 g1e2) +0.55/2 0} 4. f3 {1} Nf6 {(g8f6 g1e2) -0.05/2 0} 5. Be3 {2} Be6 {(c8e6 g1e2) -0.05/2 0} 6. Qd2 {1} Bg7 {(f8g7 g1e2) -0.15/2 0} 7. 0-0-0 {1} 0-0 {(e8g8 g1e2) -0.34/2 0} 8. Bh6 {4} Bxh6 {(g7h6 d2h6) -0.84/2 0} 9. Qxh6 {1} Nb4 {(c6b4 c1b1) -0.61/2 0} 10. a3 {3} Na2+ {(b4a2 c3a2 e6a2) -0.67/2 0} 11. Kb1 {1} Nxc3+ {(a2c3 b2c3 d6d5) -0.99/2 0} 12. bxc3 {2} d5 {(d6d5 f1d3) -0.85/2 0} 13. e5 {1} Nd7 {(f6d7 g1e2) -0.44/2 0} 14. h4 {1} f6 {(f7f6 f3f4 f6e5 f4e5) -0.73/2 0} 15. h5 {1} fxe5 {(f6e5 h5g6 h7g6 h6g6) -0.97/2 0} 16. hxg6 {1} hxg6 {(h7g6 h6g6) -0.97/2 0} 17. Qh7+ {3} 

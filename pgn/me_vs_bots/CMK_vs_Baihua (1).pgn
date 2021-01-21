@@ -1,0 +1,8 @@
+[Event "Friendly chess game"]
+[Site "https://maksimkorzh.github.io/wukongJS/wukong.html"]
+[Date "Thu Jan 21 2021 20:02:45 GMT+0200 (Eastern European Standard Time)"]
+[White "CMK"]
+[Black "Baihua"]
+[Result "1-0 Mate"]
+
+1. b3 Nc6 {(b8c6) -1.11/1 0} 2. Bb2 {1} Nf6 {(g8f6) -1.26/1 0} 3. e3 {2} d5 {(d7d5) -1.42/1 0} 4. f4 {1} Be6 {(c8e6) -1.89/1 0} 5. Nf3 {1} Qd6 {(d8d6) -1.66/1 0} 6. Be2 {1} 0-0-0 {(e8c8) -1.75/1 0} 7. 0-0 {1} Kb8 {(c8b8) -1.56/1 0} 8. a4 {2} Ne4 {(f6e4) -1.79/1 0} 9. d3 {4} Nc5 {(e4c5) -1.52/1 0} 10. a5 {2} Rg8 {(h8g8) -1.67/1 0} 11. a6 {1} bxa6 {(b7a6) -2.41/1 0} 12. c4 {4} Nb4 {(c6b4) -2.49/1 0} 13. Bc3 {8} Qb6 {(d6b6) -2.36/1 0} 14. d4 {10} Ne4 {(c5e4 c3b4 b6b4 c4d5 e6d5 a1a6 d5b3) -2.22/1 0} 15. Ra4 {8} a5 {(a6a5 c4d5 e6d5) -2.42/1 0} 16. Bxb4 {4} axb4 {(a5b4 c4d5 e6d5) -2.55/1 0} 17. c5 {6} Qb7 {(b6b7) -2.44/1 0} 18. Qe1 {3} Qc6 {(b7c6 a4b4) -1.59/1 0} 19. Rxb4+ {5} Ka8 {(b8a8 b1c3) -0.93/1 0} 20. Nc3 {3} a5 {(a7a5) -0.96/1 0} 21. Rb5 {5} Nxc3 {(e4c3 e1c3) -0.64/1 0} 22. Qxc3 {1} Re8 {(d8e8 c3a5) +0.23/1 0} 23. Rxa5+ {2} Kb8 {(a8b8 a5b5) +0.18/1 0} 24. Qb4+ {1} Qb7 {(c6b7 a5b5) +0.27/1 0} 25. Rb5 {1} Qxb5 {(b7b5 e2b5) +4.02/1 0} 26. Qxb5+ {1} Kc8 {(b8c8 b5e8) +9.03/1 0} 27. Ra1 {2} Rd8 {(e8d8) +3.93/1 0} 28. Ra8+ {1} 
