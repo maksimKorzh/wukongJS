@@ -57,13 +57,13 @@
       <!-- PGN -->
       <textarea id="pgn" rows="3" name="text" class="form-control" style="width: 420px;"></textarea>
       
-      <!-- Controls -->
       <div class="btn-group mt-1 mb-1" style="width: 420px;">
+        <!-- Bots -->
         <div class="dropdown mr-1">
           <button class="btn btn-outline-secondary text-dark bg-light font-weight-bold dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
             <image id="current-bot-image" src="logo/talkchess_logo.png" style="width: 25px;"></img>
           </button>
-          <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="width: 420px;">
+          <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="width: 390px;">
             <li class="list-group-item-action mb-1">
               <img src="Images/baihua.jpg" class="ml-2" style="width: 40px; border: 1px solid #777;"></img>
               <button class="btn col-9 text-left" onclick="setBot('Baihua');">Bai Hua (1000 Elo)</button>
@@ -83,17 +83,36 @@
           </div>
         </div>
                 
-        
+        <!-- Game controls -->
         <button class="btn btn-outline-secondary text-dark bg-light font-weight-bold mr-1" onclick="newGame();">New</button>
         <button class="btn btn-outline-secondary text-dark bg-light font-weight-bold mr-1" onclick="userTime = 0; think();">Move</button>
         <button class="btn btn-outline-secondary text-dark bg-light font-weight-bold mr-1" onclick="undo();">Undo</button>
         <button class="btn btn-outline-secondary text-dark bg-light font-weight-bold" onclick="flip()">Flip</button>
-        <select id="promoted" class="bg-light col-2 ml-1">
-          <option value="5">♛</option>
-          <option value="4">♜</option>
-          <option value="3">♝</option>
-          <option value="2">♞</option>
-        </select>
+        
+        <!-- Pawn promotin -->
+        <div class="dropdown ml-1">
+          <button class="btn btn-outline-secondary text-dark bg-light font-weight-bold dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <image id="current-promoted-image" src="Images/5.gif" style="width: 25px;"></img>
+          </button>
+          <div class="dropdown-menu dropdown-menu-right text-right" aria-labelledby="dropdownMenuButton">
+            <li class="list-group-item-action mb-1" onclick="setPromotion(5);">
+              <button class="btn">Queen</button>
+              <img src="Images/5.gif" class="mr-2" style="width: 40px; border: 1px solid #777;"></img>
+            </li>
+            <li class="list-group-item-action mb-1" onclick="setPromotion(4);">
+              <button class="btn">Rook</button>
+              <img src="Images/4.gif" class="mr-2" style="width: 40px; border: 1px solid #777;"></img>
+            </li>
+            <li class="list-group-item-action mb-1" onclick="setPromotion(3);">
+              <button class="btn">Bishop</button>
+              <img src="Images/3.gif" class="mr-2" style="width: 40px; border: 1px solid #777;"></img>
+            </li>
+            <li class="list-group-item-action mb-1" onclick="setPromotion(2);">
+              <button class="btn">Knight</button>
+              <img src="Images/2.gif" class="mr-2" style="width: 40px; border: 1px solid #777;"></img>
+            </li>
+          </div>
+        </div>
       </div>
 
     <div>

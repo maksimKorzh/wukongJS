@@ -28,7 +28,7 @@ const bots = {
   
   'CMK': {
     image: 'Images/cmk.png',
-    description: 'Passionate computer chess programmer, author of this engine. You can reach him at freesoft.for.people@gmail.com',
+    description: 'Code Monkey King is a computer chess programmer and author of this engine:\nfreesoft.for.people@gmail.com',
     time: 0,
     depth: 4,
     book: [
@@ -45,7 +45,7 @@ const bots = {
   
   'Wukong': {
     image: 'logo/talkchess_logo.png',
-    description: 'The Monkey King possesses immense strength - he is able to support the pressing weight of two celestial mountains on his shoulders while running "with the speed of a meteor."\nNow he is also capable of playing chess.',
+    description: 'Song Wukong is the great sage equal to heaven, now he is also playing chess:\nhttps://github.com/maksimKorzh/wukongJS',
     time: 1,
     depth: 0,
     book: [

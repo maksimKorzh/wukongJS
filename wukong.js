@@ -2220,6 +2220,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     getMoveTarget: function(move) { return getMoveTarget(move); },
     getMovePromoted: function(move) { return getMovePromoted(move); },
     getMoveCapture: function(move) { return getMoveCapture(move); },
+    getMoveCastling: function(move) { return getMoveCastling(move); },
     generateLegalMoves: function() { return generateLegalMoves(); },
     printMoveList: function(moveList) { printMoveList(moveList); },
     

@@ -9,6 +9,7 @@
 // init engine
 var engine = new Engine();
 var book = [];
+var botName = ''
 
 // update version in GUI
 document.title = 'WukongJS v ' + engine.VERSION;
@@ -29,6 +30,7 @@ var guiPv = '';
 var userTime = 0;
 var gameResult = '*';
 var guiFen = '';
+var promotedPiece = 5;
 
 // difficulty
 var fixedTime = 0;
@@ -53,7 +55,6 @@ function dragOver(event, square) { event.preventDefault();
 // drop piece handler
 function dropPiece(event, square) {
   userTarget = square;
-  let promotedPiece = parseInt(document.getElementById('promoted').value);
   promotedPiece = (engine.getSide() ? (promotedPiece + 6): promotedPiece)
   let valid = validateMove(userSource, userTarget, promotedPiece);
   engine.movePiece(userSource, userTarget, promotedPiece);
@@ -292,9 +293,11 @@ function getGamePgn() {
                      engine.squareToString(targetSquare) +
                      check;
     
-    if (moveString == 'Kg1' || moveString == 'Kg8') moveString = '0-0';
-    if (moveString == 'Kc1' || moveString == 'Kc8') moveString = '0-0-0';
-
+    if (engine.getMoveCastling(move)) {
+      if (moveString == 'Kg1' || moveString == 'Kg8') moveString = '0-0';
+      if (moveString == 'Kc1' || moveString == 'Kc8') moveString = '0-0-0';
+    }
+    
     let displayScore = (((moveScore / 100) == 0) ? '-0.00' : (moveScore / 100)) + '/' + moveDepth + ' ';
     if (typeof(moveScore) == 'string') displayScore = '+' + moveScore + '/' + moveDepth + ' ';
     
@@ -342,13 +345,13 @@ function downloadPgn() {
   header += '[Event "Friendly chess game"]\n';
   header += '[Site "https://maksimkorzh.github.io/wukongJS/wukong.html"]\n';
   header += '[Date "' + new Date() + '"]\n';
-  header += '[White "' + ((userColor == 'White') ? userName : 'WukongJS') + '"]\n';
-  header += '[Black "' + ((userColor == 'Black') ? userName : 'WukongJS') + '"]\n';
+  header += '[White "' + ((userColor == 'White') ? userName : botName) + '"]\n';
+  header += '[Black "' + ((userColor == 'Black') ? userName : botName) + '"]\n';
   header += '[Result "' + gameResult + '"]\n\n';
 
   let downloadLink = document.createElement('a');
   downloadLink.id = 'download';
-  downloadLink.download = 'game.pgn';
+  downloadLink.download = ((userColor == 'White') ? (userName + '_vs_' + botName + '.pgn') : (botName + '_vs_' + userName + '.pgn'));
   downloadLink.hidden = true;
   downloadLink.href = window.URL.createObjectURL( new Blob([header + getGamePgn()], {type: 'text'}));
   document.body.appendChild(downloadLink);
@@ -356,8 +359,15 @@ function downloadPgn() {
   downloadLink.remove();
 }
 
+// set promoted piece
+function setPromotion(piece) {
+  document.getElementById('current-promoted-image').src = 'Images/' + piece + '.gif';
+  promotedPiece = piece;
+}
+
 // set bot
 function setBot(bot) {
+  botName = bot;
   document.getElementById('current-bot-image').src = bots[bot].image;
   fixedTime = bots[bot].time;
   fixedDepth = bots[bot].depth;
