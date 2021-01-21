@@ -13,7 +13,7 @@ const bots = {
   
   'DrPi': {
     image: 'Images/DrPi.png',
-    description: 'Dr Pi is freelancer & blogger, make sure to visit his website:\nhttps://redandgreen.co.uk/\nhe can automate whatever routine task using python so feel free to hire him!',
+    description: 'Dr Pi is freelancer & blogger, make sure to visit his website:\nhttps://redandgreen.co.uk/',
     time: 0,
     depth: 2,
     book: [

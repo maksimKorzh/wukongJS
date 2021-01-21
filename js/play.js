@@ -45,7 +45,9 @@ var userSource, userTarget;
 var repetitions = 0;
   
 // pick piece handler
-function dragPiece(event, square) { userSource = square; }
+function dragPiece(event, square) {
+  userSource = square;
+}
 
 // drag piece handler
 function dragOver(event, square) {
