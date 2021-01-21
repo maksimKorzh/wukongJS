@@ -48,7 +48,8 @@ var repetitions = 0;
 function dragPiece(event, square) { userSource = square; }
 
 // drag piece handler
-function dragOver(event, square) { event.preventDefault();
+function dragOver(event, square) {
+  event.preventDefault();
   if (square == userSource) event.target.src = 'Images/0.gif';
 }
 
@@ -87,8 +88,7 @@ function tapPiece(square) {
     clickLock ^= 1;
   } else if(clickLock) {      
     userTarget = clickSquare;
-    
-    let promotedPiece = parseInt(document.getElementById('promoted').value);
+
     promotedPiece = (engine.getSide() ? (promotedPiece + 6): promotedPiece)
     let valid = validateMove(userSource, userTarget, promotedPiece);
     engine.movePiece(userSource, userTarget, promotedPiece);
