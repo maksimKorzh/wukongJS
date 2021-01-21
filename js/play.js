@@ -8,6 +8,7 @@
 
 // init engine
 var engine = new Engine();
+var book = [];
 
 // update version in GUI
 document.title = 'WukongJS v ' + engine.VERSION;
@@ -28,6 +29,10 @@ var guiPv = '';
 var userTime = 0;
 var gameResult = '*';
 var guiFen = '';
+
+// difficulty
+var fixedTime = 0;
+var fixedDepth = 0;
 
 // user input controls
 var clickLock = 0;
@@ -184,16 +189,18 @@ function getBookMove() {
 // engine move
 function think() {
   engine.resetTimeControl();
-  
-  let moveTime = parseInt(document.getElementById('movetime').value);
+
   let timing = engine.getTimeControl();
   let startTime = new Date().getTime();
   
-  timing.timeSet = 1;
-  timing.time = moveTime * 1000;
-  timing.stopTime = startTime + timing.time
-  engine.setTimeControl(timing);
-
+  if (fixedTime) {
+    fixedDepth = 64;
+    timing.timeSet = 1;
+    timing.time = fixedTime * 1000;
+    timing.stopTime = startTime + timing.time
+    engine.setTimeControl(timing);
+  }
+  
   let bookMoveFlag = 0;
   let delayMove = 0;
   let bestMove = getBookMove();
@@ -203,7 +210,7 @@ function think() {
     delayMove = 1000;
   }
 
-  else if (bestMove == 0) bestMove = engine.search(64);
+  else if (bestMove == 0) bestMove = engine.search(fixedDepth);
   
   let sourceSquare = engine.getMoveSource(bestMove);
   let targetSquare = engine.getMoveTarget(bestMove);
@@ -212,20 +219,25 @@ function think() {
   if (engine.isRepetition()) repetitions++;
   if (repetitions == 3) {
     gameResult = '1/2-1/2 Draw by 3 fold repetition';
+    updatePgn();
     return;
   } else if (engine.getFifty() >= 100) {
     gameResult = '1/2-1/2 Draw by 50 rule move';
+    updatePgn();
     return;
   } else if (engine.isMaterialDraw()) {
     gameResult = '1/2-1/2 Draw by insufficient material';
+    updatePgn();
     return;
   } else if (engine.generateLegalMoves().length == 0 && engine.inCheck()) {
-    gameResult = '1-0 Mate';
+    gameResult = engine.getSide() == 0 ? '0-1 Mate' : '1-0 Mate';
+    updatePgn();
     return;
   } else if (guiScore == 'M1') {
-    gameResult = '0-1 Mate';
+    gameResult = engine.getSide() == 0 ? '1-0 Mate' : '0-1 Mate';
   } else if (engine.generateLegalMoves().length == 0 && engine.inCheck() == 0) {
     gameResult = 'Stalemate';
+    updatePgn();
     return;
   }
 
@@ -300,7 +312,7 @@ function getGamePgn() {
 }
 
 // update PGN
-function updatePgn(message) {
+function updatePgn() {
   let pgn = getGamePgn();
   let gameMoves = document.getElementById('pgn');
   
@@ -343,6 +355,18 @@ function downloadPgn() {
   downloadLink.click();
   downloadLink.remove();
 }
+
+// set bot
+function setBot(bot) {
+  document.getElementById('current-bot-image').src = bots[bot].image;
+  fixedTime = bots[bot].time;
+  fixedDepth = bots[bot].depth;
+  book = JSON.parse(JSON.stringify(bots[bot].book));
+  document.getElementById('pgn').value = bots[bot].description;
+}
+
+// Set Wukong as default bot
+setBot('Wukong');
 
 // play sound
 function playSound(move) {

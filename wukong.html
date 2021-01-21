@@ -10,6 +10,9 @@
     
     <!-- Bootstrap -->
     <link rel="stylesheet" href="css/bootstrap.min.css">
+    <script src="js/jquery.min.js"></script>
+    <script src="js/bootstrap.bundle.min.js"></script>
+    
   </head>
   <body style="font-family:
                monospace; font-size: 16px;
@@ -27,21 +30,25 @@
                 transform: translate(-50%, -50%);
                 "
     >
+
       <!-- Chess board view -->
       <div id="chessboard"></div>
       
-      <!-- FEN -->
-      <div class="input-group mx-auto mt-1" style="width: 420px;">
+      <div class="input-group mx-auto mt-1" style="width: 417px;">
+        <!-- Download PGN -->
         <div class="input-group-append mb-1">
           <button class="btn btn-outline-secondary text-dark bg-light mr-1" onclick="downloadPgn();">PGN</button>
         </div>
-        <!-- Download PGN -->
+        
+        <!-- FEN input -->
         <input id="fen"
                type="text"
                class="form-control"
                placeholder="FEN string"
                value="r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 10"
         />
+        
+        <!-- set FEN -->
         <div class="input-group-append mb-1">
           <button onclick="setFen();" class="btn btn-outline-secondary text-dark bg-light ml-1">FEN</button>
         </div>
@@ -52,18 +59,31 @@
       
       <!-- Controls -->
       <div class="btn-group mt-1 mb-1" style="width: 420px;">
-        <select id="movetime" class="bg-light col-2 mr-1">
-          <option value="1">1s</option>
-          <option value="2">2s</option>
-          <option value="3">3s</option>
-          <option value="4">4s</option>
-          <option value="5">5s</option>
-          <option value="6">6s</option>
-          <option value="7">7s</option>
-          <option value="8">8s</option>
-          <option value="9">9s</option>
-          <option value="10">10s</option>
-        </select>
+        <div class="dropdown mr-1">
+          <button class="btn btn-outline-secondary text-dark bg-light font-weight-bold dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <image id="current-bot-image" src="logo/talkchess_logo.png" style="width: 25px;"></img>
+          </button>
+          <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="width: 420px;">
+            <li class="list-group-item-action mb-1">
+              <img src="Images/baihua.jpg" class="ml-2" style="width: 40px; border: 1px solid #777;"></img>
+              <button class="btn col-9 text-left" onclick="setBot('Baihua');">Bai Hua (1000 Elo)</button>
+            </li>
+            <li class="list-group-item-action mb-1">
+              <img src="Images/DrPi.png" class="ml-2" style="width: 40px; border: 1px solid #777;"></img>
+              <button class="btn col-9 text-left" onclick="setBot('DrPi');">Dr Pi (1500 Elo)</button>
+            </li>
+            <li class="list-group-item-action mb-1">
+              <img src="Images/cmk.png" class="ml-2" style="width: 40px; border: 1px solid #777;"></img>
+              <button class="btn col-9 text-left" onclick="setBot('CMK');">Code Monkey King (1700 Elo)</button>
+            </li>
+            <li class="list-group-item-action">
+              <img src="logo/talkchess_logo.png" class="ml-2" style="width: 40px; border: 1px solid #777;"></img>
+              <button class="btn col-9 text-left" onclick="setBot('Wukong');">Song Wukong (1920 Elo)</button>
+            </li>
+          </div>
+        </div>
+                
+        
         <button class="btn btn-outline-secondary text-dark bg-light font-weight-bold mr-1" onclick="newGame();">New</button>
         <button class="btn btn-outline-secondary text-dark bg-light font-weight-bold mr-1" onclick="userTime = 0; think();">Move</button>
         <button class="btn btn-outline-secondary text-dark bg-light font-weight-bold mr-1" onclick="undo();">Undo</button>
@@ -80,9 +100,9 @@
     
     <!-- Chess engine -->
     <script src="wukong.js"></script>
-
-    <!-- Opening book -->
-    <script src="js/book.js"></script>
+    
+    <!-- Bots -->
+    <script src="js/bots.js"></script>
 
     <!-- User input handling -->
     <script src="js/play.js"></script>
