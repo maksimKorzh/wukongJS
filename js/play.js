@@ -338,7 +338,7 @@ function updatePgn() {
 // download PGN
 function downloadPgn() {
   let userName = prompt('Enter your name:', 'Player');
-  let userColor = prompt('Enter your color ("White" or "Black"):');
+  let userColor = (guiSide == 0) ? 'White' : 'Black';
   
   if (userColor != 'White' && userColor != 'Black') {
     alert('Wrong color, please try again');
