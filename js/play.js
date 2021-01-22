@@ -257,7 +257,7 @@ function think() {
       userTime = Date.now();
     }
   
-  }, delayMove + (guiTime < 100 && delayMove == 0) ? 1000 : 0);
+  }, delayMove + (guiTime < 100 && delayMove == 0) ? 1000 : 500);
 }
 
 // get moves in SAN notation
