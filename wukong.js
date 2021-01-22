@@ -2234,7 +2234,8 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     isMaterialDraw: function() { return isMaterialDraw(); },
     takeBack: function() { if (moveStack.length) takeBack(); },
     isRepetition: function() { return isRepetition(); },
-    inCheck: function() { return isSquareAttacked(kingSquare[side], side ^ 1); },
+    inCheck: function(color) { return isSquareAttacked(kingSquare[color], color ^ 1); },
+    isSquareAttacked: function(square, color) { return isSquareAttacked(square, color); },
     
     // uci
     setHashSize: function(Mb) { setHashSize(Mb); },

@@ -60,9 +60,9 @@ function dragOver(event, square) {
 function dropPiece(event, square) {
   userTarget = square;
   promotedPiece = (engine.getSide() ? (promotedPiece + 6): promotedPiece)
-  let valid = validateMove(userSource, userTarget, promotedPiece);
+  let valid = validateMove(userSource, userTarget, promotedPiece);  
   engine.movePiece(userSource, userTarget, promotedPiece);
-  
+  if (engine.getPiece(userTarget) == 0) valid = 0;
   clickLock = 0;
   
   if (engine.getPiece(square) && valid) {
@@ -95,6 +95,7 @@ function tapPiece(square) {
     promotedPiece = (engine.getSide() ? (promotedPiece + 6): promotedPiece)
     let valid = validateMove(userSource, userTarget, promotedPiece);
     engine.movePiece(userSource, userTarget, promotedPiece);
+    if (engine.getPiece(userTarget) == 0) valid = 0;
     clickLock = 0;
     
     if (engine.getPiece(square) && valid) {
@@ -194,6 +195,8 @@ function getBookMove() {
 
 // engine move
 function think() {
+  if (engine.inCheck(guiSide)) return;
+  
   engine.resetTimeControl();
 
   let timing = engine.getTimeControl();
@@ -249,7 +252,6 @@ function think() {
 
   setTimeout(function() {
     engine.movePiece(sourceSquare, targetSquare, promotedPiece);
-    
     engine.drawBoard();
     engine.updateBoard();
  
