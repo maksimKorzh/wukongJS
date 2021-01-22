@@ -144,6 +144,7 @@ function newGame() {
 
 // take move back
 function undo() {
+  gameResult = '*';
   engine.takeBack();
   engine.drawBoard();
   engine.updateBoard();
@@ -355,7 +356,7 @@ function downloadPgn() {
   downloadLink.id = 'download';
   downloadLink.download = ((userColor == 'White') ? (userName + '_vs_' + botName + '.pgn') : (botName + '_vs_' + userName + '.pgn'));
   downloadLink.hidden = true;
-  downloadLink.href = window.URL.createObjectURL( new Blob([header + getGamePgn()], {type: 'text'}));
+  downloadLink.href = window.URL.createObjectURL( new Blob([header + getGamePgn() + ((gameResult == '*') ? ' *' : '')], {type: 'text'}));
   document.body.appendChild(downloadLink);
   downloadLink.click();
   downloadLink.remove();
