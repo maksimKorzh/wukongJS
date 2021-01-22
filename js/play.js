@@ -72,7 +72,7 @@ function dropPiece(event, square) {
   }
   
   event.preventDefault();
-  if (valid) setTimeout(function() { think() }, 100);
+  if (valid && engine.inCheck() == 0) setTimeout(function() { think() }, 100);
 }
 
 // click event handler
@@ -102,7 +102,7 @@ function tapPiece(square) {
       updatePgn();
     }
 
-    if (valid) setTimeout(function() { think() }, 1);
+    if (valid && engine.inCheck() == 0) setTimeout(function() { think() }, 1);
   }
 }
 
@@ -256,8 +256,6 @@ function think() {
       updatePgn();
       userTime = Date.now();
     }
-    
-    console.log(delayMove, guiTime)
   
   }, delayMove + (guiTime < 100 && delayMove == 0) ? 1000 : ((guiDepth == 0) ? 500 : 100));
 }
