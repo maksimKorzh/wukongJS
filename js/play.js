@@ -27,6 +27,7 @@ var guiScore = 0;
 var guiDepth = 0;
 var guiTime = 0;
 var guiPv = '';
+var guiSide = 0;
 var userTime = 0;
 var gameResult = '*';
 var guiFen = '';
@@ -72,7 +73,7 @@ function dropPiece(event, square) {
   }
   
   event.preventDefault();
-  if (valid && engine.inCheck() == 0) setTimeout(function() { think() }, 100);
+  if (valid) setTimeout(function() { think(); }, 100);
 }
 
 // click event handler
@@ -102,7 +103,7 @@ function tapPiece(square) {
       updatePgn();
     }
 
-    if (valid && engine.inCheck() == 0) setTimeout(function() { think() }, 1);
+    if (valid) setTimeout(function() { think(); }, 1);
   }
 }
 
@@ -152,6 +153,7 @@ function undo() {
 
 // flip board
 function flip() {
+  guiSide ^= 1;
   engine.flipBoard();
   engine.drawBoard();
   engine.updateBoard();
