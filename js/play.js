@@ -256,8 +256,10 @@ function think() {
       updatePgn();
       userTime = Date.now();
     }
+    
+    console.log(delayMove, guiTime)
   
-  }, delayMove + (guiTime < 100 && delayMove == 0) ? 1000 : 500);
+  }, delayMove + (guiTime < 100 && delayMove == 0) ? 1000 : ((guiDepth == 0) ? 500 : 100));
 }
 
 // get moves in SAN notation
