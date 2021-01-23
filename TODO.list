@@ -1,0 +1,18 @@
+[Event "Friendly chess game"]
+[Site "https://maksimkorzh.github.io/wukongJS/wukong.html"]
+[Date "Sat Jan 23 2021 19:26:42 GMT+0800 (Taipei Standard Time)"]
+[White "Ferdy"]
+[Black "Baihua"]
+[Result "0-1 Mate"]
+
+1. e4 e5 2. d4 {3} Nc6 {(b8c6) -0.6/1 0} 3. Bc4 {3} exd4 {(e5d4) -1.62/1 0} 4. Qf3 {2} Nf6 {(g8f6) -1.77/1 0} 5. Bg5 {5} d6 {(d7d6) -1.73/1 0} 6. Qb3 {2} Ne5 {(c6e5) -1.89/1 0} 7. Be2 {6} Qe7 {(d8e7) -2.04/1 0} 8. Nd2 {2} a5 {(a7a5) -1.69/1 0} 9. a4 {2} Rg8 {(h8g8) -1.75/1 0} 10. f4 {1} Ng6 {(e5g6) -1.8/1 0} 11. Nf3 {2} h6 {(h7h6) -1.41/1 0} 12. Bxf6 {3} Qxf6 {(e7f6) -1.67/1 0} 13. 0-0 {3} Qxf4 {(f6f4) -2.12/1 0} 14. e5 {4} dxe5 {(d6e5) -3.24/1 0} 15. Re1 {4} Bc5 {(f8c5) -3.24/1 0} 16. Kh1 {2} e4 {(e5e4) -3.47/1 0} 17. Nxd4 {2} Qxd2 {(f4d2 b3f7) -4.06/1 0} 18. Qxf7+ {5} Kd8 {(e8d8 f7g8) +0.63/1 0} 19. Qxg8+ {2} Ke7 {(d8e7 g8g7) +1.79/1 0} 20. Qxg7+ {58} Kd8 {(e7d8 g7f6) +1.83/1 0} 21. Nb3 {21} Qxc2 {(d2c2 b3c5 c2c5 g7g6) +3.74/1 0} 22. Nxc5 {16} Qxc5 {(c2c5 g7g6) +3.74/1 0} 23. Rd1+ {2} Ke8 {(d8e8 g7g6) +3.78/1 0} 24. Qxg6+ {4} Ke7 {(e8e7 g6e4) +4.77/1 0} 25. Rf7+ {7} Ke8 {(e7e8 f7c7) +4.9/1 0} 26. Qg8+ {5} Qf8 {(c5f8 g8f8) +12.38/1 0} 27. Qxf8+ {1}
+
+Some comments on pgn format.
+* White won the game, but result is 0-1
+* Date format should be yyyy.mm.dd or 2021.01.23
+That would be:
+[Date "2021.01.23"]
+* Result format should be 0-1 or 1-0 or 1/2-1/2 or *
+Not "0-1 Mate"
+You can add however.
+[Termination "white checkmates black"]
