@@ -16,3 +16,7 @@ That would be:
 Not "0-1 Mate"
 You can add however.
 [Termination "white checkmates black"]
+
+Another pgn saving bug is that it does not denote ambiguous moves.
+I played a single game against the strongest version and after I mated it, I noticed that the pgn contained several
+ambiguous moves, which I had to repair first for replaying it in another GUI.
