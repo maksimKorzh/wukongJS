@@ -746,7 +746,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     hashKey ^= sideKey;
 
     // return illegal move if king is left in check 
-    if (isSquareAttacked((side == white) ? kingSquare[side ^ 1] : kingSquare[side ^ 1], side)) {
+    if (isSquareAttacked(kingSquare[side ^ 1], side)) {
       takeBack();
       return 0;
     } else return 1;
