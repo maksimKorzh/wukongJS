@@ -265,8 +265,8 @@ function think() {
   }, delayMove + (guiTime < 100 && delayMove == 0) ? 1000 : ((guiDepth == 0) ? 500 : 100));
 }
 
-// get moves in SAN notation
-function getGamePgn() {
+// get moves in SAN notation (may be I'll fix it one day...)
+/*function getGamePgn() {
   let moveStack = engine.moveStack();
   let pgn = '';
   let sanPiece = [0, 'P', 'N', 'B', 'R', 'Q', 'K', 'P', 'N', 'B', 'R', 'Q', 'K',];
@@ -314,6 +314,32 @@ function getGamePgn() {
 
     let nextMove = moveNumber + moveString + (moveTime ? ' {' + stats + '}' : '');
 
+    pgn += nextMove + ' ';
+    userTime = 0;      
+  }
+
+  return pgn;
+}*/
+
+function getGamePgn() {
+  let moveStack = engine.moveStack();
+  let pgn = '';
+
+  for (let index = 0; index < moveStack.length; index++) {
+    let move = moveStack[index].move;
+    let moveScore = moveStack[index].score;
+    let moveDepth = moveStack[index].depth;
+    let moveTime = moveStack[index].time;
+    let movePv = moveStack[index].pv;
+    let moveString = engine.moveToString(move);
+    let moveNumber = ((index % 2) ? '': ((index / 2 + 1) + '. '));
+    let displayScore = (((moveScore / 100) == 0) ? '-0.00' : (moveScore / 100)) + '/' + moveDepth + ' ';
+    let stats = (movePv ? '(' + movePv.trim() + ')' + ' ': '') + 
+                (moveDepth ? ((moveScore > 0) ? ('+' + displayScore) : displayScore): '') +
+                Math.round(moveTime / 1000);
+    
+    let nextMove = moveNumber + moveString + (moveTime ? ' {' + stats + '}' : '');
+    
     pgn += nextMove + ' ';
     userTime = 0;      
   }
