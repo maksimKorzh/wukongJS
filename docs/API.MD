@@ -7,16 +7,17 @@
     return {
       // GUI constants
       SELECT_COLOR: SELECT_COLOR,
-
+      
       // Engine constants
       VERSION: version,
+      ELO: elo,
       START_FEN: startFen,
-
+      
       COLOR: {
         WHITE: white,
         BLACK: black,
       },
-
+      
       PIECE: {
         NO_PIECE: e,
         WHITE_PAWN: P,
@@ -32,7 +33,7 @@
         BLACK_QUEEN: q,
         BLACK_KING: k
       },
-
+      
       SQUARE: {
         A8: a8, B8: b8, C8: c8, D8: d8, E8: e8, F8: f8, G8: g8, H8: h8,
         A7: a7, B7: b7, C7: c7, D7: d7, E7: e7, F7: f7, G7: g7, H7: h7,
@@ -43,13 +44,14 @@
         A2: a2, B2: b2, C2: c2, D2: d2, E2: e2, F2: f2, G2: g2, H2: h2,
         A1: a1, B1: b1, C1: c1, D1: d1, E1: e1, F1: f1, G1: g1, H1: h1,
       },
-
+      
       // GUI methods
       drawBoard: function() { try { return drawBoard(); } catch(e) { guiError('.drawBoard()'); } },
       updateBoard: function() { try { return updateBoard(); } catch(e) { guiError('.updateBoard()'); } },
       movePiece: function(userSource, userTarget, promotedPiece) { try { movePiece(userSource, userTarget, promotedPiece); } catch(e) { guiError('.movePiece()'); } },
       flipBoard: function() { try { flipBoard(); } catch(e) { guiError('.flipBoard()'); } },
 
+      // perft
       perft: function(depth) { perftTest(depth); },
 
       // board methods
@@ -57,33 +59,48 @@
       promotedToString: function(piece) { return promotedPieces[piece]; },
       printBoard: function() { printBoard(); },
       setBoard: function(fen) { setBoard(fen); },
+      generateFen: function() { return generateFen(); },
       getPiece: function(square) { return board[square]; },
       getSide: function() { return side; },
       getFifty: function() { return fifty; },
-
+      
       // move manipulation
-      moveFromString: function(moveString) { return isValid(moveString); },
+      moveFromString: function(moveString) { return moveFromString(moveString); },
       moveToString: function(move) { return moveToString(move); },
+      moveStack: function() { return moveStack; },
       loadMoves: function(moves) { loadMoves(moves); },
+      getMoves: function() { return getMoves(); },
+      pgn: function() { return getGamePgn(); },
       getMoveSource: function(move) { return getMoveSource(move); },
       getMoveTarget: function(move) { return getMoveTarget(move); },
       getMovePromoted: function(move) { return getMovePromoted(move); },
       getMoveCapture: function(move) { return getMoveCapture(move); },
+      getMoveCastling: function(move) { return getMoveCastling(move); },
       generateLegalMoves: function() { return generateLegalMoves(); },
       printMoveList: function(moveList) { printMoveList(moveList); },
-
+      
       // timing
       resetTimeControl: function() { resetTimeControl(); },
       setTimeControl: function(timeControl) { setTimeControl(timeControl); },
       getTimeControl: function() { return JSON.parse(JSON.stringify(timing))},
       search: function(depth) { return searchPosition(depth) },
-      
+      searchTime: function(ms) {
+        let startTime = new Date().getTime();
+        timing.timeSet = 1;
+        timing.time = ms;
+        timing.stopTime = startTime + timing.time;
+        engine.search(64);
+      },
+
       // misc
       isMaterialDraw: function() { return isMaterialDraw(); },
-      takeBack: function() { if (backup.length) takeBack(); },
+      takeBack: function() { if (moveStack.length) takeBack(); },
       isRepetition: function() { return isRepetition(); },
-      generateLegalMoves: function() { return generateLegalMoves(); },
-      inCheck: function() { return isSquareAttacked(kingSquare[side], side ^ 1); },
+      inCheck: function(color) { return isSquareAttacked(kingSquare[color], color ^ 1); },
+      isSquareAttacked: function(square, color) { return isSquareAttacked(square, color); },
+      
+      // uci
+      setHashSize: function(Mb) { setHashSize(Mb); },
 
       // debugging (run any internal engine function)
       debug: function() { debug(); }
