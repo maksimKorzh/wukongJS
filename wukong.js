@@ -2263,6 +2263,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     getTimeControl: function() { return JSON.parse(JSON.stringify(timing))},
     search: function(depth) { return searchPosition(depth) },
     searchTime: function(ms) {
+      resetTimeControl();
       let startTime = new Date().getTime();
       timing.timeSet = 1;
       timing.time = ms;
