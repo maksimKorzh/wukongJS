@@ -13,7 +13,7 @@
 </p>
 <hr>
 <p align="center">
-  <a href="https://maksimkorzh.github.io/wukongJS/integration/wukong_chessboardjs.html">ChessboardJS integration</a>
+  <a href="https://maksimkorzh.github.io/wukongJS/integration/wukong_chessboardjs.html">chessboardjs integration</a>
 </p>
 <hr>
 <p align="center">
