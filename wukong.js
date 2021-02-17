@@ -1863,6 +1863,38 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     initPieceList();
   }
   
+  // generate FEN string (to integrate with chessboardjs lib)
+  function generateFen() {
+    let pieces = ['', 'P', 'N', 'B', 'R', 'Q', 'K', 'p', 'n', 'b', 'r', 'q', 'k'];
+    let fen = '';
+    
+    for (let rank = 0; rank < 8; rank++) {
+      let empty = 0;
+      
+      for (let file = 0; file < 16; file++) {
+        let square = rank * 16 + file;
+
+        if ((square & 0x88) == 0) {
+          let piece = board[square];
+          
+          if (piece == 0) empty++;
+          if (piece) {
+            fen += (empty ? empty : '') + pieces[piece];
+            empty = 0;
+          }
+        }
+      }
+      
+      if (empty) fen += empty;
+      empty = 0;
+      if (rank < 7) fen += '/';
+    }
+
+    fen += ' ' + (engine.getSide() ? 'b' : 'w');
+    //fen += ' ' + '- - 0 1'
+    return fen;
+  }
+  
   // load move sequence
   function loadMoves(moves) {
     moves = moves.split(' ');
@@ -2205,6 +2237,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     promotedToString: function(piece) { return promotedPieces[piece]; },
     printBoard: function() { printBoard(); },
     setBoard: function(fen) { setBoard(fen); },
+    generateFen: function() { return generateFen(); },
     getPiece: function(square) { return board[square]; },
     getSide: function() { return side; },
     getFifty: function() { return fifty; },
@@ -2229,6 +2262,13 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     setTimeControl: function(timeControl) { setTimeControl(timeControl); },
     getTimeControl: function() { return JSON.parse(JSON.stringify(timing))},
     search: function(depth) { return searchPosition(depth) },
+    searchTime: function(ms) {
+      let startTime = new Date().getTime();
+      timing.timeSet = 1;
+      timing.time = ms;
+      timing.stopTime = startTime + timing.time;
+      engine.search(64);
+    },
 
     // misc
     isMaterialDraw: function() { return isMaterialDraw(); },

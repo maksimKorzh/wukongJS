@@ -448,6 +448,23 @@ engine.search(6);
     info score cp 0 depth 6 nodes 183013 time 1315 pv d2d4 d7d5 c1f4 c8f5 b1c3 g8f6 
     bestmove d2d4
 */
+
+// fixed time search (1 second)
+engine.searchTime(1000);
+
+/*
+    Output:
+    
+    info score cp 10 depth 1 nodes 48 time 13 pv b1c3 
+    info score cp -38 depth 2 nodes 502 time 47 pv b1c3 b8c6 
+    info score cp 0 depth 3 nodes 1705 time 122 pv b1c3 b8c6 g1f3 
+    info score cp -37 depth 4 nodes 2947 time 169 pv b1c3 b8c6 g1f3 g8f6 
+    info score cp -9 depth 5 nodes 8114 time 216 pv b1c3 g8f6 e2e4 d7d5 d2d3 
+    info score cp -35 depth 6 nodes 23965 time 399 pv b1c3 g8f6 e2e4 d7d5 e4d5 f6d5 c3d5 d8d5 
+    info score cp -7 depth 7 nodes 46122 time 549 pv b1c3 g8f6 g1f3 b8c6 d2d4 d7d5 c1e3 
+    info score cp -37 depth 8 nodes 120985 time 916 pv g1f3 b8c6 d2d4 d7d5 b1c3 g8f6 c1e3 c8e6 
+    bestmove g1f3
+*/
 ```
 
 # Insufficient material
