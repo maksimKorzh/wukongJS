@@ -1,0 +1,199 @@
+<html>
+  <head>
+    <title>WukongJS + Chessboardjs</title>
+
+    <!-- JQuery -->
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- chessboardjs -->
+    <link rel="stylesheet" href="chessboard-1.0.0.min.css">
+    <script src="chessboard-1.0.0.min.js"></script>
+    
+    <!-- WukongJS chess engine -->
+    <script src="wukong.js"></script>
+    
+  </head>
+  <body>
+    <div class="col mt-5">
+      <div class="row">
+        <div align="center" class="col">
+          <a class="btn btn-outline-success" href="https://github.com/maksimKorzh/wukongJS/blob/main/integration">Source Code</a>
+          
+          <!-- chess board view -->
+          <div id="chessboard" class=" mb-2 mt-5" style="width: 400px;"></div>
+      
+          <!-- game controls -->
+          <div class="row" style="width: 427px;">                    
+            <!-- -buttons -->
+            <div class="col btn-group">
+              <button id="newgame" class="btn btn-outline-secondary">New</button>
+              <button id="makemove" class="btn btn-outline-secondary">Move</button>
+              <button id="takeback" class="btn btn-outline-secondary">Undo</button>
+              <button id="flipboard" class="btn btn-outline-secondary">Flip</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>    
+  </body>
+</html>
+
+<script>
+
+  /****************************\
+   ============================
+   
+        USER INPUT HANDLERS
+
+   ============================              
+  \****************************/
+  
+  
+  // handle new game button click
+  $('#newgame').on('click', function() {
+    // reset engine
+    engine.setBoard(engine.START_FEN);
+    
+    // set initial board position
+    board.position('start');
+  });
+  
+  // handle make move button click
+  $('#makemove').on('click', function() {
+    // make computer move
+    makeMove();
+  });
+  
+  // handle take back button click
+  $('#takeback').on('click', function() {
+    // take move back
+    engine.takeBack();
+    
+    // update board position
+    board.position(engine.generateFen());
+  });
+  
+  // handle flip board button click
+  $('#flipboard').on('click', function() {
+    // flip board
+    board.flip();
+  });
+  
+  // handle select move time option
+  $('#move_time').on('change', function() {
+    // disable fixed depth
+    $('#fixed_depth').val('0');
+  });
+  
+  // handle select fixed depth option
+  $('#fixed_depth').on('change', function() {
+    // disable fixed depth
+    $('#move_time').val('0');
+  });
+  
+  // handle set FEN button click
+  $('#set_fen').on('click', function() {
+    // set user FEN
+    
+    // FEN parsed
+    if (game.load($('#fen').val()))
+      // set board position
+      board.position(game.fen());
+    
+    // FEN is not parsed
+    else
+      alert('Illegal FEN!');
+  });
+  
+  // prevent scrolling on touch devices
+  $('#chessboard').on('scroll touchmove touchend touchstart contextmenu', function(e) {
+    e.preventDefault();
+  });
+
+
+  /****************************\
+   ============================
+   
+      USER CONTROL FUNCTIONS
+
+   ============================              
+  \****************************/
+
+  // make engine move
+  function makeMove() {
+    // make computer move
+    setTimeout(function() {
+      let bestMove = engine.searchTime(1000); // search for 1 second
+      engine.makeMove(bestMove);
+      let fen = engine.generateFen();
+      board.position(fen);
+    }, 300);
+  }
+
+  // on dropping piece
+  function onDrop (source, target) {
+    let promotedPiece = (engine.getSide() ? (5 + 6): 5) // queen promotion only for now
+    let move = source + target + engine.promotedToString(promotedPiece);
+    let validMove = engine.moveFromString(move);
+
+    console.log('user move', promotedPiece);
+    
+    // invalid move
+    if (validMove == 0) return 'snapback';
+    
+    let legalMoves = engine.generateLegalMoves();
+    let isLegal = 0;
+    
+    for (let count = 0; count < legalMoves.length; count++) {
+      if (validMove == legalMoves[count].move) isLegal = 1;  
+    }
+    
+    // illegal move
+    if (isLegal == 0) return 'snapback';
+    
+    // make user move
+    engine.makeMove(validMove);    
+    engine.printBoard();
+    
+    // make engine move
+    makeMove();
+    
+    // TODO: update game status
+    // isGameOver();
+  }
+
+  // update the board position after the piece snap
+  // for castling, en passant, pawn promotion
+  function onSnapEnd () {
+    board.position(engine.generateFen());
+  }
+
+  
+  /****************************\
+   ============================
+   
+           MAIN DRIVER
+
+   ============================              
+  \****************************/
+
+  // chess board configuration
+  var config = {
+    draggable: true,
+    position: 'start',
+    //onDragStart: onDragStart,
+    onDrop: onDrop,
+    onSnapEnd: onSnapEnd
+  }
+  
+  // create chess board widget instance
+  var board = Chessboard('chessboard', config)
+  
+  // create WukongJS engine instance
+  const engine = new Engine();
+</script>
