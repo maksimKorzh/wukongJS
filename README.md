@@ -2,7 +2,7 @@
   <img src="logo/LOGO.png">
 </p>
 
-<h1 align="center">Wukong JS</h1>
+<h1 align="center">Wukong JS <a href="https://www.computerchess.org.uk/ccrl/404/cgi/compare_engines.cgi?family=Wukong&print=Rating+list&print=Results+table&print=LOS+table&print=Ponder+hit+table&print=Eval+difference+table&print=Comopp+gamenum+table&print=Overlap+table&print=Score+with+common+opponents">1876 Elo CCRL</a></h1>
 <h3 align="center">Didactic javascript chess engine</h3>
 <h4 align="center">by</h4>
 <h4 align="center">Code Monkey King</h4>
