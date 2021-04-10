@@ -146,6 +146,7 @@ function newGame() {
 
 // take move back
 function undo() {
+  repetitions = 0;
   gameResult = '*';
   engine.takeBack();
   engine.drawBoard();
@@ -264,62 +265,6 @@ function think() {
   
   }, delayMove + (guiTime < 100 && delayMove == 0) ? 1000 : ((guiDepth == 0) ? 500 : 100));
 }
-
-// get moves in SAN notation (may be I'll fix it one day...)
-/*function getGamePgn() {
-  let moveStack = engine.moveStack();
-  let pgn = '';
-  let sanPiece = [0, 'P', 'N', 'B', 'R', 'Q', 'K', 'P', 'N', 'B', 'R', 'Q', 'K',];
-
-  for (let index = 0; index < moveStack.length; index++) {
-    let move = moveStack[index].move;
-    let movePiece = moveStack[index].piece;
-    let moveInCheck = moveStack[index].inCheck;
-    let moveScore = moveStack[index].score;
-    let moveDepth = moveStack[index].depth;
-    let moveTime = moveStack[index].time;
-    let movePv = moveStack[index].pv;
-    
-    let sourceSquare = engine.getMoveSource(move);
-    let targetSquare = engine.getMoveTarget(move);
-    let piece = sanPiece[movePiece];
-    let check = '';
-    let capture = '';
-    
-    if (piece == 'P') piece = '';
-    if (moveInCheck) check = '+';
-
-    if (engine.getMoveCapture(move)) {
-      if (piece) capture = 'x';
-      else capture = engine.squareToString(sourceSquare)[0] + 'x';
-    }
-    
-    let moveNumber = ((index % 2) ? '': ((index / 2 + 1) + '. '));
-    let moveString = piece + 
-                     capture + 
-                     engine.squareToString(targetSquare) +
-                     check;
-    
-    if (engine.getMoveCastling(move)) {
-      if (moveString == 'Kg1' || moveString == 'Kg8') moveString = '0-0';
-      if (moveString == 'Kc1' || moveString == 'Kc8') moveString = '0-0-0';
-    }
-    
-    let displayScore = (((moveScore / 100) == 0) ? '-0.00' : (moveScore / 100)) + '/' + moveDepth + ' ';
-    if (typeof(moveScore) == 'string') displayScore = '+' + moveScore + '/' + moveDepth + ' ';
-    
-    let stats = (movePv ? '(' + movePv.trim() + ')' + ' ': '') + 
-                (moveDepth ? ((moveScore > 0) ? ('+' + displayScore) : displayScore): '') +
-                Math.round(moveTime / 1000);
-
-    let nextMove = moveNumber + moveString + (moveTime ? ' {' + stats + '}' : '');
-
-    pgn += nextMove + ' ';
-    userTime = 0;      
-  }
-
-  return pgn;
-}*/
 
 function getGamePgn() {
   let moveStack = engine.moveStack();
