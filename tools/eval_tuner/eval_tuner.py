@@ -165,13 +165,22 @@ class EvalTuner():
         
         for move in legal_moves:
             if self.board.is_capture(move):
-                move_list.append({
-                    'move': move,
-                    'score': self.mvv_lva[
-                                 self.board.piece_at(move.from_square).piece_type * 13 +
-                                 self.board.piece_at(move.to_square).piece_type
-                             ]
-                })
+                try:
+                    move_list.append({
+                        'move': move,
+                        'score': self.mvv_lva[
+                                     self.board.piece_at(move.from_square).piece_type * 13 +
+                                     self.board.piece_at(move.to_square).piece_type.  # HERE is the BUG with en-passant
+                                 ]
+                    })
+                except AttributeError: # in case of en-passant move : the captured piece was not on the target square
+                    move_list.append({
+                        'move': move,
+                        'score': self.mvv_lva[
+                                     self.board.piece_at(move.from_square).piece_type * 13 +
+                                     chess.PAWN      # in case of en-passant, the captured piece IS a pawn
+                                 ]
+                    })
         
         move_list = sorted(move_list, key=lambda k: k['score'], reverse=True) 
 
