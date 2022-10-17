@@ -200,10 +200,14 @@
   var board = Chessboard('chessboard', config)
   
   // black squares in the center
-  document.getElementsByClassName('square-55d63 white-1e1d7 square-d5')[0].style.backgroundColor = 'Black';
-  document.getElementsByClassName('square-55d63 black-3c85d square-e5')[0].style.backgroundColor = 'Black';
-  document.getElementsByClassName('square-55d63 white-1e1d7 square-e4')[0].style.backgroundColor = 'Black';
-  document.getElementsByClassName('square-55d63 black-3c85d square-d4')[0].style.backgroundColor = 'Black';  
+  document.getElementsByClassName('square-55d63 white-1e1d7 square-d5')[0].style.backgroundImage = "url('topleft.png')";
+  document.getElementsByClassName('square-55d63 white-1e1d7 square-d5')[0].style.backgroundSize = "contain";
+  document.getElementsByClassName('square-55d63 black-3c85d square-e5')[0].style.backgroundImage = "url('topright.png')";
+  document.getElementsByClassName('square-55d63 black-3c85d square-e5')[0].style.backgroundSize = "contain";
+  document.getElementsByClassName('square-55d63 white-1e1d7 square-e4')[0].style.backgroundImage = "url('bottomright.png')";
+  document.getElementsByClassName('square-55d63 white-1e1d7 square-e4')[0].style.backgroundSize = "contain";
+  document.getElementsByClassName('square-55d63 black-3c85d square-d4')[0].style.backgroundImage = "url('bottomleft.png')";
+  document.getElementsByClassName('square-55d63 black-3c85d square-d4')[0].style.backgroundSize = "contain";
 
   // create WukongJS engine instance
   const engine = new Engine();
