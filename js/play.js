@@ -59,7 +59,7 @@ function dragOver(event, square) {
 // drop piece handler
 function dropPiece(event, square) {
   userTarget = square;
-  promotedPiece = (engine.getSide() ? (promotedPiece + 6): promotedPiece)
+  promotedPiece = (engine.getSide() ? 11: 5)
   let valid = validateMove(userSource, userTarget, promotedPiece);  
   engine.movePiece(userSource, userTarget, promotedPiece);
   if (engine.getPiece(userTarget) == 0) valid = 0;
@@ -92,7 +92,7 @@ function tapPiece(square) {
   } else if(clickLock) {      
     userTarget = clickSquare;
 
-    promotedPiece = (engine.getSide() ? (promotedPiece + 6): promotedPiece)
+    promotedPiece = (engine.getSide() ? 11: 5)
     let valid = validateMove(userSource, userTarget, promotedPiece);
     engine.movePiece(userSource, userTarget, promotedPiece);
     if (engine.getPiece(userTarget) == 0) valid = 0;
@@ -361,5 +361,3 @@ function playSound(move) {
   if (engine.getMoveCapture(move)) captureSound.play();
   else moveSound.play();
 }
-
-
