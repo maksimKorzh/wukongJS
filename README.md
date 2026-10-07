@@ -10,6 +10,7 @@
   <a href="https://github.com/maksimKorzh/wukongJS/raw/main/releases">Old versions</a> |
   <a href="https://github.com/maksimKorzh/wukongJS/raw/main/releases/WukongJS_v1.5.zip">Download</a> |
   <a href="https://maksimkorzh.github.io/wukongJS/wukong.html">Play online</a>
+  <a href="https://maksimkorzh.github.io/wukongJS/wukong-mobile.html">Mobile version</a>
 </p>
 <hr>
 <p align="center">
