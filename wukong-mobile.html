@@ -1,0 +1,399 @@
+```html
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+    <meta content="utf-8" http-equiv="encoding">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="description" content="javascript UCI chess engine - Wukong JS by Code Monkey King">
+    <meta name="keywords" content="UCI chess engine in javascript that runs in both browser and Arena GUI - Wukong JS by Code Monkey King">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <script src="js/jquery.min.js"></script>
+    <script src="js/bootstrap.bundle.min.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background: #f5f5f5;
+        }
+        body {
+            font-family: monospace;
+            color: #222;
+            -webkit-tap-highlight-color: transparent;
+            overscroll-behavior: none;
+            touch-action: manipulation;
+        }
+        #main {
+            position: fixed;
+            inset: 0;
+            width: 100%;
+            height: 100dvh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow: hidden;
+            background: #f5f5f5;
+        }
+        #controls {
+            order: 1;
+            width: 100%;
+            max-width: 420px;
+            flex: 0 0 auto;
+            display: flex;
+            align-items: center;
+            padding: 6px;
+            gap: 5px;
+            background: #fff;
+            border-bottom: 1px solid #ddd;
+        }
+        #controls > .btn,
+        #bot-control,
+        #promotion-control {
+            flex: 1 1 0;
+            min-width: 0;
+        }
+        #controls > .btn {
+            height: 42px;
+            min-width: 0;
+            padding: 6px 4px;
+            border: 1px solid #bbb;
+            border-radius: 8px !important;
+            background: #eee;
+            color: #222;
+            font-family: monospace;
+            font-size: 13px;
+            font-weight: 600;
+            touch-action: manipulation;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-appearance: none;
+            appearance: none;
+            outline: none !important;
+            box-shadow: none !important;
+            transition: transform 0.08s ease, background-color 0.08s ease, border-color 0.08s ease;
+        }
+        #controls > .btn:hover,
+        #bot-control > .btn:hover,
+        #promotion-control > .btn:hover {
+            background: #e2e2e2;
+            border-color: #aaa;
+        }
+        #controls > .btn:active,
+        #bot-control > .btn:active,
+        #promotion-control > .btn:active {
+            transform: scale(0.93);
+            background: #d0d0d0;
+            border-color: #999;
+        }
+        #controls > .btn:focus,
+        #controls > .btn:focus-visible,
+        #bot-control > .btn:focus,
+        #bot-control > .btn:focus-visible,
+        #promotion-control > .btn:focus,
+        #promotion-control > .btn:focus-visible {
+            outline: none !important;
+            box-shadow: none !important;
+            background: #eee;
+            border-color: #bbb;
+        }
+        #bot-control > .btn,
+        #promotion-control > .btn {
+            width: 100%;
+            height: 42px;
+            padding: 6px;
+            border: 1px solid #bbb;
+            border-radius: 8px !important;
+            background: #eee;
+            color: #222;
+            font-family: monospace;
+            font-size: 13px;
+            font-weight: 600;
+            outline: none !important;
+            box-shadow: none !important;
+        }
+        #current-bot-image,
+        #current-promoted-image {
+            width: 25px !important;
+            height: 25px;
+            object-fit: contain;
+        }
+        #chessboard {
+            order: 2;
+            width: 100%;
+            flex: 0 0 auto;
+            margin: 0 !important;
+            padding: 0 !important;
+            touch-action: none;
+        }
+        .chessboard-63f37 {
+            display: flex !important;
+            justify-content: center !important;
+            align-items: flex-start !important;
+        }
+        #fen-wrapper {
+            order: 3;
+            width: 100%;
+            max-width: 420px;
+            padding: 6px 6px 0;
+        }
+        #fen-group {
+            width: 100%;
+            display: flex;
+            align-items: stretch;
+            gap: 6px;
+        }
+        #fen {
+            min-width: 0;
+            flex: 1 1 auto;
+            height: 42px;
+            margin: 0 !important;
+            border: 1px solid #ccc;
+            border-radius: 6px !important;
+            background: #fff;
+            color: #222;
+            font-family: monospace;
+            font-size: 14px;
+            outline: none;
+            box-shadow: none !important;
+        }
+        #fen:focus {
+            border-color: #aaa;
+            box-shadow: none !important;
+        }
+        .control-button {
+            height: 42px;
+            padding: 6px 12px;
+            border: 1px solid #bbb;
+            border-radius: 8px !important;
+            background: #eee;
+            color: #222;
+            font-family: monospace;
+            font-size: 14px;
+            font-weight: 600;
+            touch-action: manipulation;
+            user-select: none;
+            -webkit-user-select: none;
+            outline: none !important;
+            box-shadow: none !important;
+            transition: transform 0.08s ease, background-color 0.08s ease, border-color 0.08s ease;
+        }
+        .control-button:hover {
+            background: #e2e2e2;
+            border-color: #aaa;
+        }
+        .control-button:active {
+            transform: scale(0.93);
+            background: #d0d0d0;
+            border-color: #999;
+        }
+        .control-button:focus,
+        .control-button:focus-visible {
+            outline: none !important;
+            box-shadow: none !important;
+            background: #eee;
+            border-color: #bbb;
+        }
+        #pgn-wrapper {
+            order: 4;
+            width: 100%;
+            max-width: 420px;
+            min-width: 0;
+            flex: 1 1 auto;
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
+            padding: 6px;
+            margin: 0;
+            background: #eee;
+            border-top: 1px solid #d0d0d0;
+            overflow: hidden;
+        }
+        #pgn {
+            width: 100% !important;
+            height: 100%;
+            min-width: 0;
+            min-height: 0;
+            flex: 1 1 auto;
+            resize: none !important;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            background: #fff;
+            color: #222;
+            font-family: monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            overflow-y: auto;
+            overflow-x: hidden;
+            white-space: pre-wrap;
+            overflow-wrap: break-word;
+            outline: none;
+            touch-action: pan-y;
+        }
+        #pgn:focus {
+            border-color: #aaa;
+            box-shadow: none;
+            outline: none;
+        }
+        #pgn::placeholder {
+            color: #999;
+        }
+        .dropdown-menu {
+            max-width: calc(100vw - 20px);
+        }
+        .dropdown-menu li {
+            display: flex;
+            align-items: center;
+            padding: 2px 0;
+        }
+        .dropdown-menu li img {
+            flex: 0 0 auto;
+        }
+        .dropdown-menu li button {
+            min-height: 42px;
+            border: 0 !important;
+            background: transparent !important;
+            box-shadow: none !important;
+            transform: none !important;
+        }
+        @media (max-width: 430px) {
+            #controls {
+                max-width: 100%;
+                gap: 4px;
+                padding: 5px;
+            }
+            #controls > .btn,
+            #bot-control > .btn,
+            #promotion-control > .btn {
+                font-size: 12px;
+            }
+            #controls > .btn {
+                padding-left: 2px;
+                padding-right: 2px;
+            }
+            #fen-wrapper,
+            #pgn-wrapper {
+                max-width: 100%;
+            }
+        }
+        @media (orientation: landscape) {
+            #pgn-wrapper {
+                flex: 0 0 110px;
+            }
+        }
+        @media (max-height: 650px) {
+            #controls {
+                padding-top: 4px;
+                padding-bottom: 4px;
+            }
+            #controls > .btn,
+            #bot-control > .btn,
+            #promotion-control > .btn,
+            #fen {
+                height: 38px;
+                min-height: 38px;
+            }
+            #pgn-wrapper {
+                padding: 4px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="main">
+        <div id="controls">
+            <div id="bot-control" class="dropdown">
+                <button class="btn dropdown-toggle"
+                        type="button"
+                        id="botDropdownButton"
+                        data-toggle="dropdown"
+                        aria-haspopup="true"
+                        aria-expanded="false">
+                    <img id="current-bot-image" src="logo/talkchess_logo.png">
+                </button>
+                <div class="dropdown-menu" aria-labelledby="botDropdownButton" style="width: 400px;">
+                    <li class="list-group-item-action mb-1">
+                        <img src="Images/baihua.jpg" class="ml-2" style="width: 40px; border: 1px solid #777;">
+                        <button class="btn col-9 text-left" onclick="setBot('Baihua');">Bai Hua (1000 Elo)</button>
+                    </li>
+                    <li class="list-group-item-action mb-1">
+                        <img src="Images/DrPi.png" class="ml-2" style="width: 40px; border: 1px solid #777;">
+                        <button class="btn col-9 text-left" onclick="setBot('DrPi');">Dr Pi (1500 Elo)</button>
+                    </li>
+                    <li class="list-group-item-action mb-1">
+                        <img src="Images/cmk.png" class="ml-2" style="width: 40px; border: 1px solid #777;">
+                        <button class="btn col-9 text-left" onclick="setBot('CMK');">Code Monkey King (1700 Elo)</button>
+                    </li>
+                    <li class="list-group-item-action">
+                        <img src="logo/talkchess_logo.png" class="ml-2" style="width: 40px; border: 1px solid #777;">
+                        <button class="btn col-9 text-left" onclick="setBot('Wukong');">Song Wukong (1876 Elo)</button>
+                    </li>
+                </div>
+            </div>
+
+            <button class="btn" onclick="newGame();">New</button>
+            <button class="btn" onclick="userTime = 0; think();">Move</button>
+            <button class="btn" onclick="undo();">Undo</button>
+            <button class="btn" onclick="flip();">Flip</button>
+
+            <div id="promotion-control" class="dropdown">
+                <button class="btn dropdown-toggle"
+                        type="button"
+                        id="promotionDropdownButton"
+                        data-toggle="dropdown"
+                        aria-haspopup="true"
+                        aria-expanded="false">
+                    <img id="current-promoted-image" src="Images/5.gif">
+                </button>
+                <div class="dropdown-menu dropdown-menu-right text-right" aria-labelledby="promotionDropdownButton">
+                    <li class="list-group-item-action mb-1" onclick="setPromotion(5);">
+                        <button class="btn">Queen</button>
+                        <img src="Images/5.gif" class="mr-2" style="width: 40px; border: 1px solid #777;">
+                    </li>
+                    <li class="list-group-item-action mb-1" onclick="setPromotion(4);">
+                        <button class="btn">Rook</button>
+                        <img src="Images/4.gif" class="mr-2" style="width: 40px; border: 1px solid #777;">
+                    </li>
+                    <li class="list-group-item-action mb-1" onclick="setPromotion(3);">
+                        <button class="btn">Bishop</button>
+                        <img src="Images/3.gif" class="mr-2" style="width: 40px; border: 1px solid #777;">
+                    </li>
+                    <li class="list-group-item-action mb-1" onclick="setPromotion(2);">
+                        <button class="btn">Knight</button>
+                        <img src="Images/2.gif" class="mr-2" style="width: 40px; border: 1px solid #777;">
+                    </li>
+                </div>
+            </div>
+        </div>
+
+        <div id="chessboard"></div>
+
+        <div id="fen-wrapper">
+            <div id="fen-group">
+                <button class="control-button" onclick="downloadPgn();">PGN</button>
+                <input id="fen"
+                       type="text"
+                       placeholder="FEN string"
+                       value="r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 10">
+                <button class="control-button" onclick="setFen();">FEN</button>
+            </div>
+        </div>
+
+        <div id="pgn-wrapper">
+            <textarea id="pgn" rows="3" name="text" placeholder="PGN" disabled></textarea>
+        </div>
+    </div>
+
+    <script src="wukong.js"></script>
+    <script src="js/bots.js"></script>
+    <script src="js/play.js"></script>
+</body>
+</html>
+```
