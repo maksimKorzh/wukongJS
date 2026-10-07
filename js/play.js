@@ -7,7 +7,7 @@
 \****************************/
 
 // init engine
-var engine = new Engine(window.innerWidth-20);
+var engine = new Engine();
 var book = [];
 var botName = ''
 
