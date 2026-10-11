@@ -42,7 +42,7 @@
             background: #f5f5f5;
         }
         #controls {
-            order: 1;
+            order: 2;
             width: 100%;
             max-width: 420px;
             flex: 0 0 auto;
@@ -125,7 +125,7 @@
             object-fit: contain;
         }
         #chessboard {
-            order: 2;
+            order: 1;
             width: 100%;
             flex: 0 0 auto;
             margin: 0 !important;
@@ -308,8 +308,9 @@
 </head>
 <body>
     <div id="main">
+        <div id="eval" style="font-size: 12px; height: 35px;">...</div>
         <div id="controls">
-            <div id="bot-control" class="dropdown">
+            <div id="bot-control" class="dropdown" hidden>
                 <button class="btn dropdown-toggle"
                         type="button"
                         id="botDropdownButton"
@@ -337,11 +338,6 @@
                     </li>
                 </div>
             </div>
-
-            <button class="btn" onclick="newGame();">New</button>
-            <button class="btn" onclick="userTime = 0; think();">Move</button>
-            <button class="btn" onclick="undo();">Undo</button>
-            <button class="btn" onclick="flip();">Flip</button>
 
             <div id="promotion-control" class="dropdown">
                 <button class="btn dropdown-toggle"
@@ -371,23 +367,32 @@
                     </li>
                 </div>
             </div>
+            
+            <button class="btn" onclick="flip();">Flip</button>
+            <button class="btn" onclick="newGame();">New</button>
+            <button class="btn" onclick="userTime = 0; think();">Move</button>
+            <button class="btn" onclick="undo();">Undo</button>
+            <button class="btn" onclick="editMode ^= 1; alert('Edit mode is ' + (editMode ? 'ON' : 'OFF'));">Edit</button>
+
+
         </div>
 
         <div id="chessboard"></div>
 
         <div id="fen-wrapper">
             <div id="fen-group">
-                <button class="control-button" onclick="downloadPgn();">PGN</button>
                 <input id="fen"
                        type="text"
                        placeholder="FEN string"
                        value="r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 10">
-                <button class="control-button" onclick="setFen();">FEN</button>
+                
             </div>
         </div>
 
         <div id="pgn-wrapper">
+            <button class="control-button" onclick="setFen();">FEN</button>
             <textarea id="pgn" rows="3" name="text" placeholder="PGN" disabled></textarea>
+            <button class="control-button" onclick="downloadPgn();">PGN</button>
         </div>
     </div>
 

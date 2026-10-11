@@ -38,6 +38,7 @@ var fixedTime = 0;
 var fixedDepth = 0;
 
 // user input controls
+var editMode = 0;
 var clickLock = 0;
 var allowBook = 1;
 var userSource, userTarget;
@@ -73,7 +74,7 @@ function dropPiece(event, square) {
   }
   
   event.preventDefault();
-  if (valid) setTimeout(function() { think(); }, 100);
+  if (valid && !editMode) setTimeout(function() { think(); }, 100);
 }
 
 // click event handler
@@ -89,7 +90,7 @@ function tapPiece(square) {
   if(!clickLock && engine.getPiece(clickSquare)) {      
     userSource = clickSquare;
     clickLock ^= 1;
-  } else if(clickLock) {      
+  } else if(clickLock) {    
     userTarget = clickSquare;
 
     promotedPiece = (engine.getSide() ? 11: 5)
@@ -104,7 +105,7 @@ function tapPiece(square) {
       updatePgn();
     }
 
-    if (valid) setTimeout(function() { think(); }, 1);
+    if (valid && !editMode) setTimeout(function() { think(); }, 1);
   }
 }
 
@@ -120,6 +121,7 @@ function validateMove(userSource, userTarget, promotedPiece) {
 
 // set FEN
 function setFen() {
+  newGame();
   let fen = document.getElementById('fen').value;
   if (fen != engine.START_FEN) allowBook = 0;
   engine.setBoard(fen);
@@ -142,6 +144,9 @@ function newGame() {
   engine.updateBoard();
   document.getElementById('pgn').value = '';
   repetitions = 0;
+  try {
+    document.getElementById('eval').innerText = '...';
+  } catch(e) {}
 }
 
 // take move back
@@ -285,6 +290,11 @@ function getGamePgn() {
     
     let nextMove = moveNumber + moveString + (moveTime ? ' {' + stats + '}' : '');
     
+    try {
+      let displayEval = (movePv ? '(' + movePv.trim() + ')' + ' ': '') +  (moveDepth ? ((moveScore > 0) ? ('+' + displayScore) : displayScore): '');
+      if (displayEval.length) document.getElementById('eval').innerText = displayEval;
+    } catch(e) {}
+    
     pgn += nextMove + ' ';
     userTime = 0;      
   }
@@ -305,6 +315,9 @@ function updatePgn() {
     gameMoves.value += ' ' + gameResult;
   }
   
+  try {
+    if (gameResult.length > 1) document.getElementById('eval').innerText = gameResult;
+  } catch(e) {}
   gameMoves.scrollTop = gameMoves.scrollHeight;
 }
 
