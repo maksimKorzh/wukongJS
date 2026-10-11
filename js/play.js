@@ -42,12 +42,14 @@ var editMode = 0;
 var clickLock = 0;
 var allowBook = 1;
 var userSource, userTarget;
+var engineMovePending = false;
 
 // 3 fold repetitions
 var repetitions = 0;
   
 // pick piece handler
 function dragPiece(event, square) {
+  if (engineMovePending) return;
   userSource = square;
 }
 
@@ -79,6 +81,7 @@ function dropPiece(event, square) {
 
 // click event handler
 function tapPiece(square) {
+  if (engineMovePending) return;
   engine.drawBoard();
   engine.updateBoard();
   
@@ -201,8 +204,9 @@ function getBookMove() {
 
 // engine move
 function think() {
-  if (engine.inCheck(guiSide)) return;
+  if (engine.inCheck(guiSide) || engineMovePending) return;
   
+  engineMovePending = true;
   engine.resetTimeControl();
 
   let timing = engine.getTimeControl();
@@ -250,6 +254,7 @@ function think() {
     return;
   } else if (guiScore == 'M1') {
     gameResult = engine.getSide() == 0 ? '1-0 Mate' : '0-1 Mate';
+    if (!sourceSquare && !targetSquare && engine.getSide()) gameResult = '1-0 Mate';
   } else if (engine.generateLegalMoves().length == 0 && engine.inCheck() == 0) {
     gameResult = 'Stalemate';
     updatePgn();
@@ -260,12 +265,13 @@ function think() {
     engine.movePiece(sourceSquare, targetSquare, promotedPiece);
     engine.drawBoard();
     engine.updateBoard();
- 
     if (engine.getPiece(targetSquare)) {
+      updatePgn();
+      engineMovePending = false;
+      userTime = Date.now();
+      if (!sourceSquare && !targetSquare) return;
       document.getElementById(targetSquare).style.backgroundColor = engine.SELECT_COLOR;             
       playSound(bestMove);
-      updatePgn();
-      userTime = Date.now();
     }
   
   }, delayMove + (guiTime < 100 && delayMove == 0) ? 1000 : ((guiDepth == 0) ? 500 : 100));
@@ -291,7 +297,7 @@ function getGamePgn() {
     let nextMove = moveNumber + moveString + (moveTime ? ' {' + stats + '}' : '');
     
     try {
-      let displayEval = (movePv ? '(' + movePv.trim() + ')' + ' ': '') +  (moveDepth ? ((moveScore > 0) ? ('+' + displayScore) : displayScore): '');
+      let displayEval = (moveDepth ? ((moveScore > 0) ? ('+' + displayScore) : displayScore): '');
       if (displayEval.length) document.getElementById('eval').innerText = displayEval;
     } catch(e) {}
     

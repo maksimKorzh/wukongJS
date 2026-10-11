@@ -308,7 +308,7 @@
 </head>
 <body>
     <div id="main">
-        <div id="eval" style="font-size: 12px; height: 35px;">...</div>
+        <div id="eval" style="font-size: 24px; height: 35px;">...</div>
         <div id="controls">
             <div id="bot-control" class="dropdown" hidden>
                 <button class="btn dropdown-toggle"
@@ -379,18 +379,17 @@
 
         <div id="chessboard"></div>
 
-        <div id="fen-wrapper">
+        <div id="fen-wrapper" hidden>
             <div id="fen-group">
                 <input id="fen"
                        type="text"
                        placeholder="FEN string"
                        value="r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 10">
-                
+                <button class="control-button" onclick="setFen();">FEN</button>
             </div>
         </div>
 
         <div id="pgn-wrapper">
-            <button class="control-button" onclick="setFen();">FEN</button>
             <textarea id="pgn" rows="3" name="text" placeholder="PGN" disabled></textarea>
             <button class="control-button" onclick="downloadPgn();">PGN</button>
         </div>
