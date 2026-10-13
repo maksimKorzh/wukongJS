@@ -2,7 +2,7 @@
     "name": "WukongJS Chess Engine",
     "short_name": "WukongJS",
     "description": "Javascript Chess Engine",
-    "start_url": "./wukong-mobile.html",
+    "start_url": "/wukongJS/wukong-mobile.html",
     "display": "standalone",
     "background_color": "#f3f3f3",
     "theme_color": "#ffffff",

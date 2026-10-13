@@ -439,15 +439,31 @@
       function setTime(seconds) {
         fixedTime = seconds;
         alert(`Engine think time is set to ${seconds} seconds`);
-        console.log('Selected time:', seconds);
       }
-      if ("serviceWorker" in navigator) {
+    </script>
+    <script>
+      alert(
+        "URL: " + location.href +
+        "\nSecure context: " + window.isSecureContext +
+        "\nService worker supported: " + ('serviceWorker' in navigator)
+    );
+      
+      /*if ("serviceWorker" in navigator) {
         window.addEventListener("load", () => {
-          navigator.serviceWorker.register("./js/pwa.js")
-            .then(() => console.log("  PWA service worker registered"))
+          navigator.serviceWorker.register("/wukongJS/js/pwa.js")
+            .then(() => console.log("  PWA service worker registered")})
             .catch(error => console.error("PWA error:", error));
         });
-      }
+      }*/
+      
+      
+      /*if ("serviceWorker" in navigator) { alert("service worker in navigator");
+        window.addEventListener("load", () => {
+          navigator.serviceWorker.register("/wukongJS/js/pwa.js")
+            .then(() => console.log("  PWA service worker registered")})
+            .catch(error => console.error("PWA error:", error));
+        });
+      }*/
     </script>
 </body>
 </html>
