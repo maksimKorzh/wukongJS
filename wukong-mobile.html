@@ -1,4 +1,3 @@
-```html
 <!DOCTYPE HTML>
 <html>
 <head>
@@ -442,23 +441,13 @@
       }
     </script>
     <script>
-      /*if ("serviceWorker" in navigator) {
+      if ("serviceWorker" in navigator) {
         window.addEventListener("load", () => {
           navigator.serviceWorker.register("/wukongJS/js/pwa.js")
-            .then(() => console.log("  PWA service worker registered")})
-            .catch(error => console.error("PWA error:", error));
-        });
-      }*/
-      
-      
-      if ("serviceWorker" in navigator) { alert("service worker in navigator");
-        window.addEventListener("load", () => {
-          navigator.serviceWorker.register("/wukongJS/js/pwa.js")
-            .then(() => alert("  PWA service worker registered"))
-            .catch(error => alert(error));
+            .then(() => console.log("  PWA service worker registered"))
+            .catch(error => console.error("  PWA error:", error));
         });
       }
     </script>
 </body>
 </html>
-```
