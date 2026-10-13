@@ -1895,6 +1895,11 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     return fen;
   }
   
+  // Set board side manually
+  function setSide(color) {
+    side = color;
+  }
+  
   // load move sequence
   function loadMoves(moves) {
     moves = moves.split(' ');
@@ -2239,6 +2244,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     setBoard: function(fen) { setBoard(fen); },
     generateFen: function() { return generateFen(); },
     getPiece: function(square) { return board[square]; },
+    setSide: function(color) { setSide(color); },
     getSide: function() { return side; },
     getFifty: function() { return fifty; },
     
@@ -2288,5 +2294,3 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
 
 // export as nodejs module
 if (typeof(exports) != 'undefined') exports.Engine = Engine;
-
-

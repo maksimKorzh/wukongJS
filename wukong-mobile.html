@@ -8,6 +8,12 @@
     <meta name="description" content="javascript UCI chess engine - Wukong JS by Code Monkey King">
     <meta name="keywords" content="UCI chess engine in javascript that runs in both browser and Arena GUI - Wukong JS by Code Monkey King">
     <link rel="stylesheet" href="css/bootstrap.min.css">
+    <base href="wukongJS">
+    <link rel="manifest" href="/wukongJS/manifest.json">
+    <meta name="theme-color" content="#ffffff">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <script src="js/jquery.min.js"></script>
     <script src="js/bootstrap.bundle.min.js"></script>
     <style>
@@ -248,10 +254,12 @@
         .dropdown-menu {
             max-width: calc(100vw - 20px);
         }
-        .dropdown-menu li {
+        #promotion-control .dropdown-menu li {
             display: flex;
+            flex-direction: row-reverse;
             align-items: center;
-            padding: 2px 0;
+            justify-content: flex-end;
+            padding: 2px 8px;
         }
         .dropdown-menu li img {
             flex: 0 0 auto;
@@ -340,7 +348,7 @@
             </div>
 
             <div id="promotion-control" class="dropdown">
-                <button class="btn dropdown-toggle"
+                <button class="btn"
                         type="button"
                         id="promotionDropdownButton"
                         data-toggle="dropdown"
@@ -374,6 +382,34 @@
             <button class="btn" onclick="undo();">Undo</button>
             <button class="btn" onclick="editMode ^= 1; alert('Edit mode is ' + (editMode ? 'ON' : 'OFF'));">Edit</button>
 
+            <div id="promotion-control" class="dropdown">
+                <button class="btn"
+                        type="button"
+                        id="timeDropdownButton"
+                        data-toggle="dropdown"
+                        aria-haspopup="true"
+                        aria-expanded="false">
+                        <img id="current-promoted-image" src="Images/hourglass.png">
+                </button>
+
+                <div class="dropdown-menu dropdown-menu-right text-right" aria-labelledby="timeDropdownButton">
+                    <li class="list-group-item-action mb-1" onclick="setTime(1);"><button class="btn">1s</button></li>
+                    <li class="list-group-item-action mb-1" onclick="setTime(2);"><button class="btn">2s</button></li>
+                    <li class="list-group-item-action mb-1" onclick="setTime(3);"><button class="btn">3s</button></li>
+                    <li class="list-group-item-action mb-1" onclick="setTime(4);"><button class="btn">4s</button></li>
+                    <li class="list-group-item-action mb-1" onclick="setTime(5);"><button class="btn">5s</button></li>
+                    <li class="list-group-item-action mb-1" onclick="setTime(6);"><button class="btn">6s</button></li>
+                    <li class="list-group-item-action mb-1" onclick="setTime(7);"><button class="btn">7s</button></li>
+                    <li class="list-group-item-action mb-1" onclick="setTime(8);"><button class="btn">8s</button></li>
+                    <li class="list-group-item-action mb-1" onclick="setTime(9);"><button class="btn">9s</button></li>
+                    <li class="list-group-item-action mb-1" onclick="setTime(10);"><button class="btn">10s</button></li>
+                    <li class="list-group-item-action mb-1" onclick="setTime(20);"><button class="btn">20s</button></li>
+                    <li class="list-group-item-action mb-1" onclick="setTime(30);"><button class="btn">30s</button></li>
+                    <li class="list-group-item-action mb-1" onclick="setTime(40);"><button class="btn">40s</button></li>
+                    <li class="list-group-item-action mb-1" onclick="setTime(50);"><button class="btn">50s</button></li>
+                    <li class="list-group-item-action mb-1" onclick="setTime(60);"><button class="btn">60s</button></li>
+                </div>
+            </div>
 
         </div>
 
@@ -398,7 +434,21 @@
     <script src="wukong.js"></script>
     <script src="js/bots.js"></script>
     <script src="js/play.js"></script>
-    <script>engine = new Engine(window.innerWidth-20);</script>
+    <script>
+      engine = new Engine(window.innerWidth-20);
+      function setTime(seconds) {
+        fixedTime = seconds;
+        alert(`Engine think time is set to ${seconds} seconds`);
+        console.log('Selected time:', seconds);
+      }
+      if ("serviceWorker" in navigator) {
+        window.addEventListener("load", () => {
+          navigator.serviceWorker.register("./js/pwa.js")
+            .then(() => console.log("  PWA service worker registered"))
+            .catch(error => console.error("PWA error:", error));
+        });
+      }
+    </script>
 </body>
 </html>
 ```

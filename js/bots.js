@@ -45,7 +45,7 @@ const bots = {
   
   'Wukong': {
     image: 'logo/talkchess_logo.png',
-    description: 'Song Wukong is the great sage equal to heaven, now he is also playing chess:\nhttps://github.com/maksimKorzh/wukongJS',
+    description: '',
     time: 1,
     depth: 0,
     book: [

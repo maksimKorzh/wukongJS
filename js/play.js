@@ -211,7 +211,7 @@ function think() {
 
   let timing = engine.getTimeControl();
   let startTime = new Date().getTime();
-  
+
   if (fixedTime) {
     fixedDepth = 64;
     timing.timeSet = 1;
@@ -234,32 +234,6 @@ function think() {
   let sourceSquare = engine.getMoveSource(bestMove);
   let targetSquare = engine.getMoveTarget(bestMove);
   let promotedPiece = engine.getMovePromoted(bestMove);
-
-  if (engine.isRepetition()) repetitions++;
-  if (repetitions == 3) {
-    gameResult = '1/2-1/2 Draw by 3 fold repetition';
-    updatePgn();
-    return;
-  } else if (engine.getFifty() >= 100) {
-    gameResult = '1/2-1/2 Draw by 50 rule move';
-    updatePgn();
-    return;
-  } else if (engine.isMaterialDraw()) {
-    gameResult = '1/2-1/2 Draw by insufficient material';
-    updatePgn();
-    return;
-  } else if (engine.generateLegalMoves().length == 0 && engine.inCheck()) {
-    gameResult = engine.getSide() == 0 ? '0-1 Mate' : '1-0 Mate';
-    updatePgn();
-    return;
-  } else if (guiScore == 'M1') {
-    gameResult = engine.getSide() == 0 ? '1-0 Mate' : '0-1 Mate';
-    if (!sourceSquare && !targetSquare && engine.getSide()) gameResult = '1-0 Mate';
-  } else if (engine.generateLegalMoves().length == 0 && engine.inCheck() == 0) {
-    gameResult = 'Stalemate';
-    updatePgn();
-    return;
-  }
 
   setTimeout(function() {
     engine.movePiece(sourceSquare, targetSquare, promotedPiece);
@@ -295,6 +269,7 @@ function getGamePgn() {
                 Math.round(moveTime / 1000);
     
     let nextMove = moveNumber + moveString + (moveTime ? ' {' + stats + '}' : '');
+    if (nextMove.includes('NaN')) nextMove = moveNumber + moveString + ' {0}';
     
     try {
       let displayEval = (moveDepth ? ((moveScore > 0) ? ('+' + displayScore) : displayScore): '');
@@ -310,6 +285,23 @@ function getGamePgn() {
 
 // update PGN
 function updatePgn() {
+  if (engine.isRepetition()) repetitions++;
+  if (repetitions == 3) gameResult = '1/2-1/2 Draw by 3 fold repetition';
+  else if (engine.getFifty() >= 100) gameResult = '1/2-1/2 Draw by 50 rule move';
+  else if (engine.isMaterialDraw()) gameResult = '1/2-1/2 Draw by insufficient material';
+  else {
+    let actualSide = engine.getSide();
+    engine.setSide(0);
+    if (engine.generateLegalMoves().length == 0) {
+      if (engine.inCheck(engine.getSide())) gameResult = '0-1 Mate';
+      else gameResult = '0-0 Stalemate';
+    } engine.setSide(1);
+    if (engine.generateLegalMoves().length == 0) {
+      if (engine.inCheck(engine.getSide())) gameResult = '1-0 Mate';
+      else gameResult = '0-0 Stalemate';
+    } engine.setSide(actualSide);
+  }
+
   let pgn = getGamePgn();
   let gameMoves = document.getElementById('pgn');
   
