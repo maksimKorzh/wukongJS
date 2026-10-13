@@ -1900,6 +1900,11 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     side = color;
   }
   
+  // Get board enpassant
+  function setEnpassant(sq) {
+    enpassant = sq;
+  }
+  
   // load move sequence
   function loadMoves(moves) {
     moves = moves.split(' ');
@@ -2118,10 +2123,11 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
       let moveString = coordinates[userSource] +
                        coordinates[userTarget] +
                        promotedPieces[promotedPiece];
-
+      
       engine.loadMoves(moveString);
       drawBoard();
       updateBoard();
+      return moveString;
     }
 
     // render board initially
@@ -2231,7 +2237,7 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     // GUI methods
     drawBoard: function() { try { return drawBoard(); } catch(e) { guiError('.drawBoard()'); } },
     updateBoard: function() { try { return updateBoard(); } catch(e) { guiError('.updateBoard()'); } },
-    movePiece: function(userSource, userTarget, promotedPiece) { try { movePiece(userSource, userTarget, promotedPiece); } catch(e) { guiError('.movePiece()'); } },
+    movePiece: function(userSource, userTarget, promotedPiece) { try { return movePiece(userSource, userTarget, promotedPiece); } catch(e) { guiError('.movePiece()'); } },
     flipBoard: function() { try { flipBoard(); } catch(e) { guiError('.flipBoard()'); } },
 
     // perft
@@ -2246,6 +2252,8 @@ var Engine = function(boardSize, lightSquare, darkSquare, selectColor) {
     getPiece: function(square) { return board[square]; },
     setSide: function(color) { setSide(color); },
     getSide: function() { return side; },
+    setEnpassant: function(sq) { setEnpassant(sq); },
+    getEnpassant: function() { return enpassant; },
     getFifty: function() { return fifty; },
     
     // move manipulation

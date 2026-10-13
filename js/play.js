@@ -65,7 +65,8 @@ function dropPiece(event, square) {
   promotedPiece = (engine.getSide() ? 11: 5)
   let valid = validateMove(userSource, userTarget, promotedPiece);  
   engine.movePiece(userSource, userTarget, promotedPiece);
-  if (engine.getPiece(userTarget) == 0) valid = 0;
+  let moveString = engine.movePiece(userSource, userTarget, promotedPiece);
+  if (engine.moveFromString(moveString)) valid = 0;
   clickLock = 0;
   
   if (engine.getPiece(square) && valid) {
@@ -98,8 +99,8 @@ function tapPiece(square) {
 
     promotedPiece = (engine.getSide() ? 11: 5)
     let valid = validateMove(userSource, userTarget, promotedPiece);
-    engine.movePiece(userSource, userTarget, promotedPiece);
-    if (engine.getPiece(userTarget) == 0) valid = 0;
+    let moveString = engine.movePiece(userSource, userTarget, promotedPiece);
+    if (engine.moveFromString(moveString)) valid = 0;
     clickLock = 0;
     
     if (engine.getPiece(square) && valid) {
@@ -241,7 +242,7 @@ function think() {
     engine.updateBoard();
     if (engine.getPiece(targetSquare)) {
       updatePgn();
-      engineMovePending = false;
+      
       userTime = Date.now();
       if (!sourceSquare && !targetSquare) return;
       document.getElementById(targetSquare).style.backgroundColor = engine.SELECT_COLOR;             
@@ -272,8 +273,7 @@ function getGamePgn() {
     if (nextMove.includes('NaN')) nextMove = moveNumber + moveString + ' {0}';
     
     try {
-      let displayEval = (moveDepth ? ((moveScore > 0) ? ('+' + displayScore) : displayScore): '');
-      if (displayEval.length) document.getElementById('eval').innerText = displayEval;
+      if (moveDepth) document.getElementById('eval').innerText = (((moveScore / 100) == 0) ? '0.00' : (moveScore / 100));
     } catch(e) {}
     
     pgn += nextMove + ' ';
@@ -285,21 +285,33 @@ function getGamePgn() {
 
 // update PGN
 function updatePgn() {
+  engineMovePending = false;
   if (engine.isRepetition()) repetitions++;
   if (repetitions == 3) gameResult = '1/2-1/2 Draw by 3 fold repetition';
   else if (engine.getFifty() >= 100) gameResult = '1/2-1/2 Draw by 50 rule move';
   else if (engine.isMaterialDraw()) gameResult = '1/2-1/2 Draw by insufficient material';
   else {
     let actualSide = engine.getSide();
+    let actualEnpassant = engine.getEnpassant();
+    
     engine.setSide(0);
+    if (engine.getSide() != actualSide) engine.setEnpassant(120);
+    
     if (engine.generateLegalMoves().length == 0) {
       if (engine.inCheck(engine.getSide())) gameResult = '0-1 Mate';
       else gameResult = '0-0 Stalemate';
-    } engine.setSide(1);
+    }
+    
+    engine.setSide(1);
+    if (engine.getSide() != actualSide) engine.setEnpassant(120);
+    
     if (engine.generateLegalMoves().length == 0) {
       if (engine.inCheck(engine.getSide())) gameResult = '1-0 Mate';
       else gameResult = '0-0 Stalemate';
-    } engine.setSide(actualSide);
+    }
+    
+    engine.setSide(actualSide);
+    engine.setEnpassant(actualEnpassant);
   }
 
   let pgn = getGamePgn();
