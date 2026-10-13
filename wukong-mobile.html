@@ -454,7 +454,7 @@
       if ("serviceWorker" in navigator) { alert("service worker in navigator");
         window.addEventListener("load", () => {
           navigator.serviceWorker.register("/wukongJS/js/pwa.js")
-            .then(() => alert("  PWA service worker registered")})
+            .then(() => alert("  PWA service worker registered"))
             .catch(error => alert(error));
         });
       }
