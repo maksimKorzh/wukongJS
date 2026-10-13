@@ -442,12 +442,6 @@
       }
     </script>
     <script>
-      alert(
-        "URL: " + location.href +
-        "\nSecure context: " + window.isSecureContext +
-        "\nService worker supported: " + ('serviceWorker' in navigator)
-    );
-      
       /*if ("serviceWorker" in navigator) {
         window.addEventListener("load", () => {
           navigator.serviceWorker.register("/wukongJS/js/pwa.js")
@@ -457,13 +451,13 @@
       }*/
       
       
-      /*if ("serviceWorker" in navigator) { alert("service worker in navigator");
+      if ("serviceWorker" in navigator) { alert("service worker in navigator");
         window.addEventListener("load", () => {
           navigator.serviceWorker.register("/wukongJS/js/pwa.js")
-            .then(() => console.log("  PWA service worker registered")})
-            .catch(error => console.error("PWA error:", error));
+            .then(() => alert("  PWA service worker registered")})
+            .catch(error => alert(error));
         });
-      }*/
+      }
     </script>
 </body>
 </html>
