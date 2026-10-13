@@ -14,14 +14,6 @@
     <script src="js/jquery.min.js"></script>
     <script src="js/bootstrap.bundle.min.js"></script>
     
-    <!-- Analytics -->
-    <script type="text/javascript">
-      $.post('https://maksimkorzh.pythonanywhere.com/analytics/api/post', {
-        date: new Date,
-        url: window.location.href
-      });
-    </script>
-    
   </head>
   <body style="font-family:
                monospace; font-size: 16px;
@@ -91,10 +83,11 @@
         </div>
                 
         <!-- Game controls -->
-        <button class="btn btn-outline-secondary text-dark bg-light font-weight-bold mr-1" onclick="newGame();">New</button>
-        <button class="btn btn-outline-secondary text-dark bg-light font-weight-bold mr-1" onclick="userTime = 0; think();">Move</button>
-        <button class="btn btn-outline-secondary text-dark bg-light font-weight-bold mr-1" onclick="undo();">Undo</button>
-        <button class="btn btn-outline-secondary text-dark bg-light font-weight-bold" onclick="flip()">Flip</button>
+        <button class="btn btn-sm btn-outline-secondary text-dark bg-light font-weight-bold mr-1" onclick="newGame();">New</button>
+        <button class="btn btn-sm btn-outline-secondary text-dark bg-light font-weight-bold mr-1" onclick="userTime = 0; think();">Move</button>
+        <button class="btn btn-sm btn-outline-secondary text-dark bg-light font-weight-bold mr-1" onclick="editMode ^= 1; alert('Edit mode is ' + (editMode ? 'ON' : 'OFF'));">Edit</button>
+        <button class="btn btn-sm btn-outline-secondary text-dark bg-light font-weight-bold mr-1" onclick="undo();">Undo</button>
+        <button class="btn btn-sm btn-outline-secondary text-dark bg-light font-weight-bold" onclick="flip()">Flip</button>
         
         <!-- Pawn promotin -->
         <div class="dropdown ml-1">
