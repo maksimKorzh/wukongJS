@@ -270,10 +270,13 @@ function getGamePgn() {
                 Math.round(moveTime / 1000);
     
     let nextMove = moveNumber + moveString + (moveTime ? ' {' + stats + '}' : '');
-    if (nextMove.includes('NaN')) nextMove = moveNumber + moveString + ' {0}';
+    if (nextMove.includes('NaN')) nextMove = moveNumber + moveString + ` {${moveScore}}`;
     
     try {
-      if (moveDepth) document.getElementById('eval').innerText = (((moveScore / 100) == 0) ? '0.00' : (moveScore / 100));
+      displayScore = (((moveScore / 100) == 0) ? '0.00' : (moveScore / 100));
+      try { if (moveStack[index].score.includes('M')) displayScore = moveStack[index].score; }
+      catch(e) {}
+      if (moveDepth) document.getElementById('eval').innerText = `Eval: ${displayScore} | Depth: ${moveDepth}`;
     } catch(e) {}
     
     pgn += nextMove + ' ';
