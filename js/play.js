@@ -205,7 +205,7 @@ function getBookMove() {
 
 // engine move
 function think() {
-  if (engine.inCheck(guiSide) || engineMovePending) return;
+  if (engineMovePending) return;
   
   engineMovePending = true;
   engine.resetTimeControl();
