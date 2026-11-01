@@ -4,7 +4,7 @@
     "description": "Javascript Chess Engine",
     "start_url": "/wukongJS/wukong-mobile.html",
     "display": "standalone",
-    "background_color": "#f3f3f3",
+    "background_color": "#ffffff",
     "theme_color": "#ffffff",
     "orientation": "portrait",
     "icons": [
