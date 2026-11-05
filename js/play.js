@@ -241,13 +241,11 @@ function think() {
     engine.drawBoard();
     engine.updateBoard();
     if (engine.getPiece(targetSquare)) {
-      updatePgn();
-      
       userTime = Date.now();
       if (!sourceSquare && !targetSquare) return;
       document.getElementById(targetSquare).style.backgroundColor = engine.SELECT_COLOR;             
       playSound(bestMove);
-    }
+    } updatePgn();
   
   }, delayMove + (guiTime < 100 && delayMove == 0) ? 1000 : ((guiDepth == 0) ? 500 : 100));
 }
