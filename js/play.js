@@ -246,8 +246,8 @@ function think() {
       document.getElementById(targetSquare).style.backgroundColor = engine.SELECT_COLOR;             
       playSound(bestMove);
     } updatePgn();
-  
   }, delayMove + (guiTime < 100 && delayMove == 0) ? 1000 : ((guiDepth == 0) ? 500 : 100));
+  updatePgn();
 }
 
 function getGamePgn() {
